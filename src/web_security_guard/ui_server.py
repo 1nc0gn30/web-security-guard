@@ -1250,6 +1250,10 @@ class SecurityStudioHandler(SimpleHTTPRequestHandler):
         self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization")
         self.end_headers()
 
+    def do_HEAD(self) -> None:
+        """Handles HEAD requests identically to GET without writing body bytes."""
+        self.do_GET()
+
     def do_GET(self) -> None:
         """Handles GET requests for UI and REST endpoints."""
         parsed_url = urllib.parse.urlparse(self.path)

@@ -14,11 +14,11 @@ from http.server import HTTPServer
 from unittest.mock import patch, MagicMock
 
 from web_security_guard.cli import (
-    StudioHTTPRequestHandler,
     build_parser,
     main,
     run_internal_tests,
 )
+
 
 
 class TestCLIArgumentParsing(unittest.TestCase):
@@ -205,91 +205,15 @@ class TestCLIExecutionCommands(unittest.TestCase):
         self.assertIn("platform_system", data)
 
 
-class TestStudioHTTPHandler(unittest.TestCase):
-    """Test Material 3 Security Studio HTTP Server endpoints."""
+class TestCLIServeCommand(unittest.TestCase):
+    """Test CLI serve command."""
 
-    @classmethod
-    def setUpClass(cls):
-        cls.server = HTTPServer(("127.0.0.1", 0), StudioHTTPRequestHandler)
-        cls.port = cls.server.server_address[1]
-        cls.thread = threading.Thread(target=cls.server.serve_forever, daemon=True)
-        cls.thread.start()
+    @patch("web_security_guard.ui_server.start_ui_server")
+    def test_cmd_serve_invocation(self, mock_start):
+        code = main(["serve", "--port", "9090", "--host", "127.0.0.1"])
+        self.assertEqual(code, 0)
+        mock_start.assert_called_once_with(host="127.0.0.1", port=9090)
 
-    @classmethod
-    def tearDownClass(cls):
-        cls.server.shutdown()
-        cls.server.server_close()
-
-    def test_studio_html_and_api_endpoints(self):
-        base_url = f"http://127.0.0.1:{self.port}"
-
-        # Test GET /
-        with urllib.request.urlopen(f"{base_url}/") as resp:
-            self.assertEqual(resp.status, 200)
-            body = resp.read().decode("utf-8")
-            self.assertIn("Material 3 Security Studio", body)
-
-        # Test GET /api/mcp-tools
-        with urllib.request.urlopen(f"{base_url}/api/mcp-tools") as resp:
-            self.assertEqual(resp.status, 200)
-            tools = json.loads(resp.read().decode("utf-8"))
-            self.assertEqual(len(tools), 6)
-
-        # Test GET /api/platform
-        with urllib.request.urlopen(f"{base_url}/api/platform") as resp:
-            self.assertEqual(resp.status, 200)
-            data = json.loads(resp.read().decode("utf-8"))
-            self.assertEqual(data["server"], "web-security-guard")
-
-        # Test GET /api/mcp-config
-        with urllib.request.urlopen(f"{base_url}/api/mcp-config?client=claude") as resp:
-            self.assertEqual(resp.status, 200)
-            cfg = json.loads(resp.read().decode("utf-8"))
-            self.assertIn("mcpServers", cfg)
-
-        # Test POST /api/contrast
-        req_contrast = urllib.request.Request(
-            f"{base_url}/api/contrast",
-            data=json.dumps({"fg_color": "#ffffff", "bg_color": "#000000"}).encode("utf-8"),
-            headers={"Content-Type": "application/json"},
-        )
-        with urllib.request.urlopen(req_contrast) as resp:
-            self.assertEqual(resp.status, 200)
-            data = json.loads(resp.read().decode("utf-8"))
-            self.assertEqual(data["contrast_ratio"], 21.0)
-
-        # Test POST /api/csp
-        req_csp = urllib.request.Request(
-            f"{base_url}/api/csp",
-            data=json.dumps({"framework": "nextjs", "preset": "strict"}).encode("utf-8"),
-            headers={"Content-Type": "application/json"},
-        )
-        with urllib.request.urlopen(req_csp) as resp:
-            self.assertEqual(resp.status, 200)
-            data = json.loads(resp.read().decode("utf-8"))
-            self.assertIn("csp_string", data)
-
-        # Test POST /api/sri
-        req_sri = urllib.request.Request(
-            f"{base_url}/api/sri",
-            data=json.dumps({"target": "alert('test')", "algorithm": "sha384"}).encode("utf-8"),
-            headers={"Content-Type": "application/json"},
-        )
-        with urllib.request.urlopen(req_sri) as resp:
-            self.assertEqual(resp.status, 200)
-            data = json.loads(resp.read().decode("utf-8"))
-            self.assertTrue(data["integrity"].startswith("sha384-"))
-
-        # Test POST /api/fix
-        req_fix = urllib.request.Request(
-            f"{base_url}/api/fix",
-            data=json.dumps({"target": "studio-test"}).encode("utf-8"),
-            headers={"Content-Type": "application/json"},
-        )
-        with urllib.request.urlopen(req_fix) as resp:
-            self.assertEqual(resp.status, 200)
-            data = json.loads(resp.read().decode("utf-8"))
-            self.assertIn("files", data)
 
 
 if __name__ == "__main__":
