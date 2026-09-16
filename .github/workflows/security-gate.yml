@@ -1,0 +1,50 @@
+name: Security Gate & Compliance
+
+on:
+  pull_request:
+    branches: [main, master]
+  schedule:
+    - cron: "0 4 * * 1"  # Every Monday at 04:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  audit-gate:
+    name: Security Gate Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install bandit pip-audit
+
+      - name: Run Bandit AST Security Scan
+        run: |
+          bandit -r src/ -ll -ii
+
+      - name: Run Dependency Vulnerability Audit
+        run: |
+          pip-audit || true
+
+      - name: Verify Hardening Examples Syntax
+        env:
+          PYTHONPATH: src
+        run: |
+          python -c "
+          import json, glob
+          for jf in glob.glob('examples/**/*.json', recursive=True):
+              with open(jf) as f:
+                  json.load(f)
+              print(f'✅ Valid JSON: {jf}')
+          "

@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "web-security-guard": {
+      "command": "uvx",
+      "args": ["web-security-guard", "mcp"],
+      "disabled": false,
+      "autoApprove": [
+        "audit_url",
+        "generate_csp",
+        "calculate_sri",
+        "calculate_contrast"
+      ]
+    }
+  }
+}

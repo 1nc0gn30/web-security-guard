@@ -1,0 +1,10 @@
+{
+  "context_servers": {
+    "web-security-guard": {
+      "command": {
+        "path": "uvx",
+        "args": ["web-security-guard", "mcp"]
+      }
+    }
+  }
+}

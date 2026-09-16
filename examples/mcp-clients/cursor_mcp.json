@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "web-security-guard": {
+      "command": "python",
+      "args": ["-m", "web_security_guard.mcp_server"]
+    }
+  }
+}

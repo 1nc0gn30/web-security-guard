@@ -1,0 +1,1546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Google Security Studio — Web Security Guard</title>
+  <style>
+    /* Google Material 3 Light Mode CSS Design System (Zero External Dependencies) */
+    :root {
+      --g-blue: #1a73e8;
+      --g-blue-hover: #1557b0;
+      --g-blue-light: #e8f0fe;
+      --g-green: #1e8e3e;
+      --g-green-light: #e6f4ea;
+      --g-yellow: #f9ab00;
+      --g-yellow-dark: #b06000;
+      --g-yellow-light: #fef7e0;
+      --g-red: #d93025;
+      --g-red-light: #fce8e6;
+      --g-purple: #9334e6;
+      --g-purple-light: #f3e8fd;
+      
+      --dot-blue: #4285F4;
+      --dot-red: #EA4335;
+      --dot-yellow: #FBBC05;
+      --dot-green: #34A853;
+
+      --bg-canvas: #f8f9fa;
+      --bg-surface: #ffffff;
+      --bg-subtle: #f1f3f4;
+      --bg-hover: #f1f3f4;
+      --border: #dadce0;
+      --border-subtle: #e8eaed;
+      --text-primary: #202124;
+      --text-secondary: #5f6368;
+      --text-tertiary: #80868b;
+      
+      --shadow-1: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
+      --shadow-2: 0 1px 3px 0 rgba(60,64,67,0.3), 0 4px 8px 3px rgba(60,64,67,0.15);
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --radius-pill: 9999px;
+      --font-family: -apple-system, BlinkMacSystemFont, "Google Sans", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-family);
+      background-color: var(--bg-canvas);
+      color: var(--text-primary);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Top App Bar */
+    header.app-bar {
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border);
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .google-dots {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+    }
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .dot.blue { background: var(--dot-blue); }
+    .dot.red { background: var(--dot-red); }
+    .dot.yellow { background: var(--dot-yellow); }
+    .dot.green { background: var(--dot-green); }
+
+    .brand-title {
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--text-primary);
+      letter-spacing: -0.2px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge-v {
+      font-size: 11px;
+      background: var(--g-blue-light);
+      color: var(--g-blue);
+      padding: 2px 8px;
+      border-radius: var(--radius-pill);
+      font-weight: 600;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* Navigation Tabs */
+    nav.tab-bar {
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      padding: 0 24px;
+      overflow-x: auto;
+      gap: 8px;
+    }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      padding: 14px 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 3px solid transparent;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .tab-btn:hover { color: var(--text-primary); background: var(--bg-hover); }
+    .tab-btn.active {
+      color: var(--g-blue);
+      border-bottom-color: var(--g-blue);
+      font-weight: 600;
+    }
+
+    /* Main Container */
+    main.container {
+      max-width: 1280px;
+      margin: 24px auto;
+      padding: 0 24px 64px 24px;
+    }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; animation: fadeIn 0.2s ease-in; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Cards */
+    .card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .card-title {
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 8px 18px;
+      border-radius: var(--radius-pill);
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.15s ease-in-out;
+      text-decoration: none;
+    }
+
+    .btn-primary { background: var(--g-blue); color: #fff; }
+    .btn-primary:hover { background: var(--g-blue-hover); box-shadow: var(--shadow-1); }
+    
+    .btn-outlined { background: transparent; border-color: var(--border); color: var(--g-blue); }
+    .btn-outlined:hover { background: var(--g-blue-light); border-color: var(--g-blue); }
+
+    .btn-tonal { background: var(--g-blue-light); color: var(--g-blue); }
+    .btn-tonal:hover { background: #d2e3fc; }
+
+    .btn-success { background: var(--g-green); color: #fff; }
+    .btn-success:hover { background: #187733; }
+
+    .btn-sm { font-size: 12px; padding: 4px 12px; }
+
+    /* Inputs */
+    .form-group { margin-bottom: 16px; }
+    .form-label { display: block; font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 6px; }
+    
+    .input-text, .select-box, .textarea-box {
+      width: 100%;
+      font-family: inherit;
+      font-size: 14px;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background: var(--bg-surface);
+      color: var(--text-primary);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .input-text:focus, .select-box:focus, .textarea-box:focus {
+      border-color: var(--g-blue);
+      box-shadow: 0 0 0 2px var(--g-blue-light);
+    }
+    .textarea-box { font-family: monospace; font-size: 13px; resize: vertical; min-height: 100px; }
+
+    /* Search Bar with Presets */
+    .search-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .search-row .input-text { flex: 1; font-size: 15px; padding: 12px 16px; }
+
+    .chips-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .chip {
+      font-size: 12px;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      padding: 4px 12px;
+      border-radius: var(--radius-pill);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .chip:hover { background: var(--g-blue-light); color: var(--g-blue); border-color: var(--g-blue); }
+
+    /* Score Gauge Component */
+    .gauge-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 32px;
+      padding: 24px;
+      background: linear-gradient(180deg, #ffffff 0%, var(--bg-subtle) 100%);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      margin-bottom: 24px;
+    }
+
+    .gauge-svg { width: 140px; height: 140px; transform: rotate(-90deg); }
+    .gauge-bg { fill: none; stroke: var(--border); stroke-width: 12; }
+    .gauge-val {
+      fill: none;
+      stroke: var(--g-green);
+      stroke-width: 12;
+      stroke-linecap: round;
+      stroke-dasharray: 377;
+      stroke-dashoffset: 60;
+      transition: stroke-dashoffset 0.8s ease, stroke 0.4s;
+    }
+
+    .gauge-text {
+      position: absolute;
+      text-align: center;
+      transform: rotate(90deg);
+      transform-origin: center;
+    }
+    .grade-badge { font-size: 36px; font-weight: 700; line-height: 1; }
+    .grade-score { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
+
+    .gauge-meta {
+      flex: 1;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 16px;
+    }
+    .meta-box {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+    }
+    .meta-val { font-size: 20px; font-weight: 600; color: var(--text-primary); }
+    .meta-lbl { font-size: 12px; color: var(--text-secondary); }
+
+    /* Results Grid */
+    .audit-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .finding-item {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      margin-bottom: 8px;
+    }
+    .finding-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .finding-name { font-weight: 600; font-size: 14px; }
+    .status-badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: var(--radius-pill);
+      text-transform: uppercase;
+    }
+    .status-badge.pass { background: var(--g-green-light); color: var(--g-green); }
+    .status-badge.partial { background: var(--g-yellow-light); color: var(--g-yellow-dark); }
+    .status-badge.fail { background: var(--g-red-light); color: var(--g-red); }
+
+    .finding-desc { font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; }
+    .finding-code {
+      font-family: monospace;
+      font-size: 11px;
+      background: var(--bg-subtle);
+      padding: 6px 10px;
+      border-radius: var(--radius-sm);
+      word-break: break-all;
+      color: #174ea6;
+    }
+
+    /* Dark Patterns / Risks Box */
+    .alert-banner {
+      border-left: 4px solid var(--g-red);
+      background: var(--g-red-light);
+      padding: 16px;
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      margin-bottom: 20px;
+    }
+    .alert-title { font-size: 14px; font-weight: 600; color: #b31412; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+    .alert-body { font-size: 13px; color: #5f2120; }
+
+    /* Code Blocks */
+    .code-container {
+      position: relative;
+      background: #202124;
+      color: #e8eaed;
+      border-radius: var(--radius-md);
+      padding: 16px;
+      font-family: monospace;
+      font-size: 13px;
+      overflow-x: auto;
+      margin-top: 8px;
+      line-height: 1.4;
+    }
+    .copy-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.25);
+      color: #fff;
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+    }
+    .copy-btn:hover { background: rgba(255,255,255,0.3); }
+
+    /* Sub Tabs (Frameworks) */
+    .subtabs {
+      display: flex;
+      gap: 4px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 16px;
+      overflow-x: auto;
+    }
+    .subtab-btn {
+      background: none;
+      border: none;
+      font-family: inherit;
+      font-size: 13px;
+      padding: 8px 14px;
+      cursor: pointer;
+      color: var(--text-secondary);
+      border-bottom: 2px solid transparent;
+      white-space: nowrap;
+    }
+    .subtab-btn.active {
+      color: var(--g-blue);
+      border-bottom-color: var(--g-blue);
+      font-weight: 600;
+    }
+
+    /* WCAG Visual Box */
+    .wcag-preview-box {
+      border: 2px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      text-align: center;
+      margin-bottom: 20px;
+      transition: all 0.2s;
+    }
+    .wcag-metric-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .wcag-badge-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      text-align: center;
+    }
+    .wcag-badge-card.pass { border-color: var(--g-green); background: var(--g-green-light); }
+    .wcag-badge-card.fail { border-color: var(--g-red); background: var(--g-red-light); }
+
+    /* Color blindness simulator grid */
+    .cb-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+    .cb-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      background: var(--bg-surface);
+    }
+    .cb-preview-swatch {
+      height: 60px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+
+    /* Table styling */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .data-table th {
+      background: var(--bg-subtle);
+      text-align: left;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      font-weight: 600;
+    }
+    .data-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    /* Switches */
+    .switch-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .switch-label { font-size: 13px; font-weight: 500; }
+    .switch-desc { font-size: 11px; color: var(--text-secondary); }
+
+    /* Footer */
+    footer.app-footer {
+      border-top: 1px solid var(--border);
+      background: var(--bg-surface);
+      padding: 24px;
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 48px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top App Bar with Google Dots -->
+  <header class="app-bar">
+    <div class="brand">
+      <div class="google-dots">
+        <span class="dot blue"></span>
+        <span class="dot red"></span>
+        <span class="dot yellow"></span>
+        <span class="dot green"></span>
+      </div>
+      <div class="brand-title">
+        Google Security Studio
+        <span class="badge-v">v1.0.0</span>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-tonal btn-sm" onclick="switchTab('tab-mcp')">🤖 MCP Server</button>
+      <a href="/api/export-zip" class="btn btn-primary btn-sm">⚡ Download Configs (.ZIP)</a>
+    </div>
+  </header>
+
+  <!-- Navigation Tab Bar -->
+  <nav class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('tab-auditor')">🛡️ Live Site Auditor</button>
+    <button class="tab-btn" onclick="switchTab('tab-csp')">🔒 CSP Level 3 Builder</button>
+    <button class="tab-btn" onclick="switchTab('tab-sri')">🧬 SRI Hasher & Injector</button>
+    <button class="tab-btn" onclick="switchTab('tab-wcag')">🎨 WCAG 2.2 Contrast</button>
+    <button class="tab-btn" onclick="switchTab('tab-mcp')">🤖 AI Agent & MCP Hub</button>
+    <button class="tab-btn" onclick="switchTab('tab-exporter')">⚡ Hardening Exporter</button>
+    <button class="tab-btn" onclick="switchTab('tab-guide')">📖 Best Practices</button>
+    <button class="tab-btn" onclick="switchTab('tab-cli')">🔌 CLI & SDK</button>
+  </nav>
+
+  <!-- Main Container -->
+  <main class="container">
+
+    <!-- =================================================================== -->
+    <!-- TAB 1: Live Site Auditor -->
+    <!-- =================================================================== -->
+    <div id="tab-auditor" class="tab-content active">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">🛡️ Multi-Vector Security Header & Posture Auditor</h2>
+            <p class="card-desc">Audit live URLs or inspect headers against Google Security & OWASP Top 10 standards.</p>
+          </div>
+        </div>
+
+        <div class="search-row">
+          <input type="text" id="audit-url-input" class="input-text" placeholder="Enter target domain or URL (e.g. https://google.com)" value="https://google.com">
+          <button class="btn btn-primary" id="btn-run-audit" onclick="runLiveAudit()">Scan Security Posture</button>
+        </div>
+
+        <div class="chips-row">
+          <span style="font-size: 12px; color: var(--text-tertiary); font-weight: 500;">Presets:</span>
+          <span class="chip" onclick="setAuditUrl('https://google.com')">google.com</span>
+          <span class="chip" onclick="setAuditUrl('https://github.com')">github.com</span>
+          <span class="chip" onclick="setAuditUrl('https://cloudflare.com')">cloudflare.com</span>
+          <span class="chip" onclick="setAuditUrl('https://example.com')">example.com</span>
+          <span class="chip" onclick="setAuditUrl('http://localhost:8080')">localhost:8080</span>
+        </div>
+
+        <!-- Score Gauge & Overview -->
+        <div class="gauge-wrapper" id="gauge-container">
+          <div style="position: relative; width: 140px; height: 140px;">
+            <svg class="gauge-svg" viewBox="0 0 140 140">
+              <circle class="gauge-bg" cx="70" cy="70" r="60"></circle>
+              <circle class="gauge-val" id="gauge-circle" cx="70" cy="70" r="60"></circle>
+            </svg>
+            <div class="gauge-text" style="position: absolute; top: 0; left: 0; width: 140px; height: 140px; display: flex; flex-direction: column; align-items: center; justify-content: center; transform: none;">
+              <div class="grade-badge" id="gauge-grade" style="color: var(--g-green);">A</div>
+              <div class="grade-score" id="gauge-score">85 / 100</div>
+            </div>
+          </div>
+
+          <div class="gauge-meta">
+            <div class="meta-box">
+              <div class="meta-val" id="meta-passed" style="color: var(--g-green);">7</div>
+              <div class="meta-lbl">Passed Vectors</div>
+            </div>
+            <div class="meta-box">
+              <div class="meta-val" id="meta-partial" style="color: var(--g-yellow-dark);">1</div>
+              <div class="meta-lbl">Warnings / Partial</div>
+            </div>
+            <div class="meta-box">
+              <div class="meta-val" id="meta-failed" style="color: var(--g-red);">2</div>
+              <div class="meta-lbl">Critical Missing</div>
+            </div>
+            <div class="meta-box">
+              <div class="meta-val" id="meta-cookies" style="color: var(--g-purple);">0</div>
+              <div class="meta-lbl">Cookies Evaluated</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dark Pattern & Risk Alerts -->
+        <div id="dark-patterns-box"></div>
+
+        <!-- Category Findings -->
+        <div class="audit-grid" id="audit-categories-grid">
+          <!-- Dynamic category boxes -->
+        </div>
+
+        <!-- Cookie Analysis Table -->
+        <div id="cookies-section" style="margin-top: 24px; display: none;">
+          <h3 style="font-size: 16px; margin-bottom: 12px;">🍪 Cookie Security Analysis</h3>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Cookie Name</th>
+                <th>Secure</th>
+                <th>HttpOnly</th>
+                <th>SameSite</th>
+                <th>Prefixes</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="cookies-tbody"></tbody>
+          </table>
+        </div>
+
+        <!-- 1-Click Fix Section -->
+        <div class="card" style="margin-top: 24px; background: var(--bg-subtle);">
+          <div class="card-header">
+            <div>
+              <h3 style="font-size: 16px;">⚡ 1-Click Remediation Snippets</h3>
+              <p class="card-desc">Ready-to-deploy configs to fix all detected missing headers instantly.</p>
+            </div>
+          </div>
+          <div class="subtabs">
+            <button class="subtab-btn active" onclick="switchRemediateTab('rem-nginx', this)">Nginx</button>
+            <button class="subtab-btn" onclick="switchRemediateTab('rem-vercel', this)">Vercel</button>
+            <button class="subtab-btn" onclick="switchRemediateTab('rem-netlify', this)">Netlify</button>
+            <button class="subtab-btn" onclick="switchRemediateTab('rem-nextjs', this)">Next.js App Router</button>
+            <button class="subtab-btn" onclick="switchRemediateTab('rem-apache', this)">Apache</button>
+          </div>
+          <div id="rem-code-box" class="code-container">
+            <button class="copy-btn" onclick="copySnippet('rem-code')">Copy</button>
+            <pre><code id="rem-code">Loading remediation config...</code></pre>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- =================================================================== -->
+    <!-- TAB 2: CSP Level 3 Policy Builder -->
+    <!-- =================================================================== -->
+    <div id="tab-csp" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">🔒 CSP Level 3 Policy Builder & Framework Exporter</h2>
+            <p class="card-desc">Construct rock-solid Content Security Policies with 'strict-dynamic' and cryptographic nonces.</p>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn btn-tonal btn-sm" onclick="applyCspPreset('strict_nonce')">Strict Nonce (Recommended)</button>
+            <button class="btn btn-tonal btn-sm" onclick="applyCspPreset('strict')">Strict Zero-Trust</button>
+            <button class="btn btn-tonal btn-sm" onclick="applyCspPreset('spa')">SPA / Vite</button>
+            <button class="btn btn-tonal btn-sm" onclick="applyCspPreset('api')">API / Headless</button>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+          <!-- Controls Column -->
+          <div>
+            <div class="switch-row">
+              <div>
+                <div class="switch-label">'strict-dynamic' Execution</div>
+                <div class="switch-desc">Allows trusted scripts to load trusted dependencies dynamically.</div>
+              </div>
+              <input type="checkbox" id="csp-strict-dynamic" checked onchange="updateCSP()">
+            </div>
+            <div class="switch-row">
+              <div>
+                <div class="switch-label">Upgrade Insecure Requests</div>
+                <div class="switch-desc">Forces all HTTP resource URLs to HTTPS.</div>
+              </div>
+              <input type="checkbox" id="csp-upgrade-insecure" checked onchange="updateCSP()">
+            </div>
+            <div class="switch-row">
+              <div>
+                <div class="switch-label">Block All Mixed Content</div>
+                <div class="switch-desc">Strictly forbids HTTP assets on HTTPS pages.</div>
+              </div>
+              <input type="checkbox" id="csp-block-mixed" checked onchange="updateCSP()">
+            </div>
+            <div class="switch-row">
+              <div>
+                <div class="switch-label">Allow 'unsafe-eval'</div>
+                <div class="switch-desc">Required for legacy Webpack/eval runtime (Not recommended).</div>
+              </div>
+              <input type="checkbox" id="csp-allow-eval" onchange="updateCSP()">
+            </div>
+
+            <div class="form-group" style="margin-top: 16px;">
+              <label class="form-label">Cryptographic Nonce Token</label>
+              <div style="display: flex; gap: 8px;">
+                <input type="text" id="csp-nonce-input" class="input-text" value="rAnd0m1234==" oninput="updateCSP()">
+                <button class="btn btn-tonal btn-sm" onclick="generateRandomNonce()">Regenerate</button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Report Endpoint (report-uri / report-to)</label>
+              <input type="text" id="csp-report-uri" class="input-text" placeholder="https://api.yourdomain.com/csp-report" oninput="updateCSP()">
+            </div>
+          </div>
+
+          <!-- Live Output Column -->
+          <div>
+            <label class="form-label">Generated CSP Level 3 Policy Header</label>
+            <div class="code-container" style="min-height: 180px;">
+              <button class="copy-btn" onclick="copySnippet('csp-output-raw')">Copy CSP</button>
+              <pre><code id="csp-output-raw">Loading CSP...</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- Framework Deployment Export Tabs -->
+        <div style="margin-top: 32px;">
+          <h3 style="font-size: 16px; margin-bottom: 12px;">🚀 Multi-Platform Deployment Snippets</h3>
+          <div class="subtabs">
+            <button class="subtab-btn active" onclick="switchCspExportTab('csp-nextjs', this)">Next.js 14/15 App Router</button>
+            <button class="subtab-btn" onclick="switchCspExportTab('csp-nginx', this)">Nginx</button>
+            <button class="subtab-btn" onclick="switchCspExportTab('csp-vercel', this)">Vercel (vercel.json)</button>
+            <button class="subtab-btn" onclick="switchCspExportTab('csp-netlify', this)">Netlify (netlify.toml)</button>
+            <button class="subtab-btn" onclick="switchCspExportTab('csp-cloudflare', this)">Cloudflare Workers</button>
+            <button class="subtab-btn" onclick="switchCspExportTab('csp-apache', this)">Apache (.htaccess)</button>
+            <button class="subtab-btn" onclick="switchCspExportTab('csp-express', this)">Express.js (Helmet)</button>
+            <button class="subtab-btn" onclick="switchCspExportTab('csp-meta', this)">HTML Meta Tag</button>
+          </div>
+
+          <div class="code-container">
+            <button class="copy-btn" onclick="copySnippet('csp-framework-code')">Copy Snippet</button>
+            <pre><code id="csp-framework-code">Select a framework tab to view deployment config.</code></pre>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- =================================================================== -->
+    <!-- TAB 3: SRI Hasher & Injector -->
+    <!-- =================================================================== -->
+    <div id="tab-sri" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">🧬 Subresource Integrity (SRI) Hasher & HTML Injector</h2>
+            <p class="card-desc">Calculate SHA-256, SHA-384, and SHA-512 hashes and automatically inject integrity attributes into HTML.</p>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+          <!-- Hash Asset -->
+          <div>
+            <h3 style="font-size: 15px; margin-bottom: 8px;">Single Asset Hasher</h3>
+            <div class="form-group">
+              <label class="form-label">Asset URL or Raw Script/CSS Content</label>
+              <textarea id="sri-input-content" class="textarea-box" placeholder="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js or paste script code here..."></textarea>
+            </div>
+            <button class="btn btn-primary" onclick="computeSRI()">Compute SRI Hashes</button>
+
+            <div style="margin-top: 16px;" id="sri-results-box">
+              <div class="form-group">
+                <label class="form-label">SHA-384 (Recommended Standard)</label>
+                <input type="text" id="sri-res-sha384" class="input-text" readonly>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Ready-to-use HTML Tag</label>
+                <div class="code-container">
+                  <button class="copy-btn" onclick="copySnippet('sri-res-tag')">Copy</button>
+                  <pre><code id="sri-res-tag">&lt;script src="..." integrity="..." crossorigin="anonymous"&gt;&lt;/script&gt;</code></pre>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- HTML Batch Injector -->
+          <div>
+            <h3 style="font-size: 15px; margin-bottom: 8px;">HTML Batch Tag Injector</h3>
+            <div class="form-group">
+              <label class="form-label">Input HTML Document</label>
+              <textarea id="sri-html-input" class="textarea-box" style="height: 140px;"><!-- Sample HTML -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</textarea>
+            </div>
+            <button class="btn btn-tonal" onclick="injectSRI()">Inject Integrity & Crossorigin</button>
+
+            <div style="margin-top: 16px;">
+              <label class="form-label">Hardened HTML Output</label>
+              <div class="code-container" style="height: 150px;">
+                <button class="copy-btn" onclick="copySnippet('sri-html-output')">Copy</button>
+                <pre><code id="sri-html-output">Injected HTML will appear here...</code></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- =================================================================== -->
+    <!-- TAB 4: WCAG 2.2 Contrast Calculator -->
+    <!-- =================================================================== -->
+    <div id="tab-wcag" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">🎨 WCAG 2.2 Color Contrast & Accessibility Engine</h2>
+            <p class="card-desc">Real-time relative luminance calculation, AA/AAA compliance validation, and color vision deficiency simulation.</p>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
+          <!-- Controls -->
+          <div>
+            <div class="form-group">
+              <label class="form-label">Foreground (Text) Color</label>
+              <div style="display: flex; gap: 12px; align-items: center;">
+                <input type="color" id="wcag-fg-picker" value="#1a73e8" oninput="syncColorFromPicker('fg')" style="width: 48px; height: 40px; border: none; cursor: pointer;">
+                <input type="text" id="wcag-fg-text" class="input-text" value="#1a73e8" oninput="syncColorFromText('fg')">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Background Color</label>
+              <div style="display: flex; gap: 12px; align-items: center;">
+                <input type="color" id="wcag-bg-picker" value="#ffffff" oninput="syncColorFromPicker('bg')" style="width: 48px; height: 40px; border: none; cursor: pointer;">
+                <input type="text" id="wcag-bg-text" class="input-text" value="#ffffff" oninput="syncColorFromText('bg')">
+              </div>
+            </div>
+
+            <div class="chips-row">
+              <span style="font-size: 12px; color: var(--text-tertiary);">Palettes:</span>
+              <span class="chip" onclick="setContrastPalette('#1a73e8', '#ffffff')">Google Blue on White</span>
+              <span class="chip" onclick="setContrastPalette('#1e8e3e', '#ffffff')">Google Green on White</span>
+              <span class="chip" onclick="setContrastPalette('#d93025', '#ffffff')">Google Red on White</span>
+              <span class="chip" onclick="setContrastPalette('#202124', '#f8f9fa')">Dark Grey on Light</span>
+              <span class="chip" onclick="setContrastPalette('#ffffff', '#202124')">White on Dark</span>
+            </div>
+          </div>
+
+          <!-- Live Preview Box -->
+          <div>
+            <div id="wcag-preview-box" class="wcag-preview-box" style="background-color: #ffffff; color: #1a73e8;">
+              <h3 style="font-size: 24px; font-weight: 600; margin-bottom: 8px;">Large Heading Text (24px)</h3>
+              <p style="font-size: 15px; margin-bottom: 16px;">This is normal body text (15px) demonstrating contrast legibility in your selected color scheme.</p>
+              <button class="btn btn-primary" style="background-color: #1a73e8; color: #ffffff; border: none;">UI Button Element</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Metric Badges Row -->
+        <div class="wcag-metric-row">
+          <div class="wcag-badge-card" id="badge-ratio">
+            <div style="font-size: 28px; font-weight: 700; color: var(--g-blue);" id="wcag-ratio-val">4.52 : 1</div>
+            <div style="font-size: 12px; color: var(--text-secondary);">Contrast Ratio</div>
+          </div>
+          <div class="wcag-badge-card pass" id="badge-aa-normal">
+            <div style="font-size: 18px; font-weight: 600;" id="txt-aa-normal">PASS</div>
+            <div style="font-size: 12px; color: var(--text-secondary);">WCAG AA Normal Text (≥ 4.5:1)</div>
+          </div>
+          <div class="wcag-badge-card pass" id="badge-aa-large">
+            <div style="font-size: 18px; font-weight: 600;" id="txt-aa-large">PASS</div>
+            <div style="font-size: 12px; color: var(--text-secondary);">WCAG AA Large Text (≥ 3.0:1)</div>
+          </div>
+          <div class="wcag-badge-card pass" id="badge-aa-ui">
+            <div style="font-size: 18px; font-weight: 600;" id="txt-aa-ui">PASS</div>
+            <div style="font-size: 12px; color: var(--text-secondary);">WCAG AA UI Components (≥ 3.0:1)</div>
+          </div>
+          <div class="wcag-badge-card fail" id="badge-aaa-normal">
+            <div style="font-size: 18px; font-weight: 600;" id="txt-aaa-normal">FAIL</div>
+            <div style="font-size: 12px; color: var(--text-secondary);">WCAG AAA Normal Text (≥ 7.0:1)</div>
+          </div>
+        </div>
+
+        <!-- Color Blindness Simulation Grid -->
+        <h3 style="font-size: 16px; margin: 24px 0 12px 0;">👁️ Color Vision Deficiency Simulation</h3>
+        <div class="cb-grid" id="cb-grid-container">
+          <!-- Dynamic simulation cards -->
+        </div>
+
+      </div>
+    </div>
+
+    <!-- =================================================================== -->
+    <!-- TAB 5: AI Agent & MCP Hub -->
+    <!-- =================================================================== -->
+    <div id="tab-mcp" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">🤖 AI Agent & Model Context Protocol (MCP) Hub</h2>
+            <p class="card-desc">Connect Claude Desktop, Cursor AI, Cline, and Zed directly to Web Security Guard tools.</p>
+          </div>
+        </div>
+
+        <p style="font-size: 14px; margin-bottom: 20px;">
+          Web Security Guard features a native MCP server exposing automated header audits, CSP generation, SRI calculations, and WCAG validations to any MCP-compliant LLM agent.
+        </p>
+
+        <div class="subtabs">
+          <button class="subtab-btn active" onclick="switchMcpTab('mcp-claude', this)">Claude Desktop</button>
+          <button class="subtab-btn" onclick="switchMcpTab('mcp-cursor', this)">Cursor AI</button>
+          <button class="subtab-btn" onclick="switchMcpTab('mcp-cline', this)">Cline / Roo Code</button>
+          <button class="subtab-btn" onclick="switchMcpTab('mcp-zed', this)">Zed Editor</button>
+        </div>
+
+        <div class="code-container">
+          <button class="copy-btn" onclick="copySnippet('mcp-config-code')">Copy Config</button>
+          <pre><code id="mcp-config-code">Loading MCP configuration...</code></pre>
+        </div>
+
+        <div style="margin-top: 24px;">
+          <h3 style="font-size: 16px; margin-bottom: 12px;">🛠️ Exposed Agent Tools</h3>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Tool Name</th>
+                <th>Description</th>
+                <th>Required Parameters</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>audit_url</code></td>
+                <td>Performs multi-vector security header & cookie audit.</td>
+                <td><code>url</code> (string)</td>
+              </tr>
+              <tr>
+                <td><code>generate_csp</code></td>
+                <td>Generates Level 3 CSP policy & framework configs.</td>
+                <td><code>preset</code>, <code>nonce</code> (optional)</td>
+              </tr>
+              <tr>
+                <td><code>calculate_sri</code></td>
+                <td>Computes SHA-256/384/512 hashes and HTML tags.</td>
+                <td><code>content</code> or <code>url</code></td>
+              </tr>
+              <tr>
+                <td><code>calculate_contrast</code></td>
+                <td>Evaluates WCAG 2.2 contrast ratio & color blindness.</td>
+                <td><code>fg</code>, <code>bg</code> (hex strings)</td>
+              </tr>
+              <tr>
+                <td><code>remediate_headers</code></td>
+                <td>Exports hardened server configs for Next.js, Nginx, Vercel, Netlify.</td>
+                <td><code>target</code> (string)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- =================================================================== -->
+    <!-- TAB 6: Hardening Exporter -->
+    <!-- =================================================================== -->
+    <div id="tab-exporter" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">⚡ Multi-Platform Hardening Exporter</h2>
+            <p class="card-desc">Download complete, hardened drop-in configuration files for your entire production stack.</p>
+          </div>
+          <a href="/api/export-zip" class="btn btn-primary">⬇️ Download Complete ZIP</a>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px;">
+          <div class="card" style="margin-bottom: 0;">
+            <h3 style="font-size: 15px; font-weight: 600; margin-bottom: 6px;">Next.js 14/15 App Router</h3>
+            <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 12px;">Edge middleware with crypto nonce generation & CSP Level 3 injection.</p>
+            <button class="btn btn-tonal btn-sm" onclick="showExportFile('nextjs')">View middleware.ts</button>
+          </div>
+          <div class="card" style="margin-bottom: 0;">
+            <h3 style="font-size: 15px; font-weight: 600; margin-bottom: 6px;">Vercel Edge Headers</h3>
+            <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 12px;">Complete <code>vercel.json</code> security headers configuration.</p>
+            <button class="btn btn-tonal btn-sm" onclick="showExportFile('vercel')">View vercel.json</button>
+          </div>
+          <div class="card" style="margin-bottom: 0;">
+            <h3 style="font-size: 15px; font-weight: 600; margin-bottom: 6px;">Netlify Production</h3>
+            <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 12px;">Drop-in <code>_headers</code> and <code>netlify.toml</code> headers block.</p>
+            <button class="btn btn-tonal btn-sm" onclick="showExportFile('netlify_toml')">View netlify.toml</button>
+          </div>
+          <div class="card" style="margin-bottom: 0;">
+            <h3 style="font-size: 15px; font-weight: 600; margin-bottom: 6px;">Nginx Virtual Host</h3>
+            <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 12px;">Hardened TLS 1.3 ciphers, rate limiting & <code>security-headers.conf</code>.</p>
+            <button class="btn btn-tonal btn-sm" onclick="showExportFile('nginx')">View nginx.conf</button>
+          </div>
+        </div>
+
+        <div style="margin-top: 24px;">
+          <div class="code-container" style="min-height: 220px;">
+            <button class="copy-btn" onclick="copySnippet('exporter-viewer')">Copy</button>
+            <pre><code id="exporter-viewer">Select a card above to inspect configuration code.</code></pre>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- =================================================================== -->
+    <!-- TAB 7: Security Best Practices Guide -->
+    <!-- =================================================================== -->
+    <div id="tab-guide" class="tab-content">
+      <div class="card">
+        <h2 class="card-title" style="margin-bottom: 12px;">📖 Web Security Defense-in-Depth Best Practices</h2>
+        <p class="card-desc" style="margin-bottom: 24px;">Architectural principles for modern, zero-trust web application security.</p>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px;">
+          <div class="card" style="background: var(--bg-subtle);">
+            <h3 style="font-size: 15px; font-weight: 600; margin-bottom: 8px;">1. CSP Level 3 & Strict Nonces</h3>
+            <p style="font-size: 13px; color: var(--text-secondary);">
+              Avoid domain allowlists which are vulnerable to JSONP/CDN script bypasses. Rely on dynamic per-request cryptographic nonces with <code>'strict-dynamic'</code>.
+            </p>
+          </div>
+
+          <div class="card" style="background: var(--bg-subtle);">
+            <h3 style="font-size: 15px; font-weight: 600; margin-bottom: 8px;">2. Complete Origin Isolation</h3>
+            <p style="font-size: 13px; color: var(--text-secondary);">
+              Deploy COOP (<code>same-origin</code>), COEP (<code>require-corp</code>), and CORP (<code>same-origin</code>) to shield against Spectre side-channel attacks and unauthorized embedding.
+            </p>
+          </div>
+
+          <div class="card" style="background: var(--bg-subtle);">
+            <h3 style="font-size: 15px; font-weight: 600; margin-bottom: 8px;">3. Cookie Hardening (RFC 6265bis)</h3>
+            <p style="font-size: 13px; color: var(--text-secondary);">
+              Enforce <code>Secure; HttpOnly; SameSite=Lax</code> (or <code>Strict</code>) on all session tokens. Use <code>__Host-</code> prefixes for highest origin binding.
+            </p>
+          </div>
+
+          <div class="card" style="background: var(--bg-subtle);">
+            <h3 style="font-size: 15px; font-weight: 600; margin-bottom: 8px;">4. Subresource Integrity (SRI)</h3>
+            <p style="font-size: 13px; color: var(--text-secondary);">
+              Lock third-party CDN scripts and styles with cryptographic hashes (<code>sha384-...</code>) to prevent supply-chain compromises.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =================================================================== -->
+    <!-- TAB 8: CLI & Python SDK -->
+    <!-- =================================================================== -->
+    <div id="tab-cli" class="tab-content">
+      <div class="card">
+        <h2 class="card-title" style="margin-bottom: 12px;">🔌 CLI Commands & Python SDK</h2>
+        <p class="card-desc" style="margin-bottom: 24px;">Automate audits and security checks in your CI/CD pipelines.</p>
+
+        <h3 style="font-size: 15px; margin-bottom: 8px;">CLI Quickstart</h3>
+        <div class="code-container">
+          <button class="copy-btn" onclick="copySnippet('cli-snippet')">Copy</button>
+          <pre><code id="cli-snippet"># 1. Audit any live site from terminal
+web-sec-guard audit https://example.com --format json
+
+# 2. Generate strict CSP policy
+web-sec-guard csp --preset strict_nonce --export nextjs
+
+# 3. Compute SRI hash for CDN script
+web-sec-guard sri https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js
+
+# 4. Launch Google Security Studio UI
+web-sec-guard serve --port 8080 --open</code></pre>
+        </div>
+
+        <h3 style="font-size: 15px; margin: 24px 0 8px 0;">Python SDK Integration</h3>
+        <div class="code-container">
+          <button class="copy-btn" onclick="copySnippet('sdk-snippet')">Copy</button>
+          <pre><code id="sdk-snippet">from web_security_guard import SecurityAuditEngine, CSPBuilderEngine, WCAGContrastEngine
+
+# Run comprehensive security audit
+audit = SecurityAuditEngine.fetch_and_audit("https://example.com")
+print(f"Score: {audit['score']}/100 Grade: {audit['grade']}")
+
+# Generate Level 3 CSP
+csp = CSPBuilderEngine.generate({"preset": "strict_nonce"})
+print(csp["csp"])
+
+# Validate WCAG 2.2 color contrast
+contrast = WCAGContrastEngine.evaluate("#1a73e8", "#ffffff")
+print(f"Contrast Ratio: {contrast['ratio_formatted']}, AA Normal: {contrast['wcag_aa_normal']}")</code></pre>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    Google Security Studio — Powered by <strong>web-security-guard</strong> • Zero external dependencies • Material 3 Light Mode
+  </footer>
+
+  <!-- Interactive JavaScript Engine -->
+  <script>
+    // State Store
+    let currentAuditData = null;
+    let currentFrameworks = {};
+    let mcpConfigs = {};
+
+    // Tab Navigation
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      
+      const targetContent = document.getElementById(tabId);
+      if (targetContent) targetContent.classList.add('active');
+
+      const activeBtn = Array.from(document.querySelectorAll('.tab-btn')).find(b => {
+        const fn = b.getAttribute('onclick') || '';
+        return fn.includes(tabId);
+      });
+      if (activeBtn) activeBtn.classList.add('active');
+    }
+
+    // Set Preset URL
+    function setAuditUrl(url) {
+      document.getElementById('audit-url-input').value = url;
+      runLiveAudit();
+    }
+
+    // Run Live Audit
+    async function runLiveAudit() {
+      const url = document.getElementById('audit-url-input').value.trim();
+      const btn = document.getElementById('btn-run-audit');
+      btn.textContent = 'Auditing...';
+      btn.disabled = true;
+
+      try {
+        const resp = await fetch('/api/audit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url: url })
+        });
+        const data = await resp.json();
+        currentAuditData = data;
+        renderAuditResults(data);
+      } catch (err) {
+        console.error('Audit failed:', err);
+        alert('Audit failed to connect to backend server. Make sure web-security-guard UI server is running.');
+      } finally {
+        btn.textContent = 'Scan Security Posture';
+        btn.disabled = false;
+      }
+    }
+
+    // Render Audit Results
+    function renderAuditResults(data) {
+      // Update Gauge
+      const score = data.score || 0;
+      const grade = data.grade || 'F';
+      const gradeColor = data.grade_color || '#d93025';
+
+      document.getElementById('gauge-grade').textContent = grade;
+      document.getElementById('gauge-grade').style.color = gradeColor;
+      document.getElementById('gauge-score').textContent = `${score} / 100`;
+
+      // SVG circle offset calculation (circumference = 2 * PI * 60 ≈ 377)
+      const offset = 377 - (377 * (score / 100));
+      const circle = document.getElementById('gauge-circle');
+      circle.style.strokeDashoffset = offset;
+      circle.style.stroke = gradeColor;
+
+      // Meta counters
+      const summary = data.summary || {};
+      document.getElementById('meta-passed').textContent = summary.passed || 0;
+      document.getElementById('meta-partial').textContent = summary.partial || 0;
+      document.getElementById('meta-failed').textContent = summary.failed || 0;
+      document.getElementById('meta-cookies').textContent = (data.cookies || []).length;
+
+      // Dark Patterns Box
+      const dpBox = document.getElementById('dark-patterns-box');
+      dpBox.innerHTML = '';
+      if (data.dark_patterns && data.dark_patterns.length > 0) {
+        data.dark_patterns.forEach(dp => {
+          const banner = document.createElement('div');
+          banner.className = 'alert-banner';
+          banner.innerHTML = `
+            <div class="alert-title">⚠️ ${dp.severity}: ${dp.risk}</div>
+            <div class="alert-body">${dp.impact} <strong>Fix:</strong> ${dp.fix}</div>
+          `;
+          dpBox.appendChild(banner);
+        });
+      }
+
+      // Render Category Findings
+      const catGrid = document.getElementById('audit-categories-grid');
+      catGrid.innerHTML = '';
+      const categories = data.categories || {};
+
+      for (const [catName, catData] of Object.entries(categories)) {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.style.marginBottom = '0';
+
+        let itemsHtml = '';
+        (catData.items || []).forEach(item => {
+          const badgeClass = item.status.toLowerCase();
+          itemsHtml += `
+            <div class="finding-item">
+              <div class="finding-header">
+                <span class="finding-name">${item.name}</span>
+                <span class="status-badge ${badgeClass}">${item.status} (${item.points}/${item.max_points} pts)</span>
+              </div>
+              <div class="finding-desc">${item.message}</div>
+              ${item.value ? `<div class="finding-code">${escapeHtml(item.value)}</div>` : `<div class="finding-code" style="color: #b31412;">Recommended: ${escapeHtml(item.remediation)}</div>`}
+            </div>
+          `;
+        });
+
+        card.innerHTML = `
+          <div class="card-header">
+            <div>
+              <h3 style="font-size: 15px; font-weight: 600;">${catName}</h3>
+              <p class="card-desc">Score: ${catData.score} / ${catData.max} pts</p>
+            </div>
+          </div>
+          <div>${itemsHtml}</div>
+        `;
+        catGrid.appendChild(card);
+      }
+
+      // Cookies Section
+      const cookiesSec = document.getElementById('cookies-section');
+      const cookiesTbody = document.getElementById('cookies-tbody');
+      cookiesTbody.innerHTML = '';
+      if (data.cookies && data.cookies.length > 0) {
+        cookiesSec.style.display = 'block';
+        data.cookies.forEach(c => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td><strong>${escapeHtml(c.name)}</strong></td>
+            <td>${c.secure ? '✅ Yes' : '❌ No'}</td>
+            <td>${c.httponly ? '✅ Yes' : '❌ No'}</td>
+            <td>${escapeHtml(c.samesite)}</td>
+            <td>${c.host_prefix ? '<code>__Host-</code>' : c.secure_prefix ? '<code>__Secure-</code>' : 'None'}</td>
+            <td><span class="status-badge ${c.status === 'Secure' ? 'pass' : 'fail'}">${c.status}</span></td>
+          `;
+          cookiesTbody.appendChild(tr);
+        });
+      } else {
+        cookiesSec.style.display = 'none';
+      }
+
+      // Remediation Snippets
+      if (data.remediation_snippets) {
+        currentFrameworks = data.remediation_snippets;
+        document.getElementById('rem-code').textContent = data.remediation_snippets.nginx || '';
+      }
+    }
+
+    function switchRemediateTab(target, btn) {
+      document.querySelectorAll('#tab-auditor .subtab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const key = target.replace('rem-', '');
+      document.getElementById('rem-code').textContent = currentFrameworks[key] || '// No snippet available';
+    }
+
+    // CSP Builder Logic
+    async function updateCSP() {
+      const isStrictDynamic = document.getElementById('csp-strict-dynamic').checked;
+      const isUpgrade = document.getElementById('csp-upgrade-insecure').checked;
+      const isBlockMixed = document.getElementById('csp-block-mixed').checked;
+      const allowEval = document.getElementById('csp-allow-eval').checked;
+      const nonce = document.getElementById('csp-nonce-input').value.trim();
+      const reportUri = document.getElementById('csp-report-uri').value.trim();
+
+      const payload = {
+        preset: 'custom',
+        strict_dynamic: isStrictDynamic,
+        allow_eval: allowEval,
+        nonce: nonce,
+        report_uri: reportUri,
+        directives: {
+          'default-src': ["'self'"],
+          'script-src': isStrictDynamic ? ["'self'", `'nonce-${nonce}'`, "'strict-dynamic'"] : ["'self'"],
+          'style-src': ["'self'", `'nonce-${nonce}'`, 'https://fonts.googleapis.com'],
+          'font-src': ["'self'", 'https://fonts.gstatic.com', 'data:'],
+          'img-src': ["'self'", 'data:', 'https:'],
+          'connect-src': ["'self'", 'https:'],
+          'object-src': ["'none'"],
+          'base-uri': ["'self'"],
+          'form-action': ["'self'"],
+          'frame-ancestors': ["'none'"],
+          'upgrade-insecure-requests': isUpgrade,
+          'block-all-mixed-content': isBlockMixed,
+        }
+      };
+
+      try {
+        const resp = await fetch('/api/csp/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await resp.json();
+        document.getElementById('csp-output-raw').textContent = data.csp;
+        window.cspFrameworks = data.frameworks;
+        
+        const activeSubtab = document.querySelector('#tab-csp .subtab-btn.active');
+        if (activeSubtab) {
+          const fn = activeSubtab.getAttribute('onclick') || '';
+          const match = fn.match(/'([^']+)'/);
+          if (match) switchCspExportTab(match[1], activeSubtab);
+        }
+      } catch (err) {
+        console.error('CSP Generation error:', err);
+      }
+    }
+
+    function applyCspPreset(presetName) {
+      if (presetName === 'strict_nonce') {
+        document.getElementById('csp-strict-dynamic').checked = true;
+        document.getElementById('csp-allow-eval').checked = false;
+      } else if (presetName === 'strict') {
+        document.getElementById('csp-strict-dynamic').checked = false;
+        document.getElementById('csp-allow-eval').checked = false;
+      } else if (presetName === 'spa') {
+        document.getElementById('csp-strict-dynamic').checked = false;
+        document.getElementById('csp-allow-eval').checked = true;
+      }
+      updateCSP();
+    }
+
+    function generateRandomNonce() {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+      let result = '';
+      for (let i = 0; i < 16; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      document.getElementById('csp-nonce-input').value = result + '==';
+      updateCSP();
+    }
+
+    function switchCspExportTab(target, btn) {
+      document.querySelectorAll('#tab-csp .subtab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const key = target.replace('csp-', '');
+      const frameworks = window.cspFrameworks || {};
+      document.getElementById('csp-framework-code').textContent = frameworks[key] || '// Loading framework code...';
+    }
+
+    // SRI Hasher & Injector Logic
+    async function computeSRI() {
+      const rawInput = document.getElementById('sri-input-content').value.trim();
+      const isUrl = rawInput.startsWith('http://') || rawInput.startsWith('https://');
+      
+      const payload = isUrl ? { url: rawInput } : { content: rawInput };
+      try {
+        const resp = await fetch('/api/sri/hash', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await resp.json();
+        document.getElementById('sri-res-sha384').value = data.sha384;
+        document.getElementById('sri-res-tag').textContent = data.html_tag;
+      } catch (err) {
+        console.error('SRI error:', err);
+      }
+    }
+
+    async function injectSRI() {
+      const html = document.getElementById('sri-html-input').value;
+      try {
+        const resp = await fetch('/api/sri/inject', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ html: html, algorithm: 'sha384' })
+        });
+        const data = await resp.json();
+        document.getElementById('sri-html-output').textContent = data.transformed_html;
+      } catch (err) {
+        console.error('SRI Inject error:', err);
+      }
+    }
+
+    // WCAG Contrast Logic
+    function syncColorFromPicker(type) {
+      const val = document.getElementById(`wcag-${type}-picker`).value;
+      document.getElementById(`wcag-${type}-text`).value = val;
+      updateWCAG();
+    }
+
+    function syncColorFromText(type) {
+      const val = document.getElementById(`wcag-${type}-text`).value.trim();
+      if (val.startsWith('#') && (val.length === 4 || val.length === 7)) {
+        document.getElementById(`wcag-${type}-picker`).value = val;
+      }
+      updateWCAG();
+    }
+
+    function setContrastPalette(fg, bg) {
+      document.getElementById('wcag-fg-picker').value = fg;
+      document.getElementById('wcag-fg-text').value = fg;
+      document.getElementById('wcag-bg-picker').value = bg;
+      document.getElementById('wcag-bg-text').value = bg;
+      updateWCAG();
+    }
+
+    async function updateWCAG() {
+      const fg = document.getElementById('wcag-fg-text').value.trim();
+      const bg = document.getElementById('wcag-bg-text').value.trim();
+
+      // Update Preview Box
+      const pbox = document.getElementById('wcag-preview-box');
+      pbox.style.backgroundColor = bg;
+      pbox.style.color = fg;
+      const pbtn = pbox.querySelector('button');
+      if (pbtn) {
+        pbtn.style.backgroundColor = fg;
+        pbtn.style.color = bg;
+      }
+
+      try {
+        const resp = await fetch('/api/wcag/contrast', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ fg: fg, bg: bg })
+        });
+        const data = await resp.json();
+
+        document.getElementById('wcag-ratio-val').textContent = data.ratio_formatted;
+
+        // Badges update
+        updateBadge('badge-aa-normal', 'txt-aa-normal', data.wcag_aa_normal);
+        updateBadge('badge-aa-large', 'txt-aa-large', data.wcag_aa_large);
+        updateBadge('badge-aa-ui', 'txt-aa-ui', data.wcag_aa_ui);
+        updateBadge('badge-aaa-normal', 'txt-aaa-normal', data.wcag_aaa_normal);
+
+        // Render Color Blindness Grid
+        const cbGrid = document.getElementById('cb-grid-container');
+        cbGrid.innerHTML = '';
+        const sims = data.simulations || {};
+        for (const [simName, sData] of Object.entries(sims)) {
+          const card = document.createElement('div');
+          card.className = 'cb-card';
+          card.innerHTML = `
+            <div style="font-weight: 600; font-size: 13px; text-transform: capitalize; margin-bottom: 6px;">${simName}</div>
+            <div class="cb-preview-swatch" style="background-color: ${sData.bg_hex}; color: ${sData.fg_hex}; border: 1px solid var(--border);">
+              ${sData.ratio_formatted} Contrast
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-secondary);">
+              <span>FG: ${sData.fg_hex}</span>
+              <span>BG: ${sData.bg_hex}</span>
+              <span style="font-weight: 600; color: ${sData.aa_normal ? 'var(--g-green)' : 'var(--g-red)'};">${sData.aa_normal ? 'AA Pass' : 'AA Fail'}</span>
+            </div>
+          `;
+          cbGrid.appendChild(card);
+        }
+
+      } catch (err) {
+        console.error('WCAG error:', err);
+      }
+    }
+
+    function updateBadge(badgeId, textId, passed) {
+      const el = document.getElementById(badgeId);
+      const txt = document.getElementById(textId);
+      if (passed) {
+        el.className = 'wcag-badge-card pass';
+        txt.textContent = 'PASS';
+        txt.style.color = 'var(--g-green)';
+      } else {
+        el.className = 'wcag-badge-card fail';
+        txt.textContent = 'FAIL';
+        txt.style.color = 'var(--g-red)';
+      }
+    }
+
+    // MCP Hub Configs
+    async function loadMcpConfigs() {
+      try {
+        const resp = await fetch('/api/mcp/config');
+        mcpConfigs = await resp.json();
+        document.getElementById('mcp-config-code').textContent = JSON.stringify(mcpConfigs.claude_desktop, null, 2);
+      } catch (err) {
+        console.error('MCP config fetch error:', err);
+      }
+    }
+
+    function switchMcpTab(target, btn) {
+      document.querySelectorAll('#tab-mcp .subtab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const key = target.replace('mcp-', '');
+      const cfg = mcpConfigs[key] || mcpConfigs.claude_desktop;
+      document.getElementById('mcp-config-code').textContent = JSON.stringify(cfg, null, 2);
+    }
+
+    // Hardening Exporter Viewer
+    async function showExportFile(type) {
+      if (!window.cspFrameworks) {
+        await updateCSP();
+      }
+      const code = window.cspFrameworks ? window.cspFrameworks[type] : '// Generating...';
+      document.getElementById('exporter-viewer').textContent = code;
+    }
+
+    // Copy Helper
+    function copySnippet(elementId) {
+      const el = document.getElementById(elementId);
+      const text = el.textContent || el.value;
+      navigator.clipboard.writeText(text).then(() => {
+        alert('Copied to clipboard!');
+      }).catch(err => {
+        console.error('Copy failed:', err);
+      });
+    }
+
+    // HTML Escape Helper
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    // Initialize on Page Load
+    window.addEventListener('DOMContentLoaded', () => {
+      runLiveAudit();
+      updateCSP();
+      updateWCAG();
+      loadMcpConfigs();
+    });
+  </script>
+</body>
+</html>
