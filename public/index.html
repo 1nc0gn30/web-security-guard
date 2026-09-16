@@ -502,6 +502,144 @@
     .switch-label { font-size: 13px; font-weight: 500; }
     .switch-desc { font-size: 11px; color: var(--text-secondary); }
 
+    /* TLS / SSL Inspector Styles */
+    .cert-gauge-box {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+      align-items: center;
+      padding: 24px;
+      background: linear-gradient(180deg, #ffffff 0%, var(--bg-subtle) 100%);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      margin-bottom: 24px;
+    }
+    .cert-days-large {
+      font-size: 42px;
+      font-weight: 700;
+      line-height: 1;
+    }
+    .cert-days-label {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+      font-weight: 500;
+    }
+    .handshake-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .handshake-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 16px;
+    }
+    .handshake-card .h-lbl {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 600;
+    }
+    .handshake-card .h-val {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+      word-break: break-all;
+    }
+    .sans-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      max-height: 180px;
+      overflow-y: auto;
+      padding: 12px;
+      background: var(--bg-subtle);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-subtle);
+    }
+    .san-tag {
+      font-size: 12px;
+      font-family: monospace;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      padding: 3px 8px;
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+    }
+
+    /* Posture Diff Styles */
+    .diff-scorecards-wrapper {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 20px;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 768px) {
+      .diff-scorecards-wrapper {
+        grid-template-columns: 1fr;
+      }
+    }
+    .diff-scorecard {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      text-align: center;
+    }
+    .diff-scorecard.target-b {
+      border-color: var(--g-blue);
+      box-shadow: 0 0 0 1px var(--g-blue);
+    }
+    .diff-delta-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+    }
+    .delta-badge {
+      font-size: 15px;
+      font-weight: 700;
+      padding: 6px 16px;
+      border-radius: var(--radius-pill);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .delta-badge.improved { background: var(--g-green-light); color: var(--g-green); }
+    .delta-badge.regressed { background: var(--g-red-light); color: var(--g-red); }
+    .delta-badge.neutral { background: var(--bg-subtle); color: var(--text-secondary); }
+
+    .diff-findings-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    /* Code Diff Viewer */
+    .diff-code-box {
+      font-family: monospace;
+      font-size: 12px;
+      background: #202124;
+      color: #e8eaed;
+      border-radius: var(--radius-md);
+      padding: 16px;
+      overflow-x: auto;
+      max-height: 420px;
+      line-height: 1.5;
+    }
+    .diff-add { background: rgba(30, 142, 62, 0.25); color: #81c995; display: block; padding: 2px 8px; border-left: 3px solid var(--g-green); }
+    .diff-del { background: rgba(217, 48, 37, 0.25); color: #f28b82; display: block; padding: 2px 8px; border-left: 3px solid var(--g-red); }
+    .diff-hunk { color: #8ab4f8; font-weight: 600; display: block; padding: 3px 8px; }
+    .diff-ctx { color: #9aa0a6; display: block; padding: 2px 8px; }
+
     /* Footer */
     footer.app-footer {
       border-top: 1px solid var(--border);
@@ -539,6 +677,9 @@
   <!-- Navigation Tab Bar -->
   <nav class="tab-bar">
     <button class="tab-btn active" onclick="switchTab('tab-auditor')">🛡️ Live Site Auditor</button>
+    <button class="tab-btn" onclick="switchTab('tab-ssl')">🔐 TLS / Cert Inspector</button>
+    <button class="tab-btn" onclick="switchTab('tab-diff')">⚖️ Posture Diff</button>
+    <button class="tab-btn" onclick="switchTab('tab-patcher')">⚡ 1-Click Patcher</button>
     <button class="tab-btn" onclick="switchTab('tab-csp')">🔒 CSP Level 3 Builder</button>
     <button class="tab-btn" onclick="switchTab('tab-sri')">🧬 SRI Hasher & Injector</button>
     <button class="tab-btn" onclick="switchTab('tab-wcag')">🎨 WCAG 2.2 Contrast</button>
@@ -661,7 +802,284 @@
     </div>
 
     <!-- =================================================================== -->
-    <!-- TAB 2: CSP Level 3 Policy Builder -->
+    <!-- TAB: TLS & Certificate Inspector -->
+    <!-- =================================================================== -->
+    <div id="tab-ssl" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">🔐 TLS & Certificate Deep Inspector</h2>
+            <p class="card-desc">Inspect TLS 1.3 protocol handshake, cryptographic cipher suites, certificate validity, expiration, and Subject Alternative Names (SANs).</p>
+          </div>
+        </div>
+
+        <div class="search-row">
+          <input type="text" id="ssl-host-input" class="input-text" placeholder="Enter target domain or URL (e.g. google.com or https://github.com)" value="google.com">
+          <input type="number" id="ssl-port-input" class="input-text" style="max-width: 110px;" placeholder="Port" value="443" min="1" max="65535">
+          <button class="btn btn-primary" id="btn-inspect-ssl" onclick="inspectSSL()">Inspect TLS / SSL</button>
+        </div>
+
+        <div class="chips-row">
+          <span style="font-size: 12px; color: var(--text-tertiary); font-weight: 500;">Presets:</span>
+          <span class="chip" onclick="setSslTarget('google.com', 443)">google.com</span>
+          <span class="chip" onclick="setSslTarget('github.com', 443)">github.com</span>
+          <span class="chip" onclick="setSslTarget('cloudflare.com', 443)">cloudflare.com</span>
+          <span class="chip" onclick="setSslTarget('badssl.com', 443)">badssl.com</span>
+          <span class="chip" onclick="setSslTarget('expired.badssl.com', 443)">expired.badssl.com</span>
+          <span class="chip" onclick="setSslTarget('self-signed.badssl.com', 443)">self-signed.badssl.com</span>
+        </div>
+
+        <!-- SSL Certificate Expiry Box -->
+        <div id="ssl-cert-box" class="cert-gauge-box">
+          <div style="min-width: 140px; text-align: center;">
+            <div class="cert-days-large" id="ssl-days-val" style="color: var(--g-green);">--</div>
+            <div class="cert-days-label" id="ssl-days-lbl">Days Remaining</div>
+          </div>
+          <div style="flex: 1; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
+            <div class="meta-box">
+              <div class="meta-lbl">Certificate Status</div>
+              <div class="meta-val" id="ssl-cert-status" style="font-size: 16px; color: var(--g-green);">Valid & Trusted</div>
+            </div>
+            <div class="meta-box">
+              <div class="meta-lbl">Valid From</div>
+              <div class="meta-val" id="ssl-not-before" style="font-size: 14px; font-weight: 500;">--</div>
+            </div>
+            <div class="meta-box">
+              <div class="meta-lbl">Expires On (Not After)</div>
+              <div class="meta-val" id="ssl-not-after" style="font-size: 14px; font-weight: 500;">--</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Handshake Details Grid -->
+        <h3 style="font-size: 16px; margin-bottom: 12px;">🤝 TLS Handshake & Cipher Suite</h3>
+        <div class="handshake-grid">
+          <div class="handshake-card">
+            <div class="h-lbl">Negotiated Protocol</div>
+            <div class="h-val" id="ssl-protocol" style="color: var(--g-blue);">TLSv1.3</div>
+          </div>
+          <div class="handshake-card">
+            <div class="h-lbl">Cipher Suite</div>
+            <div class="h-val" id="ssl-cipher" style="font-size: 13px;">TLS_AES_256_GCM_SHA384</div>
+          </div>
+          <div class="handshake-card">
+            <div class="h-lbl">Cipher Strength / Bits</div>
+            <div class="h-val" id="ssl-bits">256 bits</div>
+          </div>
+          <div class="handshake-card">
+            <div class="h-lbl">ALPN Protocol</div>
+            <div class="h-val" id="ssl-alpn">h2, http/1.1</div>
+          </div>
+        </div>
+
+        <!-- Issuer & Subject Info -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px;">
+          <div class="card" style="margin-bottom: 0; background: var(--bg-subtle);">
+            <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 8px;">Subject (Certificate Owner)</h4>
+            <table class="data-table" style="background: transparent;">
+              <tr><td style="font-weight: 500; width: 120px;">Common Name (CN)</td><td id="ssl-sub-cn">--</td></tr>
+              <tr><td style="font-weight: 500;">Organization (O)</td><td id="ssl-sub-o">--</td></tr>
+              <tr><td style="font-weight: 500;">Country (C)</td><td id="ssl-sub-c">--</td></tr>
+              <tr><td style="font-weight: 500;">Serial Number</td><td id="ssl-sub-serial" style="font-family: monospace; font-size: 11px;">--</td></tr>
+            </table>
+          </div>
+          <div class="card" style="margin-bottom: 0; background: var(--bg-subtle);">
+            <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 8px;">Issuer (Certificate Authority)</h4>
+            <table class="data-table" style="background: transparent;">
+              <tr><td style="font-weight: 500; width: 120px;">Common Name (CN)</td><td id="ssl-iss-cn">--</td></tr>
+              <tr><td style="font-weight: 500;">Organization (O)</td><td id="ssl-iss-o">--</td></tr>
+              <tr><td style="font-weight: 500;">Country (C)</td><td id="ssl-iss-c">--</td></tr>
+              <tr><td style="font-weight: 500;">OCSP Must-Staple</td><td id="ssl-ocsp">--</td></tr>
+            </table>
+          </div>
+        </div>
+
+        <!-- SANs (Subject Alternative Names) -->
+        <div style="margin-bottom: 24px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <h3 style="font-size: 16px;">🌐 Subject Alternative Names (SANs) (<span id="ssl-sans-count">0</span>)</h3>
+            <input type="text" id="ssl-sans-filter" class="input-text" placeholder="Filter SAN domains..." oninput="filterSans()" style="max-width: 240px; padding: 6px 12px; font-size: 13px;">
+          </div>
+          <div class="sans-container" id="ssl-sans-container">
+            <span class="san-tag">No certificate inspected yet.</span>
+          </div>
+        </div>
+
+        <!-- Recommendations & Security Alerts -->
+        <div>
+          <h3 style="font-size: 16px; margin-bottom: 12px;">🛡️ TLS Hardening Recommendations</h3>
+          <div id="ssl-recs-box"></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- =================================================================== -->
+    <!-- TAB: Security Posture Diff Engine -->
+    <!-- =================================================================== -->
+    <div id="tab-diff" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">⚖️ Side-by-Side Security Posture Comparison</h2>
+            <p class="card-desc">Compare security headers, cookie flags, and vulnerability posture between two live targets or before-and-after hardening.</p>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 12px; align-items: center; margin-bottom: 12px;">
+          <input type="text" id="diff-target-a" class="input-text" placeholder="Target A (Baseline URL, e.g. https://example.com)" value="https://example.com">
+          <input type="text" id="diff-target-b" class="input-text" placeholder="Target B (Hardened URL, e.g. https://google.com)" value="https://google.com">
+          <button class="btn btn-primary" id="btn-run-diff" onclick="compareDiff()">Compare Postures</button>
+        </div>
+
+        <div class="chips-row">
+          <span style="font-size: 12px; color: var(--text-tertiary); font-weight: 500;">Presets:</span>
+          <span class="chip" onclick="setDiffPreset('https://example.com', 'https://google.com')">example.com vs google.com</span>
+          <span class="chip" onclick="setDiffPreset('http://httpbin.org', 'https://github.com')">httpbin.org vs github.com</span>
+          <span class="chip" onclick="setDiffPreset('https://cloudflare.com', 'https://google.com')">cloudflare.com vs google.com</span>
+        </div>
+
+        <!-- Side-by-side Scorecards & Delta Indicator -->
+        <div class="diff-scorecards-wrapper">
+          <!-- Target A Card -->
+          <div class="diff-scorecard">
+            <div style="font-size: 12px; text-transform: uppercase; font-weight: 600; color: var(--text-secondary); margin-bottom: 4px;">Target A (Baseline)</div>
+            <div id="diff-a-url" style="font-size: 14px; font-weight: 600; margin-bottom: 12px; word-break: break-all;">https://example.com</div>
+            <div style="font-size: 38px; font-weight: 700;" id="diff-a-grade">--</div>
+            <div style="font-size: 14px; color: var(--text-secondary); margin-bottom: 12px;" id="diff-a-score">-- / 100</div>
+            <div style="display: flex; justify-content: center; gap: 8px; font-size: 12px;">
+              <span style="color: var(--g-green); font-weight: 600;" id="diff-a-passed">-- Passed</span> •
+              <span style="color: var(--g-yellow-dark); font-weight: 600;" id="diff-a-partial">-- Partial</span> •
+              <span style="color: var(--g-red); font-weight: 600;" id="diff-a-failed">-- Failed</span>
+            </div>
+          </div>
+
+          <!-- Delta Indicator -->
+          <div class="diff-delta-box">
+            <div style="font-size: 12px; color: var(--text-tertiary); margin-bottom: 6px;">POSTURE DELTA</div>
+            <div class="delta-badge neutral" id="diff-delta-badge">0 pts</div>
+            <div style="font-size: 12px; color: var(--text-secondary); margin-top: 6px;" id="diff-delta-status">Awaiting comparison</div>
+          </div>
+
+          <!-- Target B Card -->
+          <div class="diff-scorecard target-b">
+            <div style="font-size: 12px; text-transform: uppercase; font-weight: 600; color: var(--g-blue); margin-bottom: 4px;">Target B (Hardened)</div>
+            <div id="diff-b-url" style="font-size: 14px; font-weight: 600; margin-bottom: 12px; word-break: break-all;">https://google.com</div>
+            <div style="font-size: 38px; font-weight: 700; color: var(--g-blue);" id="diff-b-grade">--</div>
+            <div style="font-size: 14px; color: var(--text-secondary); margin-bottom: 12px;" id="diff-b-score">-- / 100</div>
+            <div style="display: flex; justify-content: center; gap: 8px; font-size: 12px;">
+              <span style="color: var(--g-green); font-weight: 600;" id="diff-b-passed">-- Passed</span> •
+              <span style="color: var(--g-yellow-dark); font-weight: 600;" id="diff-b-partial">-- Partial</span> •
+              <span style="color: var(--g-red); font-weight: 600;" id="diff-b-failed">-- Failed</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3-Column Findings Differential Breakdown -->
+        <h3 style="font-size: 16px; margin-bottom: 12px;">🔍 Findings Differential Breakdown</h3>
+        <div class="diff-findings-grid">
+          <!-- Resolved Findings -->
+          <div class="card" style="margin-bottom: 0; border-top: 4px solid var(--g-green);">
+            <h4 style="font-size: 14px; font-weight: 600; color: var(--g-green); margin-bottom: 8px;">🟢 Resolved / Better in Target B (<span id="diff-fixed-count">0</span>)</h4>
+            <div id="diff-fixed-list" style="font-size: 13px; color: var(--text-secondary);">No resolved findings to display.</div>
+          </div>
+          <!-- Regressed Findings -->
+          <div class="card" style="margin-bottom: 0; border-top: 4px solid var(--g-red);">
+            <h4 style="font-size: 14px; font-weight: 600; color: var(--g-red); margin-bottom: 8px;">🔴 New Issues / Regressions in Target B (<span id="diff-new-count">0</span>)</h4>
+            <div id="diff-new-list" style="font-size: 13px; color: var(--text-secondary);">No regressions detected.</div>
+          </div>
+          <!-- Unchanged Findings -->
+          <div class="card" style="margin-bottom: 0; border-top: 4px solid var(--border);">
+            <h4 style="font-size: 14px; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px;">⚪ Unchanged Status (<span id="diff-unchanged-count">0</span>)</h4>
+            <div id="diff-unchanged-list" style="font-size: 13px; color: var(--text-secondary);">No shared items.</div>
+          </div>
+        </div>
+
+        <!-- Side-by-Side Security Vector Matrix Table -->
+        <h3 style="font-size: 16px; margin: 24px 0 12px 0;">📊 Security Vector Matrix Comparison</h3>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width: 220px;">Security Vector</th>
+              <th>Target A Posture</th>
+              <th>Target B Posture</th>
+              <th style="width: 110px;">Delta</th>
+            </tr>
+          </thead>
+          <tbody id="diff-matrix-tbody">
+            <tr><td colspan="4" style="text-align: center; color: var(--text-secondary);">Run a comparison to view the matrix.</td></tr>
+          </tbody>
+        </table>
+
+      </div>
+    </div>
+
+    <!-- =================================================================== -->
+    <!-- TAB: 1-Click Local Project Patcher -->
+    <!-- =================================================================== -->
+    <div id="tab-patcher" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">⚡ 1-Click Local Project Security Patcher</h2>
+            <p class="card-desc">Automatically inspect your local repository, detect deployment platform (Netlify, Vercel, Next.js, Nginx, Static HTML), and inject Google-hardened headers with preview diff.</p>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 200px auto auto; gap: 12px; align-items: center; margin-bottom: 12px;">
+          <input type="text" id="patch-dir-input" class="input-text" placeholder="Project directory path (e.g. /path/to/repo or .)" value=".">
+          <select id="patch-platform-select" class="select-box">
+            <option value="auto">Auto-Detect Platform</option>
+            <option value="netlify">Netlify (netlify.toml)</option>
+            <option value="vercel">Vercel (vercel.json)</option>
+            <option value="nextjs">Next.js (next.config.js)</option>
+            <option value="nginx">Nginx (nginx.conf)</option>
+            <option value="html">Static HTML (index.html)</option>
+          </select>
+          <button class="btn btn-tonal" id="btn-preview-patch" onclick="previewPatch()">⚡ Dry-Run Preview</button>
+          <button class="btn btn-primary" id="btn-apply-patch" onclick="applyPatch()">🛡️ Apply Patch</button>
+        </div>
+
+        <!-- Status & Target Info Banner -->
+        <div id="patch-status-box" style="margin-bottom: 20px;"></div>
+
+        <!-- Code Diff Viewer -->
+        <div style="margin-bottom: 24px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <h3 style="font-size: 16px;">Unified Code Diff (<span id="patch-target-file">--</span>)</h3>
+            <button class="btn btn-tonal btn-sm" onclick="copySnippet('patch-code-viewer')">Copy Patched Code</button>
+          </div>
+          <div class="diff-code-box" id="patch-code-viewer">
+            <span class="diff-ctx">Click "Dry-Run Preview" or "Apply Patch" to inspect the repository patch.</span>
+          </div>
+        </div>
+
+        <!-- Injected Security Vectors Breakdown -->
+        <h3 style="font-size: 16px; margin-bottom: 12px;">🛡️ Hardened Security Vectors Included</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px;">
+          <div class="meta-box">
+            <div style="font-weight: 600; font-size: 13px; color: var(--g-blue);">Content-Security-Policy (CSP)</div>
+            <div style="font-size: 11px; color: var(--text-secondary); margin-top: 2px;">Level 3 with object-src 'none' & frame-ancestors 'none'</div>
+          </div>
+          <div class="meta-box">
+            <div style="font-weight: 600; font-size: 13px; color: var(--g-green);">Strict-Transport-Security (HSTS)</div>
+            <div style="font-size: 11px; color: var(--text-secondary); margin-top: 2px;">max-age=31536000; includeSubDomains; preload</div>
+          </div>
+          <div class="meta-box">
+            <div style="font-weight: 600; font-size: 13px; color: var(--g-purple);">Origin Isolation (COOP / COEP / CORP)</div>
+            <div style="font-size: 11px; color: var(--text-secondary); margin-top: 2px;">Shields against Spectre side-channel attacks</div>
+          </div>
+          <div class="meta-box">
+            <div style="font-weight: 600; font-size: 13px; color: var(--g-yellow-dark);">Permissions-Policy</div>
+            <div style="font-size: 11px; color: var(--text-secondary); margin-top: 2px;">camera=(), microphone=(), geolocation=()</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- =================================================================== -->
+    <!-- TAB: CSP Level 3 Policy Builder -->
     <!-- =================================================================== -->
     <div id="tab-csp" class="tab-content">
       <div class="card">
@@ -932,7 +1350,7 @@
         </div>
 
         <div style="margin-top: 24px;">
-          <h3 style="font-size: 16px; margin-bottom: 12px;">🛠️ Exposed Agent Tools</h3>
+          <h3 style="font-size: 16px; margin-bottom: 12px;">🛠️ Exposed Agent Tools (9 Tools)</h3>
           <table class="data-table">
             <thead>
               <tr>
@@ -943,29 +1361,49 @@
             </thead>
             <tbody>
               <tr>
-                <td><code>audit_url</code></td>
+                <td><code>sec_audit_site</code></td>
                 <td>Performs multi-vector security header & cookie audit.</td>
                 <td><code>url</code> (string)</td>
               </tr>
               <tr>
-                <td><code>generate_csp</code></td>
+                <td><code>sec_inspect_ssl</code></td>
+                <td>Inspects TLS protocol version, cipher suites, SANs, and cert expiration.</td>
+                <td><code>domain</code> (string), <code>port</code> (int, optional)</td>
+              </tr>
+              <tr>
+                <td><code>sec_diff_postures</code></td>
+                <td>Computes delta scorecard and side-by-side header comparison between targets.</td>
+                <td><code>target_a</code> (string), <code>target_b</code> (string)</td>
+              </tr>
+              <tr>
+                <td><code>sec_patch_project</code></td>
+                <td>Auto-patches local repo (Netlify, Vercel, Next.js, Nginx, HTML) with hardened headers.</td>
+                <td><code>project_dir</code> (string), <code>platform</code> (string), <code>dry_run</code> (bool)</td>
+              </tr>
+              <tr>
+                <td><code>sec_generate_csp</code></td>
                 <td>Generates Level 3 CSP policy & framework configs.</td>
                 <td><code>preset</code>, <code>nonce</code> (optional)</td>
               </tr>
               <tr>
-                <td><code>calculate_sri</code></td>
+                <td><code>sec_generate_sri</code></td>
                 <td>Computes SHA-256/384/512 hashes and HTML tags.</td>
-                <td><code>content</code> or <code>url</code></td>
+                <td><code>target</code> or <code>content</code></td>
               </tr>
               <tr>
-                <td><code>calculate_contrast</code></td>
+                <td><code>sec_inject_sri</code></td>
+                <td>Injects integrity and crossorigin attributes into HTML tags.</td>
+                <td><code>html_path_or_content</code> (string)</td>
+              </tr>
+              <tr>
+                <td><code>sec_check_contrast</code></td>
                 <td>Evaluates WCAG 2.2 contrast ratio & color blindness.</td>
-                <td><code>fg</code>, <code>bg</code> (hex strings)</td>
+                <td><code>fg_color</code>, <code>bg_color</code> (hex strings)</td>
               </tr>
               <tr>
-                <td><code>remediate_headers</code></td>
+                <td><code>sec_generate_remediation</code></td>
                 <td>Exports hardened server configs for Next.js, Nginx, Vercel, Netlify.</td>
-                <td><code>target</code> (string)</td>
+                <td><code>target</code> (string), <code>server_type</code> (string)</td>
               </tr>
             </tbody>
           </table>
@@ -1066,7 +1504,7 @@
     <div id="tab-cli" class="tab-content">
       <div class="card">
         <h2 class="card-title" style="margin-bottom: 12px;">🔌 CLI Commands & Python SDK</h2>
-        <p class="card-desc" style="margin-bottom: 24px;">Automate audits and security checks in your CI/CD pipelines.</p>
+        <p class="card-desc" style="margin-bottom: 24px;">Automate audits, SSL inspections, posture diffs, and project patches in your CI/CD pipelines.</p>
 
         <h3 style="font-size: 15px; margin-bottom: 8px;">CLI Quickstart</h3>
         <div class="code-container">
@@ -1074,13 +1512,22 @@
           <pre><code id="cli-snippet"># 1. Audit any live site from terminal
 web-sec-guard audit https://example.com --format json
 
-# 2. Generate strict CSP policy
+# 2. Inspect TLS / SSL certificate & cipher suites
+web-sec-guard ssl google.com --port 443
+
+# 3. Compare security postures between two targets
+web-sec-guard diff https://example.com https://google.com
+
+# 4. 1-Click patch local project repository
+web-sec-guard patch ./my-project --platform auto
+
+# 5. Generate strict CSP policy
 web-sec-guard csp --preset strict_nonce --export nextjs
 
-# 3. Compute SRI hash for CDN script
+# 6. Compute SRI hash for CDN script
 web-sec-guard sri https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js
 
-# 4. Launch Google Security Studio UI
+# 7. Launch Google Security Studio UI
 web-sec-guard serve --port 8080 --open</code></pre>
         </div>
 
@@ -1532,6 +1979,345 @@ print(f"Contrast Ratio: {contrast['ratio_formatted']}, AA Normal: {contrast['wca
     function escapeHtml(str) {
       if (!str) return '';
       return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    // =========================================================================
+    // TLS / SSL Deep Inspector Logic
+    // =========================================================================
+    let currentSslData = null;
+    let currentSans = [];
+
+    function setSslTarget(domain, port) {
+      document.getElementById('ssl-host-input').value = domain;
+      document.getElementById('ssl-port-input').value = port || 443;
+      inspectSSL();
+    }
+
+    async function inspectSSL() {
+      const host = document.getElementById('ssl-host-input').value.trim();
+      const port = parseInt(document.getElementById('ssl-port-input').value.trim() || '443', 10);
+      const btn = document.getElementById('btn-inspect-ssl');
+      btn.textContent = 'Inspecting...';
+      btn.disabled = true;
+
+      try {
+        const resp = await fetch('/api/ssl/inspect', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ domain: host, port: port })
+        });
+        const data = await resp.json();
+        currentSslData = data;
+        renderSslResults(data);
+      } catch (err) {
+        console.error('SSL inspection failed:', err);
+        alert('Failed to inspect SSL. Ensure the server is reachable.');
+      } finally {
+        btn.textContent = 'Inspect TLS / SSL';
+        btn.disabled = false;
+      }
+    }
+
+    function renderSslResults(data) {
+      const days = data.days_remaining !== undefined ? data.days_remaining : (data.is_valid ? 'Valid' : '--');
+      const daysVal = document.getElementById('ssl-days-val');
+      daysVal.textContent = days !== null ? days : '--';
+      
+      const statusEl = document.getElementById('ssl-cert-status');
+      if (data.is_valid && (days === null || days > 30)) {
+        daysVal.style.color = 'var(--g-green)';
+        statusEl.textContent = 'Valid & Trusted';
+        statusEl.style.color = 'var(--g-green)';
+      } else if (data.is_valid && days <= 30) {
+        daysVal.style.color = 'var(--g-yellow-dark)';
+        statusEl.textContent = 'Expiring Soon';
+        statusEl.style.color = 'var(--g-yellow-dark)';
+      } else {
+        daysVal.style.color = 'var(--g-red)';
+        statusEl.textContent = data.status || 'Untrusted / Expired';
+        statusEl.style.color = 'var(--g-red)';
+      }
+
+      document.getElementById('ssl-not-before').textContent = data.not_before || '--';
+      document.getElementById('ssl-not-after').textContent = data.not_after || '--';
+
+      // Handshake Details
+      document.getElementById('ssl-protocol').textContent = data.tls_version || data.protocol_version || 'TLSv1.3';
+      document.getElementById('ssl-cipher').textContent = data.cipher_suite || data.cipher_name || '--';
+      document.getElementById('ssl-bits').textContent = data.cipher_bits ? `${data.cipher_bits} bits` : '--';
+      document.getElementById('ssl-alpn').textContent = data.alpn_protocol || (data.alpn_protocols ? data.alpn_protocols.join(', ') : 'h2, http/1.1');
+
+      // Subject & Issuer
+      const sub = data.subject || {};
+      const iss = data.issuer || {};
+      document.getElementById('ssl-sub-cn').textContent = sub.commonName || sub.CN || data.domain || '--';
+      document.getElementById('ssl-sub-o').textContent = sub.organizationName || sub.O || '--';
+      document.getElementById('ssl-sub-c').textContent = sub.countryName || sub.C || '--';
+      document.getElementById('ssl-sub-serial').textContent = data.serial_number || '--';
+
+      document.getElementById('ssl-iss-cn').textContent = iss.commonName || iss.CN || '--';
+      document.getElementById('ssl-iss-o').textContent = iss.organizationName || iss.O || '--';
+      document.getElementById('ssl-iss-c').textContent = iss.countryName || iss.C || '--';
+      document.getElementById('ssl-ocsp').textContent = data.ocsp_must_staple ? '✅ Enabled' : 'Optional / None';
+
+      // SANs
+      currentSans = data.subject_alt_names || data.sans || [];
+      document.getElementById('ssl-sans-count').textContent = currentSans.length;
+      renderSansList(currentSans);
+
+      // Recommendations
+      const recsBox = document.getElementById('ssl-recs-box');
+      recsBox.innerHTML = '';
+      const recs = data.recommendations || [];
+      if (recs.length === 0) {
+        recsBox.innerHTML = '<div style="font-size: 13px; color: var(--g-green);">✅ Excellent! Modern TLS configuration with strong ciphers and trusted root.</div>';
+      } else {
+        recs.forEach(rec => {
+          const item = document.createElement('div');
+          item.className = 'finding-item';
+          item.innerHTML = `
+            <div class="finding-header">
+              <span class="finding-name">🔒 ${escapeHtml(rec.title || rec.topic || 'TLS Recommendation')}</span>
+              <span class="status-badge ${rec.severity === 'HIGH' ? 'fail' : 'partial'}">${escapeHtml(rec.severity || 'WARN')}</span>
+            </div>
+            <div class="finding-desc">${escapeHtml(rec.message || rec.description || '')}</div>
+          `;
+          recsBox.appendChild(item);
+        });
+      }
+    }
+
+    function renderSansList(sans) {
+      const container = document.getElementById('ssl-sans-container');
+      container.innerHTML = '';
+      if (sans.length === 0) {
+        container.innerHTML = '<span class="san-tag">No SAN domains found.</span>';
+        return;
+      }
+      sans.forEach(san => {
+        const span = document.createElement('span');
+        span.className = 'san-tag';
+        span.textContent = san;
+        container.appendChild(span);
+      });
+    }
+
+    function filterSans() {
+      const q = document.getElementById('ssl-sans-filter').value.toLowerCase().trim();
+      if (!q) {
+        renderSansList(currentSans);
+        return;
+      }
+      const filtered = currentSans.filter(s => s.toLowerCase().includes(q));
+      renderSansList(filtered);
+    }
+
+    // =========================================================================
+    // Security Posture Diff Engine Logic
+    // =========================================================================
+    function setDiffPreset(targetA, targetB) {
+      document.getElementById('diff-target-a').value = targetA;
+      document.getElementById('diff-target-b').value = targetB;
+      compareDiff();
+    }
+
+    async function compareDiff() {
+      const targetA = document.getElementById('diff-target-a').value.trim();
+      const targetB = document.getElementById('diff-target-b').value.trim();
+      const btn = document.getElementById('btn-run-diff');
+      btn.textContent = 'Comparing...';
+      btn.disabled = true;
+
+      try {
+        const resp = await fetch('/api/diff/compare', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ target_a: targetA, target_b: targetB })
+        });
+        const data = await resp.json();
+        renderDiffResults(data, targetA, targetB);
+      } catch (err) {
+        console.error('Diff compare failed:', err);
+        alert('Failed to compare security postures. Verify backend connectivity.');
+      } finally {
+        btn.textContent = 'Compare Postures';
+        btn.disabled = false;
+      }
+    }
+
+    function renderDiffResults(data, targetA, targetB) {
+      const auditA = data.target_a || {};
+      const auditB = data.target_b || {};
+      const delta = data.delta || {};
+
+      // Scorecards
+      document.getElementById('diff-a-url').textContent = targetA;
+      document.getElementById('diff-a-grade').textContent = auditA.grade || 'F';
+      document.getElementById('diff-a-grade').style.color = auditA.grade_color || 'var(--g-red)';
+      document.getElementById('diff-a-score').textContent = `${auditA.score || 0} / 100`;
+      document.getElementById('diff-a-passed').textContent = `${(auditA.summary || {}).passed || 0} Passed`;
+      document.getElementById('diff-a-partial').textContent = `${(auditA.summary || {}).partial || 0} Partial`;
+      document.getElementById('diff-a-failed').textContent = `${(auditA.summary || {}).failed || 0} Failed`;
+
+      document.getElementById('diff-b-url').textContent = targetB;
+      document.getElementById('diff-b-grade').textContent = auditB.grade || 'A';
+      document.getElementById('diff-b-grade').style.color = auditB.grade_color || 'var(--g-green)';
+      document.getElementById('diff-b-score').textContent = `${auditB.score || 0} / 100`;
+      document.getElementById('diff-b-passed').textContent = `${(auditB.summary || {}).passed || 0} Passed`;
+      document.getElementById('diff-b-partial').textContent = `${(auditB.summary || {}).partial || 0} Partial`;
+      document.getElementById('diff-b-failed').textContent = `${(auditB.summary || {}).failed || 0} Failed`;
+
+      // Delta Badge
+      const scoreDiff = delta.score_diff !== undefined ? delta.score_diff : ((auditB.score || 0) - (auditA.score || 0));
+      const badge = document.getElementById('diff-delta-badge');
+      const status = document.getElementById('diff-delta-status');
+
+      if (scoreDiff > 0) {
+        badge.className = 'delta-badge improved';
+        badge.textContent = `+${scoreDiff} pts (IMPROVED)`;
+        status.textContent = `Target B is +${scoreDiff} pts more secure`;
+        status.style.color = 'var(--g-green)';
+      } else if (scoreDiff < 0) {
+        badge.className = 'delta-badge regressed';
+        badge.textContent = `${scoreDiff} pts (REGRESSED)`;
+        status.textContent = `Target B has ${Math.abs(scoreDiff)} pts lower score`;
+        status.style.color = 'var(--g-red)';
+      } else {
+        badge.className = 'delta-badge neutral';
+        badge.textContent = '0 pts (UNCHANGED)';
+        status.textContent = 'Both targets have identical scores';
+        status.style.color = 'var(--text-secondary)';
+      }
+
+      // 3-Column Breakdown
+      const fixed = delta.fixed_findings || delta.resolved || [];
+      const newFindings = delta.new_findings || delta.regressions || [];
+      const unchanged = delta.unchanged_findings || delta.unchanged || [];
+
+      document.getElementById('diff-fixed-count').textContent = fixed.length;
+      document.getElementById('diff-new-count').textContent = newFindings.length;
+      document.getElementById('diff-unchanged-count').textContent = unchanged.length;
+
+      renderDiffFindingsList('diff-fixed-list', fixed, 'var(--g-green)', 'No resolved findings.');
+      renderDiffFindingsList('diff-new-list', newFindings, 'var(--g-red)', 'No regressions detected.');
+      renderDiffFindingsList('diff-unchanged-list', unchanged, 'var(--text-secondary)', 'No shared items.');
+
+      // Security Vector Comparison Matrix Table
+      const tbody = document.getElementById('diff-matrix-tbody');
+      tbody.innerHTML = '';
+      const matrix = delta.header_matrix || delta.matrix || [];
+
+      if (matrix.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">No vector differential available.</td></tr>';
+      } else {
+        matrix.forEach(row => {
+          const tr = document.createElement('tr');
+          const dStatus = (row.delta || '').toLowerCase();
+          const dBadgeClass = dStatus.includes('improved') || dStatus.includes('fixed') ? 'pass' : dStatus.includes('regress') || dStatus.includes('worse') ? 'fail' : 'partial';
+          tr.innerHTML = `
+            <td><strong>${escapeHtml(row.header || row.name)}</strong></td>
+            <td><span class="status-badge ${(row.status_a || '').toLowerCase()}">${escapeHtml(row.status_a || 'MISSING')}</span></td>
+            <td><span class="status-badge ${(row.status_b || '').toLowerCase()}">${escapeHtml(row.status_b || 'MISSING')}</span></td>
+            <td><span class="status-badge ${dBadgeClass}">${escapeHtml(row.delta || 'SAME')}</span></td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+    }
+
+    function renderDiffFindingsList(elementId, items, color, emptyText) {
+      const el = document.getElementById(elementId);
+      el.innerHTML = '';
+      if (!items || items.length === 0) {
+        el.innerHTML = `<span style="color: var(--text-tertiary);">${emptyText}</span>`;
+        return;
+      }
+      items.forEach(item => {
+        const div = document.createElement('div');
+        div.style.padding = '6px 0';
+        div.style.borderBottom = '1px solid var(--border-subtle)';
+        div.innerHTML = `<strong style="color: ${color};">${escapeHtml(item.name || item.id || item)}</strong>: ${escapeHtml(item.message || item.description || '')}`;
+        el.appendChild(div);
+      });
+    }
+
+    // =========================================================================
+    // 1-Click Local Project Patcher Logic
+    // =========================================================================
+    async function previewPatch() {
+      await runPatcher(true);
+    }
+
+    async function applyPatch() {
+      await runPatcher(false);
+    }
+
+    async function runPatcher(dryRun) {
+      const dir = document.getElementById('patch-dir-input').value.trim();
+      const platform = document.getElementById('patch-platform-select').value;
+      const btn = dryRun ? document.getElementById('btn-preview-patch') : document.getElementById('btn-apply-patch');
+      const origText = btn.textContent;
+      btn.textContent = dryRun ? 'Previewing...' : 'Patching...';
+      btn.disabled = true;
+
+      try {
+        const resp = await fetch('/api/patch/apply', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ project_dir: dir, platform: platform, dry_run: dryRun })
+        });
+        const data = await resp.json();
+        renderPatchResult(data, dryRun);
+      } catch (err) {
+        console.error('Project patch failed:', err);
+        alert('Failed to execute project patcher. Verify target directory path.');
+      } finally {
+        btn.textContent = origText;
+        btn.disabled = false;
+      }
+    }
+
+    function renderPatchResult(data, dryRun) {
+      const banner = document.getElementById('patch-status-box');
+      const isSuccess = data.status === 'SUCCESS' || data.success || data.action;
+      const action = data.action || (dryRun ? 'PREVIEW_ONLY' : 'PATCHED');
+      
+      banner.className = 'alert-banner';
+      banner.style.borderLeftColor = isSuccess ? 'var(--g-green)' : 'var(--g-red)';
+      banner.style.backgroundColor = isSuccess ? 'var(--g-green-light)' : 'var(--g-red-light)';
+      
+      banner.innerHTML = `
+        <div class="alert-title" style="color: ${isSuccess ? 'var(--g-green)' : 'var(--g-red)'};">
+          ${isSuccess ? '✅' : '❌'} Platform Detected: <strong>${escapeHtml(data.platform || 'Auto')}</strong> • Action: <strong>${escapeHtml(action)}</strong>
+        </div>
+        <div class="alert-body" style="color: var(--text-primary);">
+          ${escapeHtml(data.message || (dryRun ? 'Dry-run preview completed. No files were modified.' : 'Repository successfully patched with hardened headers.'))}
+          ${data.file_path ? `<br>Target File: <code>${escapeHtml(data.file_path)}</code>` : ''}
+        </div>
+      `;
+
+      document.getElementById('patch-target-file').textContent = data.file_name || data.file_path || 'Configuration';
+
+      // Render Diff lines with colors
+      const viewer = document.getElementById('patch-code-viewer');
+      viewer.innerHTML = '';
+      const diffContent = data.diff || data.content || '// No diff generated.';
+      
+      const lines = diffContent.split('\n');
+      lines.forEach(line => {
+        const span = document.createElement('span');
+        if (line.startsWith('+') && !line.startsWith('+++')) {
+          span.className = 'diff-add';
+        } else if (line.startsWith('-') && !line.startsWith('---')) {
+          span.className = 'diff-del';
+        } else if (line.startsWith('@@')) {
+          span.className = 'diff-hunk';
+        } else {
+          span.className = 'diff-ctx';
+        }
+        span.textContent = line;
+        viewer.appendChild(span);
+      });
     }
 
     // Initialize on Page Load

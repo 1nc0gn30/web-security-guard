@@ -36,11 +36,14 @@ from web_security_guard.mcp_server import (
     MCPServer,
     audit_security,
     calculate_contrast,
+    diff_security_postures,
     generate_csp_policy,
     generate_mcp_client_config,
     generate_remediation_configs,
     generate_sri_hash,
     inject_sri_into_html,
+    inspect_ssl,
+    patch_project,
     run_mcp_server,
 )
 
@@ -160,7 +163,7 @@ def run_internal_tests() -> int:
         init_resp = srv.handle_request({"jsonrpc": "2.0", "id": 1, "method": "initialize"})
         assert init_resp["result"]["protocolVersion"] == "2024-11-05"
         tools_resp = srv.handle_request({"jsonrpc": "2.0", "id": 2, "method": "tools/list"})
-        assert len(tools_resp["result"]["tools"]) == 6
+        assert len(tools_resp["result"]["tools"]) == 9
         call_resp = srv.handle_request({
             "jsonrpc": "2.0",
             "id": 3,
@@ -182,6 +185,36 @@ def run_internal_tests() -> int:
         assert "context_servers" in cfg_zed
 
     test("MCP Client Config Exporter (Claude/Cursor/Cline/Zed)", test_configs)
+
+    # Test 9: SSL Certificate Inspector
+    def test_ssl():
+        res = inspect_ssl("example.com", port=443, timeout=5.0)
+        assert "target" in res
+        assert "domain" in res
+        assert "is_valid" in res
+        assert "certificate" in res
+
+    test("TLS & SSL Certificate Deep Inspector", test_ssl)
+
+    # Test 10: Security Posture Diff
+    def test_diff():
+        html_a = "<html><head><title>A</title></head><body><form action='http://a.com'></form></body></html>"
+        html_b = "<html><head><title>B</title><meta http-equiv='Content-Security-Policy' content=\"default-src 'self'\"></head><body></body></html>"
+        res = diff_security_postures(html_a, html_b)
+        assert "score_delta" in res
+        assert "fixed_findings" in res
+        assert "status" in res
+
+    test("Security Posture Diff & Comparison Engine", test_diff)
+
+    # Test 11: Local Project Patcher
+    def test_patch():
+        res = patch_project(".", platform="netlify", dry_run=True)
+        assert res["platform"] == "netlify"
+        assert res["dry_run"] is True
+        assert len(res["patched_files"]) >= 1
+
+    test("1-Click Local Project Hardening Patcher", test_patch)
 
     print("\n" + gray("─" * 70))
     if failures == 0:
@@ -524,6 +557,139 @@ def cmd_platform(args: argparse.Namespace) -> int:
 
 
 
+def cmd_ssl(args: argparse.Namespace) -> int:
+    """Inspect TLS/SSL certificate, cipher suite, SANs, and expiration."""
+    target = args.target
+    port = args.port or 443
+    res = inspect_ssl(target=target, port=port)
+
+    if args.json:
+        print(json.dumps(res, indent=2))
+        return 0 if res["is_valid"] else 1
+
+    print_banner()
+    print(bold(f"🔐 TLS Certificate & Cipher Suite Inspector: {cyan(res['domain'])} (Port {port})\n"))
+
+    if not res["is_valid"]:
+        print(red(f"❌ Handshake / Verification Error: {res.get('error', 'Invalid certificate')}"))
+        if res.get("recommendations"):
+            for r in res["recommendations"]:
+                print(f"  • {yellow(r)}")
+        return 1
+
+    status_badge = green("VALID") if res["status"] == "VALID" else (yellow("EXPIRING SOON") if res["status"] == "EXPIRING_SOON" else red("EXPIRED"))
+    print(f"Status:             {status_badge}")
+    print(f"TLS Protocol:       {green(res['tls_version'])} ({'TLS 1.3 Supported ✔' if res['tls_1_3_supported'] else 'TLS 1.2'})")
+    print(f"ALPN Protocol:      {cyan(res.get('alpn_protocol', 'N/A'))}")
+
+    cipher = res["cipher_suite"]
+    print(f"Cipher Suite:       {cyan(bold(cipher['name']))} ({cipher['bits']} bits)")
+
+    cert = res["certificate"]
+    print(f"Subject CN:         {cert.get('common_name', 'N/A')}")
+    print(f"Issuer:             {cert.get('issuer_name', 'N/A')}")
+    print(f"Valid From:         {cert.get('not_before', 'N/A')}")
+    print(f"Valid Until:        {cert.get('not_after', 'N/A')}")
+
+    days = cert.get("days_until_expiration", 0)
+    days_color = green if days > 30 else (yellow if days >= 0 else red)
+    print(f"Days to Expiry:     {days_color(bold(str(days)))} days\n")
+
+    sans = cert.get("sans", [])
+    print(bold(f"Subject Alternative Names (SANs - {len(sans)} entries):"))
+    if sans:
+        for s in sans[:10]:
+            print(f"  • {cyan(s)}")
+        if len(sans) > 10:
+            print(f"  ... and {len(sans) - 10} more.")
+    else:
+        print("  (None)")
+
+    if res.get("recommendations"):
+        print(bold("\nRecommendations:"))
+        for r in res["recommendations"]:
+            print(f"  • {yellow(r)}")
+
+    return 0
+
+
+def cmd_diff(args: argparse.Namespace) -> int:
+    """Side-by-side security posture comparison diff."""
+    target_a = args.target_a
+    target_b = args.target_b
+    res = diff_security_postures(target_a, target_b)
+
+    if args.json:
+        print(json.dumps(res, indent=2))
+        return 0
+
+    print_banner()
+    print(bold("⚖️  Security Posture Side-by-Side Diff\n"))
+
+    score_a = res["score_a"]
+    score_b = res["score_b"]
+    delta = res["score_delta"]
+
+    col_a = green if score_a >= 85 else (yellow if score_a >= 65 else red)
+    col_b = green if score_b >= 85 else (yellow if score_b >= 65 else red)
+    delta_color = green if delta > 0 else (red if delta < 0 else gray)
+    delta_str = f"+{delta}" if delta > 0 else str(delta)
+
+    print(f"Target A (Baseline): {cyan(target_a)}")
+    print(f"  Score:  {col_a(bold(str(score_a)))}/100 (Grade {col_a(res['grade_a'])})")
+    print(f"Target B (Hardened): {cyan(target_b)}")
+    print(f"  Score:  {col_b(bold(str(score_b)))}/100 (Grade {col_b(res['grade_b'])})")
+    print(f"Score Delta:         {delta_color(bold(delta_str))} pts ({delta_color(res['status'])})\n")
+
+    if res["fixed_findings"]:
+        print(green(bold(f"✔ Fixed Vulnerabilities ({res['fixed_count']}):")))
+        for f in res["fixed_findings"]:
+            print(f"  [{green('FIXED')}] {f['title']} (-{f.get('deduction', 0)} pts)")
+        print()
+
+    if res["new_findings"]:
+        print(red(bold(f"✖ New / Regressed Vulnerabilities ({res['new_count']}):")))
+        for f in res["new_findings"]:
+            print(f"  [{red('NEW')}] {f['title']}")
+        print()
+
+    if res["common_findings"]:
+        print(yellow(bold(f"⚠️  Retained Common Findings ({res['common_count']}):")))
+        for f in res["common_findings"]:
+            print(f"  [{yellow('RETAINED')}] {f['title']}")
+        print()
+
+    return 0
+
+
+def cmd_patch(args: argparse.Namespace) -> int:
+    """Auto-patch local repository with hardened headers."""
+    project_dir = args.project_dir
+    platform_choice = args.platform or "auto"
+    dry_run = getattr(args, "dry_run", False)
+
+    res = patch_project(project_dir=project_dir, platform=platform_choice, dry_run=dry_run)
+
+    if args.json:
+        print(json.dumps(res, indent=2))
+        return 0
+
+    print_banner()
+    mode_str = yellow(" [DRY RUN - Simulation Only]") if dry_run else green(" [APPLIED]")
+    print(f"⚡ Security Hardening Repository Patcher{mode_str}\n")
+    print(f"Project Root:       {cyan(bold(res['project_dir']))}")
+    print(f"Target Platform:    {green(bold(res['platform']))}")
+    print(f"Files Modified:     {green(str(res['file_count']))}\n")
+
+    print(bold("Patched Configuration Files:"))
+    for f in res["patched_files"]:
+        action_color = green if f["action"] == "created" else yellow
+        print(f"  • [{action_color(f['action'].upper())}] {cyan(f['path'])}")
+
+    print("\n" + green("✔ Security headers and CSP Level 3 policy successfully patched!"))
+    return 0
+
+
 def cmd_serve(args: argparse.Namespace) -> int:
     """Start Material 3 Security Studio HTTP server."""
     port = args.port or 8085
@@ -601,6 +767,25 @@ def build_parser() -> argparse.ArgumentParser:
     p_check.add_argument("--min-score", type=int, default=85, help="Minimum score required to pass gate (default: 85)")
     p_check.add_argument("--json", action="store_true", help="Output JSON format")
 
+    # Subcommand: ssl
+    p_ssl = subparsers.add_parser("ssl", help="Inspect TLS version, certificate SANs, expiration days, and cipher suite")
+    p_ssl.add_argument("target", help="Domain name or URL to inspect")
+    p_ssl.add_argument("--port", type=int, default=443, help="SSL/TLS port (default: 443)")
+    p_ssl.add_argument("--json", action="store_true", help="Output machine-readable JSON")
+
+    # Subcommand: diff
+    p_diff = subparsers.add_parser("diff", help="Side-by-side security posture comparison diff")
+    p_diff.add_argument("target_a", help="First target (URL, file, or HTML)")
+    p_diff.add_argument("target_b", help="Second target (URL, file, or HTML)")
+    p_diff.add_argument("--json", action="store_true", help="Output machine-readable JSON")
+
+    # Subcommand: patch
+    p_patch = subparsers.add_parser("patch", help="Auto-patch local repository with hardened headers")
+    p_patch.add_argument("project_dir", help="Local directory path to patch")
+    p_patch.add_argument("--platform", choices=["auto", "netlify", "vercel", "nextjs", "nginx", "html"], default="auto", help="Target platform (default: auto)")
+    p_patch.add_argument("--dry-run", action="store_true", help="Simulate without writing files")
+    p_patch.add_argument("--json", action="store_true", help="Output machine-readable JSON")
+
     # Subcommand: mcp
     p_mcp = subparsers.add_parser("mcp", help="Model Context Protocol (MCP) server & client config exporter")
     p_mcp.add_argument("--tools", action="store_true", help="List all registered MCP tools")
@@ -639,6 +824,9 @@ def main(argv: Optional[List[str]] = None) -> int:
         "contrast": cmd_contrast,
         "fix": cmd_fix,
         "check": cmd_check,
+        "ssl": cmd_ssl,
+        "diff": cmd_diff,
+        "patch": cmd_patch,
         "mcp": cmd_mcp,
         "serve": cmd_serve,
         "platform": cmd_platform,

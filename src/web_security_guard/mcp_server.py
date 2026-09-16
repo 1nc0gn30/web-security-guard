@@ -14,6 +14,7 @@ Zero external dependencies: Pure Python standard library implementation of:
 from __future__ import annotations
 
 import base64
+import datetime
 import hashlib
 import json
 import math
@@ -21,6 +22,8 @@ import os
 import platform
 import re
 import secrets
+import socket
+import ssl
 import sys
 import urllib.error
 import urllib.parse
@@ -1039,7 +1042,418 @@ app.disable('x-powered-by');
 
 
 # ============================================================================
-# 6. MCP Client Config Generator (Claude Desktop, Cursor, Cline, Zed, Generic)
+# 6. TLS / SSL Certificate & Cipher Suite Inspector
+# ============================================================================
+
+def inspect_ssl(target: str, port: int = 443, timeout: float = 10.0) -> Dict[str, Any]:
+    """Deep TLS certificate, cipher suite, SANs, and expiration inspector."""
+    target_clean = target.strip()
+    if target_clean.startswith("https://") or target_clean.startswith("http://"):
+        parsed = urllib.parse.urlparse(target_clean)
+        hostname = parsed.hostname or target_clean
+        if parsed.port:
+            port = parsed.port
+    else:
+        parts = target_clean.split("/")[0]
+        if ":" in parts:
+            host_parts = parts.split(":")
+            hostname = host_parts[0]
+            try:
+                port = int(host_parts[1])
+            except ValueError:
+                pass
+        else:
+            hostname = parts
+
+    hostname = hostname.strip()
+
+    context = ssl.create_default_context()
+    context.check_hostname = True
+    context.verify_mode = ssl.CERT_REQUIRED
+
+    try:
+        with socket.create_connection((hostname, port), timeout=timeout) as sock:
+            with context.wrap_socket(sock, server_hostname=hostname) as ssock:
+                cert = ssock.getpeercert()
+                cipher = ssock.cipher()
+                tls_version = ssock.version()
+                alpn = ssock.selected_alpn_protocol()
+
+                # Extract Subject
+                subject_dict: Dict[str, str] = {}
+                for rdn in cert.get("subject", ()):
+                    for k, v in rdn:
+                        subject_dict[k] = v
+
+                # Extract Issuer
+                issuer_dict: Dict[str, str] = {}
+                for rdn in cert.get("issuer", ()):
+                    for k, v in rdn:
+                        issuer_dict[k] = v
+
+                # Extract SANs
+                sans: List[str] = []
+                for typ, val in cert.get("subjectAltName", ()):
+                    if typ in ("DNS", "IP Address"):
+                        sans.append(val)
+
+                # Parse dates
+                not_before_str = cert.get("notBefore", "")
+                not_after_str = cert.get("notAfter", "")
+
+                not_after_dt = None
+                if not_after_str:
+                    try:
+                        norm = " ".join(not_after_str.split())
+                        not_after_dt = datetime.datetime.strptime(norm, "%b %d %H:%M:%S %Y %Z").replace(tzinfo=datetime.timezone.utc)
+                    except Exception:
+                        pass
+
+                now = datetime.datetime.now(datetime.timezone.utc)
+                days_remaining = (not_after_dt - now).days if not_after_dt else 0
+
+                if days_remaining > 30:
+                    status = "VALID"
+                elif days_remaining >= 0:
+                    status = "EXPIRING_SOON"
+                else:
+                    status = "EXPIRED"
+
+                cipher_name = cipher[0] if cipher else "Unknown"
+                cipher_proto = cipher[1] if cipher and len(cipher) > 1 else (tls_version or "Unknown")
+                cipher_bits = cipher[2] if cipher and len(cipher) > 2 else 0
+
+                recommendations = []
+                if tls_version == "TLSv1.2":
+                    recommendations.append("Consider upgrading web server / reverse proxy to enable TLSv1.3 for 0-RTT handshakes and forward secrecy.")
+                elif tls_version and tls_version < "TLSv1.2":
+                    recommendations.append("Deprecated TLS version in use. Upgrade immediately to TLSv1.2 or TLSv1.3.")
+                if days_remaining < 30 and days_remaining >= 0:
+                    recommendations.append(f"Certificate expires soon ({days_remaining} days remaining). Renew certificate.")
+                elif days_remaining < 0:
+                    recommendations.append("Certificate has expired! Replace certificate immediately.")
+                if cipher_bits < 128:
+                    recommendations.append(f"Weak cipher key size ({cipher_bits} bits). Use at least 128-bit or 256-bit ciphers.")
+
+                return {
+                    "target": target,
+                    "domain": hostname,
+                    "port": port,
+                    "is_valid": True,
+                    "status": status,
+                    "tls_version": tls_version,
+                    "tls_1_3_supported": tls_version == "TLSv1.3",
+                    "cipher_suite": {
+                        "name": cipher_name,
+                        "protocol": cipher_proto,
+                        "bits": cipher_bits,
+                    },
+                    "alpn_protocol": alpn or "http/1.1",
+                    "certificate": {
+                        "common_name": subject_dict.get("commonName", hostname),
+                        "subject": subject_dict,
+                        "issuer": issuer_dict,
+                        "issuer_name": issuer_dict.get("organizationName") or issuer_dict.get("commonName") or "Unknown Issuer",
+                        "not_before": not_before_str,
+                        "not_after": not_after_str,
+                        "days_until_expiration": days_remaining,
+                        "sans": sans,
+                        "san_count": len(sans),
+                        "serial_number": cert.get("serialNumber", ""),
+                        "version": cert.get("version", 3),
+                        "ocsp_endpoints": list(cert.get("OCSP", ())),
+                        "ca_issuers": list(cert.get("caIssuers", ())),
+                    },
+                    "recommendations": recommendations,
+                }
+    except ssl.SSLCertVerificationError as e:
+        return {
+            "target": target,
+            "domain": hostname,
+            "port": port,
+            "is_valid": False,
+            "status": "UNTRUSTED_OR_INVALID",
+            "error": str(e),
+            "tls_version": "N/A",
+            "tls_1_3_supported": False,
+            "cipher_suite": {"name": "N/A", "protocol": "N/A", "bits": 0},
+            "alpn_protocol": "N/A",
+            "certificate": {
+                "common_name": hostname,
+                "subject": {},
+                "issuer": {},
+                "issuer_name": "Untrusted / Invalid",
+                "not_before": "N/A",
+                "not_after": "N/A",
+                "days_until_expiration": 0,
+                "sans": [],
+                "san_count": 0,
+                "serial_number": "",
+                "version": 0,
+                "ocsp_endpoints": [],
+                "ca_issuers": [],
+            },
+            "recommendations": [f"SSL certificate verification failed: {str(e)}. Use a valid CA certificate."],
+        }
+    except Exception as e:
+        return {
+            "target": target,
+            "domain": hostname,
+            "port": port,
+            "is_valid": False,
+            "status": "CONNECTION_FAILED",
+            "error": str(e),
+            "tls_version": "N/A",
+            "tls_1_3_supported": False,
+            "cipher_suite": {"name": "N/A", "protocol": "N/A", "bits": 0},
+            "alpn_protocol": "N/A",
+            "certificate": {
+                "common_name": hostname,
+                "subject": {},
+                "issuer": {},
+                "issuer_name": "Unknown",
+                "not_before": "N/A",
+                "not_after": "N/A",
+                "days_until_expiration": 0,
+                "sans": [],
+                "san_count": 0,
+                "serial_number": "",
+                "version": 0,
+                "ocsp_endpoints": [],
+                "ca_issuers": [],
+            },
+            "recommendations": [f"Could not complete TLS connection to {hostname}:{port} ({str(e)}). Check domain and port."],
+        }
+
+
+# ============================================================================
+# 7. Security Posture Diff Engine
+# ============================================================================
+
+def diff_security_postures(target_a: str, target_b: str) -> Dict[str, Any]:
+    """Compare two targets or before/after security postures side-by-side."""
+    audit_a = audit_security(target_a)
+    audit_b = audit_security(target_b)
+
+    score_a = audit_a["score"]
+    score_b = audit_b["score"]
+    delta = score_b - score_a
+
+    findings_a = {f["id"]: f for f in audit_a.get("findings", [])}
+    findings_b = {f["id"]: f for f in audit_b.get("findings", [])}
+
+    fixed_ids = set(findings_a.keys()) - set(findings_b.keys())
+    new_ids = set(findings_b.keys()) - set(findings_a.keys())
+    common_ids = set(findings_a.keys()) & set(findings_b.keys())
+
+    fixed_findings = [findings_a[k] for k in sorted(fixed_ids)]
+    new_findings = [findings_b[k] for k in sorted(new_ids)]
+    common_findings = [findings_b[k] for k in sorted(common_ids)]
+
+    headers_a = set(audit_a.get("headers_inspected", []))
+    headers_b = set(audit_b.get("headers_inspected", []))
+
+    if delta > 0:
+        verdict = f"Security Posture Improved (+{delta} points)"
+        status = "IMPROVED"
+    elif delta < 0:
+        verdict = f"Security Posture Regressed ({delta} points)"
+        status = "REGRESSED"
+    else:
+        verdict = "No Score Change"
+        status = "UNCHANGED"
+
+    return {
+        "target_a": target_a,
+        "target_b": target_b,
+        "score_a": score_a,
+        "score_b": score_b,
+        "score_delta": delta,
+        "grade_a": audit_a["grade"],
+        "grade_b": audit_b["grade"],
+        "status": status,
+        "verdict": verdict,
+        "fixed_findings": fixed_findings,
+        "fixed_count": len(fixed_findings),
+        "new_findings": new_findings,
+        "new_count": len(new_findings),
+        "common_findings": common_findings,
+        "common_count": len(common_findings),
+        "headers_added": sorted(list(headers_b - headers_a)),
+        "headers_removed": sorted(list(headers_a - headers_b)),
+        "audit_a": audit_a,
+        "audit_b": audit_b,
+    }
+
+
+# ============================================================================
+# 8. Local Project Auto-Patcher
+# ============================================================================
+
+def patch_project(project_dir: str, platform: str = "auto", dry_run: bool = False) -> Dict[str, Any]:
+    """Auto-patch local repository files with hardened security configs."""
+    p_dir = os.path.abspath(project_dir.strip()) if project_dir.strip() else os.getcwd()
+    plat = platform.lower().strip()
+
+    # Detect platform if auto
+    if plat == "auto":
+        if os.path.exists(os.path.join(p_dir, "netlify.toml")) or os.path.exists(os.path.join(p_dir, "_headers")):
+            plat = "netlify"
+        elif os.path.exists(os.path.join(p_dir, "vercel.json")):
+            plat = "vercel"
+        elif os.path.exists(os.path.join(p_dir, "next.config.js")) or os.path.exists(os.path.join(p_dir, "next.config.mjs")) or os.path.exists(os.path.join(p_dir, "next.config.ts")):
+            plat = "nextjs"
+        elif os.path.exists(os.path.join(p_dir, "nginx.conf")) or os.path.exists(os.path.join(p_dir, "default.conf")):
+            plat = "nginx"
+        elif os.path.exists(os.path.join(p_dir, "index.html")):
+            plat = "html"
+        else:
+            plat = "netlify"
+
+    remediation = generate_remediation_configs(target=p_dir, server_type=plat)
+    csp_data = generate_csp_policy(framework=plat if plat in ("nextjs", "react", "vue", "astro") else "vanilla", preset="strict")
+
+    patched_files = []
+
+    if plat in ("netlify", "all"):
+        toml_path = os.path.join(p_dir, "netlify.toml")
+        toml_content = remediation["files"].get("netlify.toml", "")
+        if not dry_run:
+            os.makedirs(p_dir, exist_ok=True)
+            with open(toml_path, "w", encoding="utf-8") as f:
+                f.write(toml_content)
+        patched_files.append({
+            "path": toml_path,
+            "filename": "netlify.toml",
+            "action": "created" if not os.path.exists(toml_path) else "overwritten",
+            "content": toml_content,
+        })
+
+    if plat in ("vercel", "all"):
+        vercel_path = os.path.join(p_dir, "vercel.json")
+        vercel_content = remediation["files"].get("vercel.json", "")
+        if not dry_run:
+            os.makedirs(p_dir, exist_ok=True)
+            with open(vercel_path, "w", encoding="utf-8") as f:
+                f.write(vercel_content)
+        patched_files.append({
+            "path": vercel_path,
+            "filename": "vercel.json",
+            "action": "created" if not os.path.exists(vercel_path) else "overwritten",
+            "content": vercel_content,
+        })
+
+    if plat in ("nginx", "all"):
+        nginx_path = os.path.join(p_dir, "security-headers.conf")
+        nginx_content = remediation["files"].get("nginx.conf", "")
+        if not dry_run:
+            os.makedirs(p_dir, exist_ok=True)
+            with open(nginx_path, "w", encoding="utf-8") as f:
+                f.write(nginx_content)
+        patched_files.append({
+            "path": nginx_path,
+            "filename": "security-headers.conf",
+            "action": "created" if not os.path.exists(nginx_path) else "overwritten",
+            "content": nginx_content,
+        })
+
+    if plat in ("nextjs", "all"):
+        mw_path = os.path.join(p_dir, "middleware.ts")
+        mw_content = f"""import {{ NextRequest, NextResponse }} from 'next/server';
+
+export function middleware(request: NextRequest) {{
+  const nonce = Buffer.from(crypto.randomUUID()).toString('base64');
+  const cspHeader = `{csp_data["csp_string"].replace(csp_data["nonce"], "${nonce}")}`;
+
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set('x-nonce', nonce);
+  requestHeaders.set('Content-Security-Policy', cspHeader);
+
+  const response = NextResponse.next({{
+    request: {{
+      headers: requestHeaders,
+    }},
+  }});
+
+  response.headers.set('Content-Security-Policy', cspHeader);
+  response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+  response.headers.set('X-Content-Type-Options', 'nosniff');
+  response.headers.set('X-Frame-Options', 'DENY');
+  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
+
+  return response;
+}}
+
+export const config = {{
+  matcher: [
+    {{
+      source: '/((?!api|_next/static|_next/image|favicon.ico).*)',
+      missing: [
+        {{ type: 'header', key: 'next-router-prefetch' }},
+        {{ type: 'header', key: 'purpose', value: 'prefetch' }},
+      ],
+    }},
+  ],
+}};
+"""
+        if not dry_run:
+            os.makedirs(p_dir, exist_ok=True)
+            with open(mw_path, "w", encoding="utf-8") as f:
+                f.write(mw_content)
+        patched_files.append({
+            "path": mw_path,
+            "filename": "middleware.ts",
+            "action": "created" if not os.path.exists(mw_path) else "overwritten",
+            "content": mw_content,
+        })
+
+    if plat in ("html", "all"):
+        html_path = os.path.join(p_dir, "index.html")
+        meta_snippet = remediation["files"].get("security-meta.html", "")
+        if os.path.exists(html_path):
+            with open(html_path, "r", encoding="utf-8", errors="replace") as f:
+                content = f.read()
+            if "<meta http-equiv=\"Content-Security-Policy\"" not in content:
+                if "</head>" in content:
+                    content = content.replace("</head>", f"  {meta_snippet}\n</head>")
+                else:
+                    content = meta_snippet + "\n" + content
+                if not dry_run:
+                    with open(html_path, "w", encoding="utf-8") as f:
+                        f.write(content)
+                patched_files.append({
+                    "path": html_path,
+                    "filename": "index.html",
+                    "action": "injected_meta_tags",
+                    "content": content,
+                })
+        else:
+            meta_path = os.path.join(p_dir, "security-meta.html")
+            if not dry_run:
+                os.makedirs(p_dir, exist_ok=True)
+                with open(meta_path, "w", encoding="utf-8") as f:
+                    f.write(meta_snippet)
+            patched_files.append({
+                "path": meta_path,
+                "filename": "security-meta.html",
+                "action": "created",
+                "content": meta_snippet,
+            })
+
+    return {
+        "project_dir": p_dir,
+        "platform": plat,
+        "dry_run": dry_run,
+        "applied": not dry_run,
+        "patched_files": patched_files,
+        "file_count": len(patched_files),
+        "message": f"Successfully patched project for '{plat}' with hardened security headers.",
+    }
+
+
+# ============================================================================
+# 9. MCP Client Config Generator (Claude Desktop, Cursor, Cline, Zed, Generic)
 # ============================================================================
 
 def generate_mcp_client_config(
@@ -1069,6 +1483,18 @@ def generate_mcp_client_config(
         },
     }
 
+    all_tool_names = [
+        "sec_audit_site",
+        "sec_generate_csp",
+        "sec_generate_sri",
+        "sec_inject_sri",
+        "sec_check_contrast",
+        "sec_generate_remediation",
+        "sec_inspect_ssl",
+        "sec_diff_postures",
+        "sec_patch_project",
+    ]
+
     if cl in ("claude", "claude_desktop", "claude-desktop"):
         return {
             "mcpServers": {
@@ -1087,14 +1513,7 @@ def generate_mcp_client_config(
                 "web-security-guard": {
                     **server_entry,
                     "disabled": False,
-                    "alwaysAllow": [
-                        "sec_audit_site",
-                        "sec_generate_csp",
-                        "sec_generate_sri",
-                        "sec_inject_sri",
-                        "sec_check_contrast",
-                        "sec_generate_remediation",
-                    ],
+                    "alwaysAllow": all_tool_names,
                 }
             }
         }
@@ -1120,14 +1539,7 @@ def generate_mcp_client_config(
             "description": "Web Security Guard MCP Server",
             "server": server_entry,
             "transport": "stdio",
-            "supported_tools": [
-                "sec_audit_site",
-                "sec_generate_csp",
-                "sec_generate_sri",
-                "sec_inject_sri",
-                "sec_check_contrast",
-                "sec_generate_remediation",
-            ],
+            "supported_tools": all_tool_names,
         }
 
 
@@ -1316,6 +1728,72 @@ MCP_TOOLS_DEFINITIONS = [
             "required": ["target"],
         },
     },
+    {
+        "name": "sec_inspect_ssl",
+        "description": "Deep TLS certificate, cipher suite, SANs, and expiration days inspector.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "target": {
+                    "type": "string",
+                    "description": "Target hostname, domain, or URL (e.g. google.com or https://example.com).",
+                },
+                "port": {
+                    "type": "integer",
+                    "description": "SSL/TLS port (default: 443).",
+                    "default": 443,
+                },
+                "timeout": {
+                    "type": "number",
+                    "description": "Connection timeout in seconds (default: 10.0).",
+                    "default": 10.0,
+                },
+            },
+            "required": ["target"],
+        },
+    },
+    {
+        "name": "sec_diff_postures",
+        "description": "Compare two websites or before/after security posture side-by-side with delta scorecards.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "target_a": {
+                    "type": "string",
+                    "description": "First target URL, HTML snippet, or file path (Baseline / Before).",
+                },
+                "target_b": {
+                    "type": "string",
+                    "description": "Second target URL, HTML snippet, or file path (Hardened / After).",
+                },
+            },
+            "required": ["target_a", "target_b"],
+        },
+    },
+    {
+        "name": "sec_patch_project",
+        "description": "Auto-patch local repository with hardened security headers and server configs.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "project_dir": {
+                    "type": "string",
+                    "description": "Local project root directory path to patch.",
+                },
+                "platform": {
+                    "type": "string",
+                    "description": "Target platform (auto, netlify, vercel, nextjs, nginx, html). Default is auto.",
+                    "default": "auto",
+                },
+                "dry_run": {
+                    "type": "boolean",
+                    "description": "If true, simulates patching without writing files to disk.",
+                    "default": False,
+                },
+            },
+            "required": ["project_dir"],
+        },
+    },
 ]
 
 
@@ -1398,6 +1876,29 @@ class MCPServer:
                 include_csp=arguments.get("include_csp", True),
                 include_cors=arguments.get("include_cors", True),
             )
+
+        elif tool_name == "sec_inspect_ssl":
+            target = arguments.get("target")
+            if not target:
+                raise ValueError("Missing required argument 'target'")
+            port = int(arguments.get("port", 443))
+            timeout = float(arguments.get("timeout", 10.0))
+            return inspect_ssl(target=target, port=port, timeout=timeout)
+
+        elif tool_name == "sec_diff_postures":
+            target_a = arguments.get("target_a")
+            target_b = arguments.get("target_b")
+            if not target_a or not target_b:
+                raise ValueError("Missing required arguments 'target_a' and 'target_b'")
+            return diff_security_postures(target_a=target_a, target_b=target_b)
+
+        elif tool_name == "sec_patch_project":
+            project_dir = arguments.get("project_dir")
+            if not project_dir:
+                raise ValueError("Missing required argument 'project_dir'")
+            platform = arguments.get("platform", "auto")
+            dry_run = bool(arguments.get("dry_run", False))
+            return patch_project(project_dir=project_dir, platform=platform, dry_run=dry_run)
 
         else:
             raise KeyError(f"Unknown MCP tool: '{tool_name}'")

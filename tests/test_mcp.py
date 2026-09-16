@@ -16,12 +16,15 @@ from web_security_guard.mcp_server import (
     MCPServer,
     audit_security,
     calculate_contrast,
+    diff_security_postures,
     generate_csp_policy,
     generate_mcp_client_config,
     generate_remediation_configs,
     generate_sri_hash,
     inject_sri_into_html,
+    inspect_ssl,
     parse_color,
+    patch_project,
     relative_luminance,
 )
 
@@ -212,6 +215,143 @@ class TestSecurityAuditEngine(unittest.TestCase):
         self.assertIn("security-meta.html", res["files"])
 
 
+class TestSSLEngineMCP(unittest.TestCase):
+    """Test SSL / TLS certificate inspection engine in MCP."""
+
+    def test_inspect_ssl_invalid_domain(self):
+        res = inspect_ssl("invalid.nonexistent.domain.xyz12345", timeout=2.0)
+        self.assertFalse(res["is_valid"])
+        self.assertIn(res["status"], ("CONNECTION_FAILED", "UNTRUSTED_OR_INVALID", "ERROR"))
+        self.assertGreater(len(res["recommendations"]), 0)
+
+    def test_inspect_ssl_mock_connection(self):
+        mock_cert = {
+            "subject": ((("commonName", "test.example.com"),), (("organizationName", "Example Corp"),), (("countryName", "US"),)),
+            "issuer": ((("commonName", "DigiCert Global Root CA"),), (("organizationName", "DigiCert Inc"),), (("countryName", "US"),)),
+            "version": 3,
+            "serialNumber": "0123456789ABCDEF",
+            "notBefore": "Jan  1 00:00:00 2026 GMT",
+            "notAfter": "Dec 31 23:59:59 2026 GMT",
+            "subjectAltName": (("DNS", "test.example.com"), ("DNS", "*.example.com")),
+            "OCSP": ("http://ocsp.digicert.com",),
+        }
+
+        mock_sslsock = MagicMock()
+        mock_sslsock.version.return_value = "TLSv1.3"
+        mock_sslsock.cipher.return_value = ("TLS_AES_256_GCM_SHA384", "TLSv1.3", 256)
+        mock_sslsock.selected_alpn_protocol.return_value = "h2"
+        mock_sslsock.getpeercert.return_value = mock_cert
+
+        mock_sock = MagicMock()
+        mock_ctx = MagicMock()
+        mock_ctx.wrap_socket.return_value.__enter__.return_value = mock_sslsock
+
+        with patch("socket.create_connection", return_value=mock_sock):
+            with patch("ssl.create_default_context", return_value=mock_ctx):
+                res = inspect_ssl("test.example.com", port=443)
+                self.assertTrue(res["is_valid"])
+                self.assertEqual(res["tls_version"], "TLSv1.3")
+                self.assertEqual(res["cipher_suite"]["name"], "TLS_AES_256_GCM_SHA384")
+                self.assertEqual(res["cipher_suite"]["bits"], 256)
+                self.assertEqual(res["alpn_protocol"], "h2")
+                self.assertIn("test.example.com", res["certificate"]["sans"])
+                self.assertIn("*.example.com", res["certificate"]["sans"])
+                self.assertEqual(res["certificate"]["subject"]["commonName"], "test.example.com")
+                self.assertEqual(res["certificate"]["issuer"]["commonName"], "DigiCert Global Root CA")
+
+
+class TestPostureDiffEngineMCP(unittest.TestCase):
+    """Test side-by-side security posture differential engine."""
+
+    def test_diff_synthetic_html(self):
+        insecure_html = """
+        <!DOCTYPE html>
+        <html>
+        <body>
+            <a href="https://bad.com" target="_blank">Link</a>
+            <form action="http://insecure.com/submit"><button>Submit</button></form>
+            <script>eval('x=1');</script>
+        </body>
+        </html>
+        """
+        hardened_html = """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'nonce-abc'; object-src 'none';">
+        </head>
+        <body>
+            <a href="https://good.com" target="_blank" rel="noopener noreferrer">Link</a>
+            <form action="https://secure.com/submit"><button>Submit</button></form>
+        </body>
+        </html>
+        """
+        res = diff_security_postures(insecure_html, hardened_html)
+        self.assertIn("target_a", res)
+        self.assertIn("target_b", res)
+        self.assertIn("score_delta", res)
+        self.assertGreater(res["score_delta"], 0)
+        self.assertGreater(len(res["fixed_findings"]), 0)
+
+
+class TestProjectPatcherEngineMCP(unittest.TestCase):
+    """Test 1-click local repository patcher across platforms."""
+
+    def test_patch_project_netlify_dry_run_and_apply(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            config_file = os.path.join(tmpdir, "netlify.toml")
+            with open(config_file, "w", encoding="utf-8") as f:
+                f.write("[build]\n  publish = \"dist\"\n")
+
+            # 1. Dry run preview
+            res_preview = patch_project(tmpdir, platform="netlify", dry_run=True)
+            self.assertEqual(res_preview["platform"], "netlify")
+            self.assertTrue(res_preview["dry_run"])
+            self.assertFalse(res_preview["applied"])
+            self.assertGreater(len(res_preview["patched_files"]), 0)
+            self.assertIn("[[headers]]", res_preview["patched_files"][0]["content"])
+
+            # Verify file not touched yet
+            with open(config_file, "r", encoding="utf-8") as f:
+                content_before = f.read()
+            self.assertNotIn("[[headers]]", content_before)
+
+            # 2. Apply patch
+            res_applied = patch_project(tmpdir, platform="netlify", dry_run=False)
+            self.assertTrue(res_applied["applied"])
+            with open(config_file, "r", encoding="utf-8") as f:
+                content_after = f.read()
+            self.assertIn("[[headers]]", content_after)
+            self.assertIn("Strict-Transport-Security", content_after)
+
+    def test_patch_project_auto_detect_vercel(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            config_file = os.path.join(tmpdir, "vercel.json")
+            with open(config_file, "w", encoding="utf-8") as f:
+                f.write("{\n  \"rewrites\": []\n}\n")
+
+            res = patch_project(tmpdir, platform="auto", dry_run=False)
+            self.assertEqual(res["platform"], "vercel")
+            self.assertTrue(res["applied"])
+
+            with open(config_file, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            self.assertIn("headers", data)
+
+    def test_patch_project_html(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            html_file = os.path.join(tmpdir, "index.html")
+            with open(html_file, "w", encoding="utf-8") as f:
+                f.write("<!DOCTYPE html><html><head><title>App</title></head><body><h1>Hello</h1></body></html>")
+
+            res = patch_project(tmpdir, platform="html", dry_run=False)
+            self.assertEqual(res["platform"], "html")
+            with open(html_file, "r", encoding="utf-8") as f:
+                html_patched = f.read()
+            self.assertIn("Content-Security-Policy", html_patched)
+            self.assertIn("<meta", html_patched)
+
+
 class TestMCPClientConfig(unittest.TestCase):
     """Test MCP Client config generation for Claude, Cursor, Cline, Zed, and generic."""
 
@@ -272,7 +412,7 @@ class TestMCPServerProtocol(unittest.TestCase):
         req = {"jsonrpc": "2.0", "id": 103, "method": "tools/list"}
         resp = self.server.handle_request(req)
         tools = resp["result"]["tools"]
-        self.assertEqual(len(tools), 6)
+        self.assertEqual(len(tools), 9)
         tool_names = [t["name"] for t in tools]
         self.assertIn("sec_audit_site", tool_names)
         self.assertIn("sec_generate_csp", tool_names)
@@ -280,6 +420,9 @@ class TestMCPServerProtocol(unittest.TestCase):
         self.assertIn("sec_inject_sri", tool_names)
         self.assertIn("sec_check_contrast", tool_names)
         self.assertIn("sec_generate_remediation", tool_names)
+        self.assertIn("sec_inspect_ssl", tool_names)
+        self.assertIn("sec_diff_postures", tool_names)
+        self.assertIn("sec_patch_project", tool_names)
 
     def test_tools_call_contrast(self):
         req = {
@@ -346,6 +489,63 @@ class TestMCPServerProtocol(unittest.TestCase):
         data = json.loads(content_text)
         self.assertIn("netlify.toml", data["files"])
 
+    def test_tools_call_inspect_ssl(self):
+        req = {
+            "jsonrpc": "2.0",
+            "id": 110,
+            "method": "tools/call",
+            "params": {
+                "name": "sec_inspect_ssl",
+                "arguments": {"target": "invalid.local.domain.xyz", "port": 443, "timeout": 1.0},
+            },
+        }
+        resp = self.server.handle_request(req)
+        self.assertFalse(resp["result"]["isError"])
+        content_text = resp["result"]["content"][0]["text"]
+        data = json.loads(content_text)
+        self.assertIn("is_valid", data)
+
+    def test_tools_call_diff_postures(self):
+        req = {
+            "jsonrpc": "2.0",
+            "id": 111,
+            "method": "tools/call",
+            "params": {
+                "name": "sec_diff_postures",
+                "arguments": {
+                    "target_a": "<h1>Baseline</h1>",
+                    "target_b": "<meta http-equiv=\"Content-Security-Policy\" content=\"default-src 'self'\"><h1>Hardened</h1>",
+                },
+            },
+        }
+        resp = self.server.handle_request(req)
+        self.assertFalse(resp["result"]["isError"])
+        content_text = resp["result"]["content"][0]["text"]
+        data = json.loads(content_text)
+        self.assertIn("score_delta", data)
+
+    def test_tools_call_patch_project(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            html_file = os.path.join(tmpdir, "index.html")
+            with open(html_file, "w", encoding="utf-8") as f:
+                f.write("<!DOCTYPE html><html><head><title>App</title></head><body><h1>Hello</h1></body></html>")
+
+            req = {
+                "jsonrpc": "2.0",
+                "id": 112,
+                "method": "tools/call",
+                "params": {
+                    "name": "sec_patch_project",
+                    "arguments": {"project_dir": tmpdir, "platform": "html", "dry_run": True},
+                },
+            }
+            resp = self.server.handle_request(req)
+            self.assertFalse(resp["result"]["isError"])
+            content_text = resp["result"]["content"][0]["text"]
+            data = json.loads(content_text)
+            self.assertEqual(data["platform"], "html")
+            self.assertTrue(data["dry_run"])
+
     def test_invalid_tool_name(self):
         req = {
             "jsonrpc": "2.0",
@@ -366,3 +566,4 @@ class TestMCPServerProtocol(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

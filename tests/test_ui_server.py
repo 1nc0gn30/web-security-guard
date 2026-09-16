@@ -19,6 +19,9 @@ from web_security_guard.ui_server import (
     SecurityAuditEngine,
     HardeningExporter,
     MCPEngine,
+    SSLEngine,
+    PostureDiffEngine,
+    ProjectPatcherEngine,
 )
 
 
@@ -243,7 +246,96 @@ class TestHardeningAndMCPEngines:
         assert "cline" in configs
         assert "zed" in configs
         assert "tools" in configs
-        assert len(configs["tools"]) == 5
+        assert len(configs["tools"]) == 9
+
+
+# ==============================================================================
+# SSL, Posture Diff & Project Patcher Engine Tests
+# ==============================================================================
+
+class TestSSLEngine:
+    """Tests for TLS certificate and cipher suite inspection engine."""
+
+    def test_inspect_ssl_invalid_domain(self):
+        res = SSLEngine.inspect_ssl("invalid.nonexistent.domain.xyz12345", timeout=2.0)
+        assert res["is_valid"] is False
+        assert res["status"] in ("CONNECTION_FAILED", "UNTRUSTED_OR_INVALID", "ERROR")
+        assert len(res["recommendations"]) > 0
+
+    def test_inspect_ssl_mock_connection(self):
+        from unittest.mock import MagicMock, patch
+        mock_cert = {
+            "subject": ((("commonName", "test.example.com"),), (("organizationName", "Example Corp"),), (("countryName", "US"),)),
+            "issuer": ((("commonName", "DigiCert Global Root CA"),), (("organizationName", "DigiCert Inc"),), (("countryName", "US"),)),
+            "version": 3,
+            "serialNumber": "0123456789ABCDEF",
+            "notBefore": "Jan  1 00:00:00 2026 GMT",
+            "notAfter": "Dec 31 23:59:59 2026 GMT",
+            "subjectAltName": (("DNS", "test.example.com"), ("DNS", "*.example.com")),
+            "OCSP": ("http://ocsp.digicert.com",),
+        }
+
+        mock_sslsock = MagicMock()
+        mock_sslsock.version.return_value = "TLSv1.3"
+        mock_sslsock.cipher.return_value = ("TLS_AES_256_GCM_SHA384", "TLSv1.3", 256)
+        mock_sslsock.selected_alpn_protocol.return_value = "h2"
+        mock_sslsock.getpeercert.return_value = mock_cert
+
+        mock_sock = MagicMock()
+        mock_ctx = MagicMock()
+        mock_ctx.wrap_socket.return_value.__enter__.return_value = mock_sslsock
+
+        with patch("socket.create_connection", return_value=mock_sock):
+            with patch("ssl.create_default_context", return_value=mock_ctx):
+                res = SSLEngine.inspect_ssl("test.example.com", port=443)
+                assert res["is_valid"] is True
+                assert res["tls_version"] == "TLSv1.3"
+                assert res["cipher_suite"]["name"] == "TLS_AES_256_GCM_SHA384"
+                assert res["cipher_suite"]["bits"] == 256
+                assert res["alpn_protocol"] == "h2"
+                assert "test.example.com" in res["certificate"]["sans"]
+                assert res["certificate"]["subject"]["commonName"] == "test.example.com"
+
+
+class TestPostureDiffEngine:
+    """Tests for side-by-side security posture differential engine."""
+
+    def test_compare_synthetic(self):
+        insecure_html = "<html><body><script>eval('x=1');</script></body></html>"
+        hardened_html = "<html><head><meta http-equiv='Content-Security-Policy' content=\"default-src 'self'\"></head><body><h1>Safe</h1></body></html>"
+        res = PostureDiffEngine.compare(insecure_html, hardened_html)
+        assert res["score_delta"] > 0
+        assert len(res["fixed_findings"]) > 0
+        assert res["status"] == "IMPROVED"
+
+
+class TestProjectPatcherEngine:
+    """Tests for local repository security patcher."""
+
+    def test_patcher_netlify(self, tmp_path):
+        cfg = tmp_path / "netlify.toml"
+        cfg.write_text("[build]\n  publish = 'public'\n")
+
+        # Dry run
+        res_dry = ProjectPatcherEngine.patch(str(tmp_path), platform="netlify", dry_run=True)
+        assert res_dry["platform"] == "netlify"
+        assert res_dry["applied"] is False
+        assert len(res_dry["patched_files"]) > 0
+        assert "[[headers]]" in res_dry["patched_files"][0]["content"]
+
+        # Apply
+        res_apply = ProjectPatcherEngine.patch(str(tmp_path), platform="netlify", dry_run=False)
+        assert res_apply["applied"] is True
+        assert "[[headers]]" in cfg.read_text()
+
+    def test_patcher_auto_detect_vercel(self, tmp_path):
+        cfg = tmp_path / "vercel.json"
+        cfg.write_text('{"rewrites": []}')
+
+        res = ProjectPatcherEngine.patch(str(tmp_path), platform="auto", dry_run=False)
+        assert res["platform"] == "vercel"
+        assert res["applied"] is True
+        assert "headers" in cfg.read_text()
 
 
 # ==============================================================================
@@ -362,3 +454,41 @@ class TestHTTPServerIntegration:
         assert status == 200
         assert "snippet" in data
         assert "add_header" in data["snippet"]
+
+    def test_post_api_ssl_inspect(self, test_server):
+        payload = {"domain": "invalid.local.domain.xyz", "port": 443}
+        status, data = self._post_json(f"{test_server}/api/ssl/inspect", payload)
+        assert status == 200
+        assert "is_valid" in data
+        assert data["is_valid"] is False
+
+    def test_get_api_ssl_inspect(self, test_server):
+        status, headers, content = self._get(f"{test_server}/api/ssl/inspect?domain=invalid.local.domain.xyz&port=443")
+        assert status == 200
+        data = json.loads(content.decode("utf-8"))
+        assert "is_valid" in data
+
+    def test_post_api_diff_compare(self, test_server):
+        payload = {
+            "target_a": "https://example.com",
+            "target_b": "https://google.com"
+        }
+        status, data = self._post_json(f"{test_server}/api/diff/compare", payload)
+        assert status == 200
+        assert "score_delta" in data
+        assert "status" in data
+
+    def test_post_api_patch_apply(self, test_server, tmp_path):
+        html_file = tmp_path / "index.html"
+        html_file.write_text("<!DOCTYPE html><html><head><title>App</title></head><body>Hello</body></html>")
+
+        payload = {
+            "project_dir": str(tmp_path),
+            "platform": "html",
+            "dry_run": True
+        }
+        status, data = self._post_json(f"{test_server}/api/patch/apply", payload)
+        assert status == 200
+        assert data["platform"] == "html"
+        assert data["applied"] is False
+

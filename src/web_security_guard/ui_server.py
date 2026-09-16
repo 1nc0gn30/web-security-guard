@@ -9,6 +9,7 @@ and 1-click hardening archive exporter.
 from __future__ import annotations
 
 import base64
+import datetime
 import hashlib
 import io
 import json
@@ -16,7 +17,9 @@ import math
 import os
 from pathlib import Path
 import re
+import socket
 import socketserver
+import ssl
 import sys
 import urllib.error
 import urllib.parse
@@ -1114,8 +1117,36 @@ web-sec-guard audit https://your-domain.com
 
 
 # ==============================================================================
-# Model Context Protocol (MCP) Hub
 # ==============================================================================
+# Model Context Protocol (MCP) Hub & Advanced Security Engines
+# ==============================================================================
+
+class SSLEngine:
+    """Inspects TLS 1.3 / 1.2 handshake, cipher suites, expiration, and SANs."""
+
+    @classmethod
+    def inspect_ssl(cls, target: str, port: int = 443, timeout: float = 10.0) -> Dict[str, Any]:
+        from web_security_guard.mcp_server import inspect_ssl
+        return inspect_ssl(target=target, port=port, timeout=timeout)
+
+
+class PostureDiffEngine:
+    """Compares two websites or before/after security postures side-by-side."""
+
+    @classmethod
+    def compare(cls, target_a: str, target_b: str) -> Dict[str, Any]:
+        from web_security_guard.mcp_server import diff_security_postures
+        return diff_security_postures(target_a=target_a, target_b=target_b)
+
+
+class ProjectPatcherEngine:
+    """Applies or previews hardened configuration patches for local repositories."""
+
+    @classmethod
+    def patch(cls, project_dir: str = ".", platform: str = "auto", dry_run: bool = False) -> Dict[str, Any]:
+        from web_security_guard.mcp_server import patch_project
+        return patch_project(project_dir=project_dir, platform=platform, dry_run=dry_run)
+
 
 class MCPEngine:
     """Provides configuration templates and tool definitions for AI agents."""
@@ -1151,7 +1182,10 @@ class MCPEngine:
                         "audit_url",
                         "generate_csp",
                         "calculate_sri",
-                        "calculate_contrast"
+                        "calculate_contrast",
+                        "inspect_ssl",
+                        "diff_postures",
+                        "patch_project",
                     ]
                 }
             }
@@ -1193,6 +1227,26 @@ class MCPEngine:
                 "name": "remediate_headers",
                 "description": "Generates platform-specific server config files to fix identified security vulnerabilities.",
                 "parameters": {"type": "object", "properties": {"target": {"type": "string", "enum": ["nextjs", "nginx", "vercel", "netlify", "apache", "cloudflare"]}}, "required": ["target"]}
+            },
+            {
+                "name": "export_zip",
+                "description": "Downloads complete drop-in hardened server configs (.zip).",
+                "parameters": {"type": "object", "properties": {}}
+            },
+            {
+                "name": "inspect_ssl",
+                "description": "Deep TLS certificate & cipher suite inspector.",
+                "parameters": {"type": "object", "properties": {"target": {"type": "string"}}, "required": ["target"]}
+            },
+            {
+                "name": "diff_postures",
+                "description": "Side-by-side security posture comparison diff.",
+                "parameters": {"type": "object", "properties": {"target_a": {"type": "string"}, "target_b": {"type": "string"}}, "required": ["target_a", "target_b"]}
+            },
+            {
+                "name": "patch_project",
+                "description": "Auto-patches local repository with hardened headers.",
+                "parameters": {"type": "object", "properties": {"project_dir": {"type": "string"}}, "required": ["project_dir"]}
             }
         ]
 
@@ -1267,6 +1321,13 @@ class SecurityStudioHandler(SimpleHTTPRequestHandler):
 
         elif path == "/api/mcp/config":
             self.send_json(MCPEngine.get_client_configs())
+            return
+
+        elif path == "/api/ssl/inspect":
+            query_params = urllib.parse.parse_qs(parsed_url.query)
+            target = (query_params.get("target") or query_params.get("domain") or query_params.get("url") or ["google.com"])[0]
+            port = int((query_params.get("port") or [443])[0])
+            self.send_json(SSLEngine.inspect_ssl(target, port=port))
             return
 
         elif path == "/api/export-zip":
@@ -1373,6 +1434,28 @@ class SecurityStudioHandler(SimpleHTTPRequestHandler):
                 "snippet": frameworks.get(target, frameworks["nginx"]),
                 "recommendations": audit["recommendations"],
             })
+
+        elif path == "/api/ssl/inspect":
+            target = body.get("target") or body.get("domain") or body.get("url")
+            if not target:
+                self.send_json({"error": "Missing 'target' or 'domain' parameter in request body."}, status=400)
+                return
+            port = int(body.get("port", 443))
+            self.send_json(SSLEngine.inspect_ssl(target, port=port))
+
+        elif path == "/api/diff/compare":
+            target_a = body.get("target_a") or body.get("url_a")
+            target_b = body.get("target_b") or body.get("url_b")
+            if not target_a or not target_b:
+                self.send_json({"error": "Missing 'target_a' or 'target_b' parameter in request body."}, status=400)
+                return
+            self.send_json(PostureDiffEngine.compare(target_a, target_b))
+
+        elif path == "/api/patch/apply":
+            project_dir = body.get("project_dir", ".")
+            platform = body.get("platform", "auto")
+            dry_run = bool(body.get("dry_run", False))
+            self.send_json(ProjectPatcherEngine.patch(project_dir, platform=platform, dry_run=dry_run))
 
         elif path == "/api/export-zip":
             zip_bytes = HardeningExporter.generate_zip_bytes()
