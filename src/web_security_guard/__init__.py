@@ -11,7 +11,7 @@ from web_security_guard.auditor import (
 )
 from web_security_guard.remediator import SecurityRemediator
 from web_security_guard.ci_gate import run_security_check
-from web_security_guard.cli import main
+
 from web_security_guard.mcp_server import (
     MCP_TOOLS_DEFINITIONS,
     SERVER_NAME,
@@ -57,3 +57,11 @@ __all__ = [
     "run_security_check",
     "main",
 ]
+
+
+def main(*args, **kwargs):
+    """Lazy wrapper for web_security_guard.cli.main."""
+    from web_security_guard.cli import main as _main
+    return _main(*args, **kwargs)
+
+
