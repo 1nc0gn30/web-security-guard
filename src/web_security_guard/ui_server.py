@@ -1330,6 +1330,20 @@ class SecurityStudioHandler(SimpleHTTPRequestHandler):
             self.send_json(SSLEngine.inspect_ssl(target, port=port))
             return
 
+        elif path == "/api/isolation":
+            from web_security_guard.isolation_guard import audit_cross_origin_isolation
+            query_params = urllib.parse.parse_qs(parsed_url.query)
+            coop = (query_params.get("coop") or [None])[0]
+            coep = (query_params.get("coep") or [None])[0]
+            corp = (query_params.get("corp") or [None])[0]
+            headers = {}
+            if coop: headers["Cross-Origin-Opener-Policy"] = coop
+            if coep: headers["Cross-Origin-Embedder-Policy"] = coep
+            if corp: headers["Cross-Origin-Resource-Policy"] = corp
+            report = audit_cross_origin_isolation(headers=headers if headers else None)
+            self.send_json(report.to_dict())
+            return
+
         elif path == "/api/export-zip":
             zip_bytes = HardeningExporter.generate_zip_bytes()
             self.send_response(HTTPStatus.OK)
@@ -1456,6 +1470,23 @@ class SecurityStudioHandler(SimpleHTTPRequestHandler):
             platform = body.get("platform", "auto")
             dry_run = bool(body.get("dry_run", False))
             self.send_json(ProjectPatcherEngine.patch(project_dir, platform=platform, dry_run=dry_run))
+
+        elif path == "/api/isolation":
+            from web_security_guard.isolation_guard import audit_cross_origin_isolation
+            headers = body.get("headers")
+            html_content = body.get("html_content")
+            url = body.get("url")
+            if not headers and url:
+                try:
+                    from web_security_guard.mcp_server import fetch_or_read_content
+                    raw_content, resp_headers = fetch_or_read_content(url)
+                    headers = resp_headers
+                    if not html_content and raw_content:
+                        html_content = raw_content.decode("utf-8", errors="replace")
+                except Exception:
+                    pass
+            report = audit_cross_origin_isolation(headers=headers, html_content=html_content)
+            self.send_json(report.to_dict())
 
         elif path == "/api/export-zip":
             zip_bytes = HardeningExporter.generate_zip_bytes()

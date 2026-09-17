@@ -163,7 +163,7 @@ def run_internal_tests() -> int:
         init_resp = srv.handle_request({"jsonrpc": "2.0", "id": 1, "method": "initialize"})
         assert init_resp["result"]["protocolVersion"] == "2024-11-05"
         tools_resp = srv.handle_request({"jsonrpc": "2.0", "id": 2, "method": "tools/list"})
-        assert len(tools_resp["result"]["tools"]) == 9
+        assert len(tools_resp["result"]["tools"]) == 10
         call_resp = srv.handle_request({
             "jsonrpc": "2.0",
             "id": 3,
@@ -690,6 +690,58 @@ def cmd_patch(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_isolation(args: argparse.Namespace) -> int:
+    """Audit Cross-Origin Isolation (COOP, COEP, CORP) & XS-Leaks risks."""
+    from web_security_guard.isolation_guard import audit_cross_origin_isolation
+
+    target = args.target
+    headers = None
+    html_content = None
+
+    if target:
+        from web_security_guard.mcp_server import fetch_or_read_content
+        try:
+            raw_content, resp_headers = fetch_or_read_content(target)
+            headers = resp_headers
+            if raw_content:
+                html_content = raw_content.decode("utf-8", errors="replace")
+        except Exception as e:
+            if not args.json:
+                print(yellow(f"Warning: Could not fetch '{target}': {e}. Auditing empty baseline."))
+
+    report = audit_cross_origin_isolation(headers=headers, html_content=html_content)
+
+    if args.json:
+        print(json.dumps(report.to_dict(), indent=2))
+        return 0 if report.is_cross_origin_isolated else 1
+
+    print_banner()
+    iso_status = green("ENABLED ✔") if report.is_cross_origin_isolated else red("DISABLED ✖")
+    print(bold(f"🌐 W3C Cross-Origin Isolation Audit: {iso_status}\n"))
+    print(f"Target:                      {cyan(target or 'Baseline Headers')}")
+    print(f"COOP (Opener Policy):        {cyan(report.coop_status)}")
+    print(f"COEP (Embedder Policy):      {cyan(report.coep_status)}")
+    print(f"CORP (Resource Policy):      {cyan(report.corp_status)}")
+    print(f"SharedArrayBuffer:           {green('Unlocked ✔') if report.shared_array_buffer_unlocked else red('Locked ✖')}")
+    print(f"High-Resolution Timers:      {green('Unlocked ✔') if report.high_res_timers_unlocked else red('Throttled ✖')}")
+    print(f"Spectre Risk Score:          {yellow(str(report.spectre_vulnerability_score))}/100")
+    print(f"Subresource Breakage Risk:   {cyan(report.subresource_breakage_risk)}\n")
+
+    if report.risks:
+        print(bold(f"Identified Risks ({len(report.risks)}):"))
+        for r in report.risks:
+            sev_color = red if r.severity in ["CRITICAL", "HIGH"] else yellow
+            print(f"  [{sev_color(r.severity)}] {bold(r.title)} - {r.attack_vector}")
+            print(f"    {r.description}")
+            print(f"    Remediation: {green(r.remediation)}\n")
+
+    if getattr(args, "coi_worker", False):
+        print(bold("Client-Side Coi ServiceWorker Polyfill (sw.js):"))
+        print(gray(report.coi_serviceworker_code))
+
+    return 0 if report.is_cross_origin_isolated else 1
+
+
 def cmd_serve(args: argparse.Namespace) -> int:
     """Start Material 3 Security Studio HTTP server."""
     port = args.port or 8085
@@ -793,6 +845,12 @@ def build_parser() -> argparse.ArgumentParser:
     p_mcp.add_argument("--python-path", default="python3", help="Python executable path for client configs")
     p_mcp.add_argument("--project-root", help="Custom project root directory for client configs")
 
+    # Subcommand: isolation
+    p_iso = subparsers.add_parser("isolation", help="Audit Cross-Origin Isolation (COOP, COEP, CORP) & XS-Leaks risks")
+    p_iso.add_argument("target", nargs="?", default=None, help="Target URL, HTML file, or config file to audit")
+    p_iso.add_argument("--coi-worker", action="store_true", help="Print client-side Coi ServiceWorker polyfill code")
+    p_iso.add_argument("--json", action="store_true", help="Output machine-readable JSON")
+
     # Subcommand: serve
     p_serve = subparsers.add_parser("serve", help="Start Web Security Studio UI (design influenced by Material 3)")
     p_serve.add_argument("--port", "-p", type=int, default=8085, help="Server port (default: 8085)")
@@ -827,6 +885,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         "ssl": cmd_ssl,
         "diff": cmd_diff,
         "patch": cmd_patch,
+        "isolation": cmd_isolation,
         "mcp": cmd_mcp,
         "serve": cmd_serve,
         "platform": cmd_platform,

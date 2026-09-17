@@ -1794,6 +1794,27 @@ MCP_TOOLS_DEFINITIONS = [
             "required": ["project_dir"],
         },
     },
+    {
+        "name": "sec_audit_isolation",
+        "description": "Audit headers & HTML for W3C Cross-Origin Isolation (COOP, COEP, CORP), XS-Leaks risks, and Spectre defense.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "target": {
+                    "type": "string",
+                    "description": "URL or local file path to audit, or raw headers dict.",
+                },
+                "headers": {
+                    "type": "object",
+                    "description": "Optional dictionary of response headers to audit.",
+                },
+                "html_content": {
+                    "type": "string",
+                    "description": "Optional HTML content to inspect for third-party subresource breakage under COEP.",
+                },
+            },
+        },
+    },
 ]
 
 
@@ -1899,6 +1920,22 @@ class MCPServer:
             platform = arguments.get("platform", "auto")
             dry_run = bool(arguments.get("dry_run", False))
             return patch_project(project_dir=project_dir, platform=platform, dry_run=dry_run)
+
+        elif tool_name == "sec_audit_isolation":
+            from web_security_guard.isolation_guard import audit_cross_origin_isolation
+            target = arguments.get("target")
+            headers = arguments.get("headers")
+            html_content = arguments.get("html_content")
+            if not headers and target:
+                try:
+                    raw_content, resp_headers = fetch_or_read_content(target)
+                    headers = resp_headers
+                    if not html_content and raw_content:
+                        html_content = raw_content.decode("utf-8", errors="replace")
+                except Exception:
+                    pass
+            report = audit_cross_origin_isolation(headers=headers, html_content=html_content)
+            return report.to_dict()
 
         else:
             raise KeyError(f"Unknown MCP tool: '{tool_name}'")

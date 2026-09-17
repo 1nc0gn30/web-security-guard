@@ -33,6 +33,17 @@ from web_security_guard.cors_policy import (
     generate_secure_cors_headers,
     generate_permissions_policy,
 )
+from web_security_guard.isolation_guard import (
+    COOPMode,
+    COEPMode,
+    CORPMode,
+    IsolationRisk,
+    CrossOriginIsolationReport,
+    audit_cross_origin_isolation,
+    generate_isolation_headers,
+    generate_coi_serviceworker,
+    generate_server_isolation_configs,
+)
 
 __version__ = SERVER_VERSION
 __author__ = "Zoth Security Architecture Team"
@@ -68,6 +79,15 @@ __all__ = [
     "audit_cors_configuration",
     "generate_secure_cors_headers",
     "generate_permissions_policy",
+    "COOPMode",
+    "COEPMode",
+    "CORPMode",
+    "IsolationRisk",
+    "CrossOriginIsolationReport",
+    "audit_cross_origin_isolation",
+    "generate_isolation_headers",
+    "generate_coi_serviceworker",
+    "generate_server_isolation_configs",
 ]
 
 
