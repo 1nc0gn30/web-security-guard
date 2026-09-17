@@ -26,6 +26,13 @@ from web_security_guard.mcp_server import (
     inject_sri_into_html,
     run_mcp_server,
 )
+from web_security_guard.cors_policy import (
+    CORSVulnerabilityFinding,
+    CORSAuditReport,
+    audit_cors_configuration,
+    generate_secure_cors_headers,
+    generate_permissions_policy,
+)
 
 __version__ = SERVER_VERSION
 __author__ = "Zoth Security Architecture Team"
@@ -56,6 +63,11 @@ __all__ = [
     "SecurityRemediator",
     "run_security_check",
     "main",
+    "CORSVulnerabilityFinding",
+    "CORSAuditReport",
+    "audit_cors_configuration",
+    "generate_secure_cors_headers",
+    "generate_permissions_policy",
 ]
 
 
