@@ -1,11 +1,11 @@
 # 🛡️ Web Security Guard
 
 <p align="center">
-  <strong>Google-Grade Web Security Auditing, CSP Level 3 Synthesis, Subresource Integrity Engine & AI Agent MCP Studio.</strong>
+  <strong>Web Security Auditing, CSP Level 3 Synthesis, Subresource Integrity Engine & AI Agent MCP Studio.</strong>
 </p>
 
 <p align="center">
-  <a href="https://github.com/google/web-security-guard/actions"><img src="https://img.shields.io/badge/CI-15%20Jobs%20Passing-1e8e3e?style=flat-square&logo=githubactions" alt="CI Status"></a>
+  <a href="https://github.com/1nc0gn30/web-security-guard/actions"><img src="https://img.shields.io/badge/CI-15%20Jobs%20Passing-1e8e3e?style=flat-square&logo=githubactions" alt="CI Status"></a>
   <a href="https://pypi.org/project/web-security-guard/"><img src="https://img.shields.io/badge/Python-3.9%20|%203.10%20|%203.11%20|%203.12%20|%203.13-1a73e8?style=flat-square&logo=python" alt="Python Versions"></a>
   <a href="https://modelcontextprotocol.io"><img src="https://img.shields.io/badge/MCP-Native%20Server-9334e6?style=flat-square" alt="MCP Compatible"></a>
   <a href="https://www.w3.org/WAI/standards-guidelines/wcag/"><img src="https://img.shields.io/badge/WCAG-2.2%20AA%20%2F%20AAA-f9ab00?style=flat-square" alt="WCAG 2.2"></a>
@@ -16,12 +16,12 @@
 
 ## 🌟 Overview
 
-**Web Security Guard** (`web-security-guard`) is a zero-dependency, high-performance security automation suite and interactive **Google Material 3 Security Studio**. Built for developers, DevOps engineers, and autonomous AI coding agents, it eliminates the complexity of securing modern web applications against Cross-Site Scripting (XSS), Clickjacking, MIME confusion, and supply chain tampering.
+**Web Security Guard** (`web-security-guard`) is a zero-dependency, high-performance security automation suite and interactive **Web Security Studio (design influenced by Material 3)**. Built for developers, DevOps engineers, and autonomous AI coding agents, it eliminates the complexity of securing modern web applications against Cross-Site Scripting (XSS), Clickjacking, MIME confusion, and supply chain tampering.
 
 ```
                   ┌───────────────────────────────────────────────┐
-                  │          Google Security Studio UI            │
-                  │   Material 3 Light Mode  •  0-100 Grade Gauge │
+                  │          Web Security Studio UI               │
+                  │   Material 3 Influenced  •  0-100 Grade Gauge │
                   └───────────────────────┬───────────────────────┘
                                           │
         ┌───────────────────┬─────────────┴───────┬───────────────────┐
@@ -45,7 +45,7 @@
 ## 🚀 Key Features
 
 ### 1. 🛡️ Multi-Vector Security Header Auditor
-- Audits live websites or response headers against **OWASP Top 10** and Google Web Security guidelines.
+- Audits live websites or response headers against **OWASP Top 10** and modern web security guidelines.
 - Computes an animated **0–100 Security Grade Gauge** ($A+, A, B, C, D, F$).
 - Evaluates:
   * `Strict-Transport-Security` (HSTS duration, subdomains, preloading).
@@ -90,7 +90,7 @@
 
 ### Option A: Run via `uvx` (Zero Install)
 ```bash
-# Start the Google Security Studio UI
+# Start the Web Security Studio UI
 uvx web-security-guard serve --port 8080 --open
 
 # Audit a live URL directly from CLI
@@ -122,7 +122,7 @@ web-sec-guard sri https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap
 # 5. Check WCAG 2.2 Color Contrast
 web-sec-guard contrast --fg "#1a73e8" --bg "#ffffff"
 
-# 6. Launch Google Security Studio Web UI
+# 6. Launch Web Security Studio Web UI
 web-sec-guard serve --host 127.0.0.1 --port 8080 --open
 ```
 

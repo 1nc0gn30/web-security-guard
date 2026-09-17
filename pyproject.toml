@@ -54,10 +54,10 @@ sec-guard = "web_security_guard.cli:main"
 web-security-guard = "web_security_guard.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/zoth-studio/web-security-guard"
-Documentation = "https://github.com/zoth-studio/web-security-guard#readme"
-Repository = "https://github.com/zoth-studio/web-security-guard.git"
-Issues = "https://github.com/zoth-studio/web-security-guard/issues"
+Homepage = "https://github.com/1nc0gn30/web-security-guard"
+Documentation = "https://github.com/1nc0gn30/web-security-guard#readme"
+Repository = "https://github.com/1nc0gn30/web-security-guard.git"
+Issues = "https://github.com/1nc0gn30/web-security-guard/issues"
 
 [tool.setuptools]
 package-dir = { "" = "src" }

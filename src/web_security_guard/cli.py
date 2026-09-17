@@ -9,7 +9,7 @@ Commands:
   fix       - Multi-platform hardening configuration file generator
   check     - CI/CD Quality Gate with exit codes for Pull Requests
   mcp       - Model Context Protocol (MCP) stdio server & client config generator
-  serve     - Start Google Material 3 Security Studio UI (Web Deck)
+  serve     - Start Web Security Studio UI (Web Deck)
   platform  - Multi-OS runtime environment inspector
   --test    - Run built-in engine verification test suite
 """
@@ -794,7 +794,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_mcp.add_argument("--project-root", help="Custom project root directory for client configs")
 
     # Subcommand: serve
-    p_serve = subparsers.add_parser("serve", help="Start Google Material 3 Security Studio UI")
+    p_serve = subparsers.add_parser("serve", help="Start Web Security Studio UI (design influenced by Material 3)")
     p_serve.add_argument("--port", "-p", type=int, default=8085, help="Server port (default: 8085)")
     p_serve.add_argument("--host", default="0.0.0.0", help="Server host interface (default: 0.0.0.0)")
 

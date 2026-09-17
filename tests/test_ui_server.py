@@ -1,4 +1,4 @@
-"""Unit tests for Google Security Studio UI Server, REST API, and core engines."""
+"""Unit tests for Web Security Studio UI Server, REST API, and core engines."""
 
 import io
 import json
@@ -375,7 +375,7 @@ class TestHTTPServerIntegration:
     def test_get_index_html(self, test_server):
         status, headers, content = self._get(f"{test_server}/")
         assert status == 200
-        assert b"Google Security Studio" in content
+        assert b"Web Security Studio" in content
         assert "text/html" in headers.get("Content-Type", "")
 
     def test_get_api_health(self, test_server):
