@@ -1488,6 +1488,40 @@ class SecurityStudioHandler(SimpleHTTPRequestHandler):
             report = audit_cross_origin_isolation(headers=headers, html_content=html_content)
             self.send_json(report.to_dict())
 
+        elif path == "/api/secrets":
+            from web_security_guard.secret_scanner import scan_secrets
+            content = body.get("content")
+            target = body.get("target") or body.get("url")
+            entropy = float(body.get("entropy", 2.5))
+            if not content and target:
+                try:
+                    from web_security_guard.mcp_server import fetch_or_read_content
+                    raw_content, _ = fetch_or_read_content(target)
+                    if raw_content:
+                        content = raw_content.decode("utf-8", errors="replace")
+                except Exception:
+                    pass
+            report = scan_secrets(content or "", target_name=target or "<memory>", min_entropy=entropy)
+            self.send_json(report.to_dict())
+
+        elif path == "/api/supply-chain":
+            from web_security_guard.supply_chain_auditor import audit_supply_chain
+            html_content = body.get("html") or body.get("html_content")
+            target = body.get("target") or body.get("url")
+            page_is_https = bool(body.get("page_is_https", True))
+            if not html_content and target:
+                try:
+                    from web_security_guard.mcp_server import fetch_or_read_content
+                    raw_content, _ = fetch_or_read_content(target)
+                    if raw_content:
+                        html_content = raw_content.decode("utf-8", errors="replace")
+                    if target.startswith("http://"):
+                        page_is_https = False
+                except Exception:
+                    pass
+            report = audit_supply_chain(html_content or "", target_name=target or "<memory>", page_is_https=page_is_https)
+            self.send_json(report.to_dict())
+
         elif path == "/api/export-zip":
             zip_bytes = HardeningExporter.generate_zip_bytes()
             self.send_response(HTTPStatus.OK)

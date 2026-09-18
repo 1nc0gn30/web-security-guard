@@ -23,7 +23,11 @@ keywords = [
     "audit",
     "hardening",
     "devsecops",
-    "zero-dependency"
+    "zero-dependency",
+    "secret-scanner",
+    "credential-leak-detection",
+    "supply-chain",
+    "mixed-content"
 ]
 classifiers = [
     "Development Status :: 5 - Production/Stable",

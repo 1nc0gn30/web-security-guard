@@ -492,3 +492,23 @@ class TestHTTPServerIntegration:
         assert data["platform"] == "html"
         assert data["applied"] is False
 
+    def test_post_api_secrets(self, test_server):
+        payload = {
+            "content": 'const token = "ghp_1234567890abcdefghijklmnopqrstuv";'
+        }
+        status, data = self._post_json(f"{test_server}/api/secrets", payload)
+        assert status == 200
+        assert "clean" in data
+        assert data["clean"] is False
+        assert data["total_findings"] >= 1
+
+    def test_post_api_supply_chain(self, test_server):
+        payload = {
+            "html": '<script src="https://cdn.example.com/bundle.js"></script>'
+        }
+        status, data = self._post_json(f"{test_server}/api/supply-chain", payload)
+        assert status == 200
+        assert "missing_sri_count" in data
+        assert data["missing_sri_count"] >= 1
+        assert "grade" in data
+

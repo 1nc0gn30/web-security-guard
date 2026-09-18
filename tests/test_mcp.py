@@ -412,7 +412,7 @@ class TestMCPServerProtocol(unittest.TestCase):
         req = {"jsonrpc": "2.0", "id": 103, "method": "tools/list"}
         resp = self.server.handle_request(req)
         tools = resp["result"]["tools"]
-        self.assertEqual(len(tools), 10)
+        self.assertEqual(len(tools), 12)
         tool_names = [t["name"] for t in tools]
         self.assertIn("sec_audit_site", tool_names)
         self.assertIn("sec_generate_csp", tool_names)
@@ -423,6 +423,8 @@ class TestMCPServerProtocol(unittest.TestCase):
         self.assertIn("sec_inspect_ssl", tool_names)
         self.assertIn("sec_diff_postures", tool_names)
         self.assertIn("sec_patch_project", tool_names)
+        self.assertIn("sec_scan_secrets", tool_names)
+        self.assertIn("sec_audit_supply_chain", tool_names)
         self.assertIn("sec_audit_isolation", tool_names)
 
     def test_tools_call_contrast(self):

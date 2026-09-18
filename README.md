@@ -77,11 +77,22 @@
 - Live compliance validation for **WCAG AA Normal (4.5:1)**, **AA Large (3:1)**, **UI Components (3:1)**, and **AAA Normal (7:1)**.
 - Integrated matrix transformation simulation for **Protanopia**, **Deuteranopia**, **Tritanopia**, and **Achromatopsia**.
 
-### 5. 🤖 AI Agent Model Context Protocol (MCP) Hub
-- Out-of-the-box MCP server compatible with **Claude Desktop**, **Cursor AI**, **Cline**, **Roo Code**, and **Zed Editor**.
-- Equips LLM agents with tools: `audit_url`, `generate_csp`, `calculate_sri`, `calculate_contrast`, and `remediate_headers`.
+### 5. 🔑 High-Fidelity Secret Leakage & API Key Scanner
+- Audits HTML, JS, JSON, and source bundles for 25+ exposed credential types.
+- Detects AWS keys, GitHub PATs, Stripe keys, OpenAI/Anthropic tokens, Slack webhooks, Twilio SIDs, SendGrid keys, private RSA/EC keys, database connection strings, and JWTs.
+- Computes Shannon entropy per token to filter false positives and auto-redacts sensitive substrings (`sk_live_...4a2f`).
 
-### 6. ⚡ Multi-Platform Hardening Exporter
+### 6. 📦 Supply Chain, Script Integrity & Mixed Content Auditor
+- Scans web documents for third-party `<script>`, `<link>`, `<iframe>`, `<form>`, and `<a>` elements.
+- Detects missing Subresource Integrity (`integrity="sha384-..."`) on external CDNs.
+- Blocks Mixed Content (RFC 6797) HTTP assets on HTTPS origins and alerts on unpinned CDN releases (`@latest`).
+- Flags Reverse Tabnabbing (`target="_blank"` without `rel="noopener noreferrer"`) and insecure form POST endpoints.
+
+### 7. 🤖 AI Agent Model Context Protocol (MCP) Hub
+- Out-of-the-box MCP server compatible with **Claude Desktop**, **Cursor AI**, **Cline**, **Roo Code**, and **Zed Editor**.
+- 12 registered tools including `sec_scan_secrets`, `sec_audit_supply_chain`, `sec_audit_isolation`, `sec_audit_site`, `sec_generate_csp`, and `sec_check_contrast`.
+
+### 8. ⚡ Multi-Platform Hardening Exporter
 - 1-click `.zip` bundle export containing pre-configured security files for your entire infrastructure stack.
 
 ---
@@ -122,7 +133,13 @@ web-sec-guard sri https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap
 # 5. Check WCAG 2.2 Color Contrast
 web-sec-guard contrast --fg "#1a73e8" --bg "#ffffff"
 
-# 6. Launch Web Security Studio Web UI
+# 6. Scan files or bundles for leaked API keys, tokens & credentials
+web-sec-guard secrets ./dist/bundle.js
+
+# 7. Audit third-party script supply chain, SRI & mixed content
+web-sec-guard supply ./index.html
+
+# 8. Launch Web Security Studio Web UI
 web-sec-guard serve --host 127.0.0.1 --port 8080 --open
 ```
 
@@ -153,6 +170,16 @@ print("SRI Tag:", sri["script_tag"])
 # 4. Evaluate WCAG 2.2 Contrast
 contrast = WCAGContrastEngine.evaluate("#1a73e8", "#ffffff")
 print(f"Ratio: {contrast['ratio_formatted']} | AA: {contrast['wcag_aa_normal']}")
+
+# 5. Scan assets for leaked API keys & credentials
+from web_security_guard import scan_secrets
+secret_report = scan_secrets('const key = "sk-ant-api03-1234567890abcdef1234567890abcdef";')
+print(f"Secrets Found: {secret_report.total_findings}, Clean: {secret_report.clean}")
+
+# 6. Audit supply chain & subresource integrity
+from web_security_guard import audit_supply_chain
+supply_report = audit_supply_chain('<script src="http://insecure.com/script.js"></script>')
+print(f"Supply Chain Grade: {supply_report.grade}, Score: {supply_report.supply_chain_score}/100")
 ```
 
 ---

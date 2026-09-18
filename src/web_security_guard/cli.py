@@ -163,7 +163,7 @@ def run_internal_tests() -> int:
         init_resp = srv.handle_request({"jsonrpc": "2.0", "id": 1, "method": "initialize"})
         assert init_resp["result"]["protocolVersion"] == "2024-11-05"
         tools_resp = srv.handle_request({"jsonrpc": "2.0", "id": 2, "method": "tools/list"})
-        assert len(tools_resp["result"]["tools"]) == 10
+        assert len(tools_resp["result"]["tools"]) == 12
         call_resp = srv.handle_request({
             "jsonrpc": "2.0",
             "id": 3,
@@ -215,6 +215,29 @@ def run_internal_tests() -> int:
         assert len(res["patched_files"]) >= 1
 
     test("1-Click Local Project Hardening Patcher", test_patch)
+
+    # Test 12: Secret Leak Scanner
+    def test_secrets():
+        from web_security_guard.secret_scanner import scan_secrets
+        k = "sk_" + "live_" + "1234567890abcdef1234567890"
+        sample = f'const key = "{k}";'
+        rep = scan_secrets(sample, target_name="test.js")
+        assert rep.clean is False
+        assert rep.total_findings >= 1
+        assert rep.findings[0].detector_id == "stripe-secret-key"
+
+    test("High-Fidelity Secret Leakage & API Key Scanner", test_secrets)
+
+    # Test 13: Supply Chain & SRI Auditor
+    def test_supply():
+        from web_security_guard.supply_chain_auditor import audit_supply_chain
+        html = '<html><head><script src="https://cdn.example.com/lib.js"></script></head><body><a href="https://ext.com" target="_blank">Ext</a></body></html>'
+        rep = audit_supply_chain(html, target_name="test.html")
+        assert rep.missing_sri_count >= 1
+        assert rep.reverse_tabnabbing_count >= 1
+        assert rep.supply_chain_score < 100.0
+
+    test("Third-Party Supply Chain & Subresource Integrity Auditor", test_supply)
 
     print("\n" + gray("─" * 70))
     if failures == 0:
@@ -742,6 +765,131 @@ def cmd_isolation(args: argparse.Namespace) -> int:
     return 0 if report.is_cross_origin_isolated else 1
 
 
+def cmd_secrets(args: argparse.Namespace) -> int:
+    """Audit target file, URL, or string for exposed API keys, credentials, and secrets."""
+    from web_security_guard.secret_scanner import scan_secrets
+    from web_security_guard.mcp_server import fetch_or_read_content
+
+    target = getattr(args, "target", None)
+    content = getattr(args, "content", None)
+    min_entropy = float(getattr(args, "entropy", 2.5))
+
+    if target:
+        try:
+            raw_content, _ = fetch_or_read_content(target)
+            if raw_content:
+                content = raw_content.decode("utf-8", errors="replace")
+        except Exception as e:
+            if not args.json:
+                print(red(f"Error reading target '{target}': {e}"))
+            else:
+                print(json.dumps({"error": str(e)}, indent=2))
+            return 1
+    elif not content:
+        if not sys.stdin.isatty():
+            content = sys.stdin.read()
+        else:
+            print(red("Error: Must specify a target file/URL or pipe content."))
+            return 1
+
+    report = scan_secrets(content or "", target_name=target or "<input>", min_entropy=min_entropy)
+
+    if args.json:
+        print(json.dumps(report.to_dict(), indent=2))
+        return 0 if report.clean else 1
+
+    if getattr(args, "markdown", False):
+        print(report.format_markdown())
+        return 0 if report.clean else 1
+
+    print_banner()
+    status_str = green("CLEAN ✔") if report.clean else red("SECRETS DETECTED ✖")
+    print(bold(f"🔑 Secret Leakage & API Key Audit: {status_str}\n"))
+    print(f"Target:                      {cyan(target or '<input>')}")
+    print(f"Risk Score:                  {yellow(f'{report.risk_score:.1f}')}/100")
+    print(f"Total Findings:              {len(report.findings)}")
+    print(f"Severity Breakdown:          Critical: {report.findings_by_severity.get('CRITICAL', 0)}, High: {report.findings_by_severity.get('HIGH', 0)}, Medium: {report.findings_by_severity.get('MEDIUM', 0)}, Low: {report.findings_by_severity.get('LOW', 0)}\n")
+
+    if report.findings:
+        print(bold(f"Detected Credentials ({len(report.findings)}):"))
+        for f in report.findings:
+            sev_color = red if f.severity in ["CRITICAL", "HIGH"] else yellow
+            print(f"  [{sev_color(f.severity)}] {bold(f.title)} ({f.detector_id})")
+            print(f"    Line {f.line_number}, Col {f.col_offset} | Masked: {f.masked_secret} ({f.entropy:.2f} bits entropy)")
+            print(f"    Snippet: {gray(f.snippet)}")
+            print(f"    Remediation: {green(f.remediation)}\n")
+    else:
+        print(green("  ✓ No exposed credentials or high-entropy tokens detected.\n"))
+
+    return 0 if report.clean else 1
+
+
+def cmd_supply(args: argparse.Namespace) -> int:
+    """Audit target HTML or URL for third-party supply chain & SRI risks."""
+    from web_security_guard.supply_chain_auditor import audit_supply_chain
+    from web_security_guard.mcp_server import fetch_or_read_content
+
+    target = getattr(args, "target", None)
+    html_content = None
+    page_is_https = True
+
+    if target:
+        try:
+            raw_content, _ = fetch_or_read_content(target)
+            if raw_content:
+                html_content = raw_content.decode("utf-8", errors="replace")
+            if target.startswith("http://"):
+                page_is_https = False
+        except Exception as e:
+            if not args.json:
+                print(red(f"Error reading target '{target}': {e}"))
+            else:
+                print(json.dumps({"error": str(e)}, indent=2))
+            return 1
+    else:
+        if not sys.stdin.isatty():
+            html_content = sys.stdin.read()
+        else:
+            print(red("Error: Must specify a target HTML file/URL or pipe HTML content."))
+            return 1
+
+    report = audit_supply_chain(html_content or "", target_name=target or "<input>", page_is_https=page_is_https)
+
+    if args.json:
+        print(json.dumps(report.to_dict(), indent=2))
+        return 0 if report.supply_chain_score >= 80.0 else 1
+
+    if getattr(args, "markdown", False):
+        print(report.format_markdown())
+        return 0 if report.supply_chain_score >= 80.0 else 1
+
+    print_banner()
+    grade_color = green if report.grade in ["A+", "A"] else (yellow if report.grade in ["B", "C"] else red)
+    print(bold(f"📦 Supply Chain & Subresource Integrity Audit: {grade_color(f'Grade {report.grade}')}\n"))
+    print(f"Target:                      {cyan(target or '<input>')}")
+    print(f"Supply Chain Score:          {grade_color(f'{report.supply_chain_score:.1f}')}/100")
+    print(f"Total Resources Scanned:     {report.total_resources_scanned} ({report.scripts_count} scripts, {report.stylesheets_count} CSS, {report.iframes_count} iframes, {report.forms_count} forms)")
+    print(f"Missing SRI:                 {yellow(str(report.missing_sri_count))}")
+    print(f"Mixed Content (RFC 6797):    {red(str(report.mixed_content_count)) if report.mixed_content_count else green('0')}")
+    print(f"Reverse Tabnabbing:          {yellow(str(report.reverse_tabnabbing_count))}\n")
+
+    if report.risks:
+        print(bold(f"Supply Chain Vulnerabilities ({len(report.risks)}):"))
+        for r in report.risks:
+            sev_color = red if r.severity in ["CRITICAL", "HIGH"] else yellow
+            print(f"  [{sev_color(r.severity)}] {bold(r.title)} ({r.category})")
+            print(f"    Line {r.line_number} | URL: {cyan(r.resource_url)}")
+            print(f"    Impact: {r.description}")
+            print(f"    Fix: {green(r.remediation)}")
+            if r.fixed_snippet:
+                print(f"    Suggested Snippet: {gray(r.fixed_snippet)}")
+            print("")
+    else:
+        print(green("  ✓ All external resources have cryptographic integrity pinning & secure transport.\n"))
+
+    return 0 if report.supply_chain_score >= 80.0 else 1
+
+
 def cmd_serve(args: argparse.Namespace) -> int:
     """Start Material 3 Security Studio HTTP server."""
     port = args.port or 8085
@@ -851,6 +999,20 @@ def build_parser() -> argparse.ArgumentParser:
     p_iso.add_argument("--coi-worker", action="store_true", help="Print client-side Coi ServiceWorker polyfill code")
     p_iso.add_argument("--json", action="store_true", help="Output machine-readable JSON")
 
+    # Subcommand: secrets
+    p_secrets = subparsers.add_parser("secrets", help="Scan HTML, JS, or code for leaked API keys, tokens, and credentials")
+    p_secrets.add_argument("target", nargs="?", default=None, help="Target file or URL to scan")
+    p_secrets.add_argument("--content", help="Direct string content to scan")
+    p_secrets.add_argument("--entropy", type=float, default=2.5, help="Minimum Shannon entropy threshold (default: 2.5)")
+    p_secrets.add_argument("--markdown", action="store_true", help="Output GitHub-flavored markdown report")
+    p_secrets.add_argument("--json", action="store_true", help="Output machine-readable JSON")
+
+    # Subcommand: supply
+    p_supply = subparsers.add_parser("supply", help="Audit third-party scripts, missing SRI, and mixed content")
+    p_supply.add_argument("target", nargs="?", default=None, help="Target HTML file or URL to audit")
+    p_supply.add_argument("--markdown", action="store_true", help="Output GitHub-flavored markdown report")
+    p_supply.add_argument("--json", action="store_true", help="Output machine-readable JSON")
+
     # Subcommand: serve
     p_serve = subparsers.add_parser("serve", help="Start Web Security Studio UI (design influenced by Material 3)")
     p_serve.add_argument("--port", "-p", type=int, default=8085, help="Server port (default: 8085)")
@@ -886,6 +1048,8 @@ def main(argv: Optional[List[str]] = None) -> int:
         "diff": cmd_diff,
         "patch": cmd_patch,
         "isolation": cmd_isolation,
+        "secrets": cmd_secrets,
+        "supply": cmd_supply,
         "mcp": cmd_mcp,
         "serve": cmd_serve,
         "platform": cmd_platform,

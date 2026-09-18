@@ -1452,6 +1452,50 @@ export const config = {{
     }
 
 
+def scan_web_secrets(
+    target: Optional[str] = None,
+    content: Optional[str] = None,
+    min_entropy: float = 2.5,
+) -> Dict[str, Any]:
+    """Scan file or memory content for leaked API keys, tokens, and credentials."""
+    from web_security_guard.secret_scanner import scan_secrets
+
+    if not content and target:
+        try:
+            raw_bytes, _ = fetch_or_read_content(target)
+            content = raw_bytes.decode("utf-8", errors="replace")
+        except Exception as e:
+            content = str(e)
+
+    report = scan_secrets(content or "", target_name=target or "<memory>", min_entropy=min_entropy)
+    return report.to_dict()
+
+
+def audit_web_supply_chain(
+    target: Optional[str] = None,
+    html_content: Optional[str] = None,
+    page_is_https: bool = True,
+) -> Dict[str, Any]:
+    """Audit HTML content or URL for subresource integrity and mixed content."""
+    from web_security_guard.supply_chain_auditor import audit_supply_chain
+
+    if not html_content and target:
+        try:
+            raw_bytes, _ = fetch_or_read_content(target)
+            html_content = raw_bytes.decode("utf-8", errors="replace")
+            if target.startswith("http://"):
+                page_is_https = False
+        except Exception:
+            pass
+
+    report = audit_supply_chain(
+        html_content or "",
+        target_name=target or "<memory>",
+        page_is_https=page_is_https,
+    )
+    return report.to_dict()
+
+
 # ============================================================================
 # 9. MCP Client Config Generator (Claude Desktop, Cursor, Cline, Zed, Generic)
 # ============================================================================
@@ -1493,6 +1537,9 @@ def generate_mcp_client_config(
         "sec_inspect_ssl",
         "sec_diff_postures",
         "sec_patch_project",
+        "sec_audit_isolation",
+        "sec_scan_secrets",
+        "sec_audit_supply_chain",
     ]
 
     if cl in ("claude", "claude_desktop", "claude-desktop"):
@@ -1815,6 +1862,48 @@ MCP_TOOLS_DEFINITIONS = [
             },
         },
     },
+    {
+        "name": "sec_scan_secrets",
+        "description": "Scan HTML, JS, CSS, JSON, or source code for exposed API keys, private keys, database URIs, and high-entropy credentials.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "target": {
+                    "type": "string",
+                    "description": "URL or local file path to audit.",
+                },
+                "content": {
+                    "type": "string",
+                    "description": "Optional raw string content to scan directly.",
+                },
+                "min_entropy": {
+                    "type": "number",
+                    "description": "Minimum Shannon entropy threshold in bits (default: 2.5).",
+                },
+            },
+        },
+    },
+    {
+        "name": "sec_audit_supply_chain",
+        "description": "Audit HTML content or URL for third-party script integrity, missing SRI hashes, mixed content (RFC 6797), and reverse tabnabbing.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "target": {
+                    "type": "string",
+                    "description": "URL or local HTML file path to audit.",
+                },
+                "html_content": {
+                    "type": "string",
+                    "description": "Optional raw HTML string to inspect.",
+                },
+                "page_is_https": {
+                    "type": "boolean",
+                    "description": "Whether the host page is served over HTTPS (default: true).",
+                },
+            },
+        },
+    },
 ]
 
 
@@ -1936,6 +2025,18 @@ class MCPServer:
                     pass
             report = audit_cross_origin_isolation(headers=headers, html_content=html_content)
             return report.to_dict()
+
+        elif tool_name == "sec_scan_secrets":
+            target = arguments.get("target")
+            content = arguments.get("content")
+            min_entropy = float(arguments.get("min_entropy", 2.5))
+            return scan_web_secrets(target=target, content=content, min_entropy=min_entropy)
+
+        elif tool_name == "sec_audit_supply_chain":
+            target = arguments.get("target")
+            html_content = arguments.get("html_content")
+            page_is_https = bool(arguments.get("page_is_https", True))
+            return audit_web_supply_chain(target=target, html_content=html_content, page_is_https=page_is_https)
 
         else:
             raise KeyError(f"Unknown MCP tool: '{tool_name}'")

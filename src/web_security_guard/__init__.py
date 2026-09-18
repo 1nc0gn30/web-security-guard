@@ -44,6 +44,19 @@ from web_security_guard.isolation_guard import (
     generate_coi_serviceworker,
     generate_server_isolation_configs,
 )
+from web_security_guard.secret_scanner import (
+    SecretLeakFinding,
+    SecretAuditReport,
+    scan_secrets,
+    shannon_entropy,
+    mask_secret,
+)
+from web_security_guard.supply_chain_auditor import (
+    SupplyChainRisk,
+    SupplyChainReport,
+    audit_supply_chain,
+    classify_domain,
+)
 
 __version__ = SERVER_VERSION
 __author__ = "Zoth Security Architecture Team"
@@ -88,6 +101,15 @@ __all__ = [
     "generate_isolation_headers",
     "generate_coi_serviceworker",
     "generate_server_isolation_configs",
+    "SecretLeakFinding",
+    "SecretAuditReport",
+    "scan_secrets",
+    "shannon_entropy",
+    "mask_secret",
+    "SupplyChainRisk",
+    "SupplyChainReport",
+    "audit_supply_chain",
+    "classify_domain",
 ]
 
 
