@@ -7,9 +7,9 @@
   <style>
     /* Material 3 Influenced Light Mode CSS Design System (Zero External Dependencies) */
     :root {
-      --g-blue: #1a73e8;
-      --g-blue-hover: #1557b0;
-      --g-blue-light: #e8f0fe;
+      --g-blue: #B8860B;
+      --g-blue-hover: #8A6A09;
+      --g-blue-light: #FEF9E7;
       --g-green: #1e8e3e;
       --g-green-light: #e6f4ea;
       --g-yellow: #f9ab00;
@@ -217,7 +217,7 @@
     .btn-outlined:hover { background: var(--g-blue-light); border-color: var(--g-blue); }
 
     .btn-tonal { background: var(--g-blue-light); color: var(--g-blue); }
-    .btn-tonal:hover { background: #d2e3fc; }
+    .btn-tonal:hover { background: #F5E6AB; }
 
     .btn-success { background: var(--g-green); color: #fff; }
     .btn-success:hover { background: #187733; }
@@ -359,7 +359,7 @@
       padding: 6px 10px;
       border-radius: var(--radius-sm);
       word-break: break-all;
-      color: #174ea6;
+      color: #6B5308;
     }
 
     /* Dark Patterns / Risks Box */
@@ -637,7 +637,7 @@
     }
     .diff-add { background: rgba(30, 142, 62, 0.25); color: #81c995; display: block; padding: 2px 8px; border-left: 3px solid var(--g-green); }
     .diff-del { background: rgba(217, 48, 37, 0.25); color: #f28b82; display: block; padding: 2px 8px; border-left: 3px solid var(--g-red); }
-    .diff-hunk { color: #8ab4f8; font-weight: 600; display: block; padding: 3px 8px; }
+    .diff-hunk { color: #D4AF37; font-weight: 600; display: block; padding: 3px 8px; }
     .diff-ctx { color: #9aa0a6; display: block; padding: 2px 8px; }
 
     /* Footer */
@@ -651,6 +651,7 @@
       margin-top: 48px;
     }
   </style>
+  <link rel="stylesheet" href="atelier.css">
 </head>
 <body>
 
@@ -1255,8 +1256,8 @@
             <div class="form-group">
               <label class="form-label">Foreground (Text) Color</label>
               <div style="display: flex; gap: 12px; align-items: center;">
-                <input type="color" id="wcag-fg-picker" value="#1a73e8" oninput="syncColorFromPicker('fg')" style="width: 48px; height: 40px; border: none; cursor: pointer;">
-                <input type="text" id="wcag-fg-text" class="input-text" value="#1a73e8" oninput="syncColorFromText('fg')">
+                <input type="color" id="wcag-fg-picker" value="#B8860B" oninput="syncColorFromPicker('fg')" style="width: 48px; height: 40px; border: none; cursor: pointer;">
+                <input type="text" id="wcag-fg-text" class="input-text" value="#B8860B" oninput="syncColorFromText('fg')">
               </div>
             </div>
 
@@ -1270,7 +1271,7 @@
 
             <div class="chips-row">
               <span style="font-size: 12px; color: var(--text-tertiary);">Palettes:</span>
-              <span class="chip" onclick="setContrastPalette('#1a73e8', '#ffffff')">Google Blue on White</span>
+              <span class="chip" onclick="setContrastPalette('#B8860B', '#ffffff')">Google Blue on White</span>
               <span class="chip" onclick="setContrastPalette('#1e8e3e', '#ffffff')">Google Green on White</span>
               <span class="chip" onclick="setContrastPalette('#d93025', '#ffffff')">Google Red on White</span>
               <span class="chip" onclick="setContrastPalette('#202124', '#f8f9fa')">Dark Grey on Light</span>
@@ -1280,10 +1281,10 @@
 
           <!-- Live Preview Box -->
           <div>
-            <div id="wcag-preview-box" class="wcag-preview-box" style="background-color: #ffffff; color: #1a73e8;">
+            <div id="wcag-preview-box" class="wcag-preview-box" style="background-color: #ffffff; color: #B8860B;">
               <h3 style="font-size: 24px; font-weight: 600; margin-bottom: 8px;">Large Heading Text (24px)</h3>
               <p style="font-size: 15px; margin-bottom: 16px;">This is normal body text (15px) demonstrating contrast legibility in your selected color scheme.</p>
-              <button class="btn btn-primary" style="background-color: #1a73e8; color: #ffffff; border: none;">UI Button Element</button>
+              <button class="btn btn-primary" style="background-color: #B8860B; color: #ffffff; border: none;">UI Button Element</button>
             </div>
           </div>
         </div>
@@ -1545,7 +1546,7 @@ csp = CSPBuilderEngine.generate({"preset": "strict_nonce"})
 print(csp["csp"])
 
 # Validate WCAG 2.2 color contrast
-contrast = WCAGContrastEngine.evaluate("#1a73e8", "#ffffff")
+contrast = WCAGContrastEngine.evaluate("#B8860B", "#ffffff")
 print(f"Contrast Ratio: {contrast['ratio_formatted']}, AA Normal: {contrast['wcag_aa_normal']}")</code></pre>
         </div>
 

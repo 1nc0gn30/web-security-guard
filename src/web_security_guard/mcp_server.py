@@ -1904,6 +1904,126 @@ MCP_TOOLS_DEFINITIONS = [
             },
         },
     },
+    {
+        "name": "sec_deep_portscan",
+        "description": "Deep TCP/UDP port scanner with service fingerprinting and vulnerability detection.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "target": {
+                    "type": "string",
+                    "description": "Target hostname or IP address.",
+                },
+                "ports": {
+                    "type": "array",
+                    "items": {"type": "integer"},
+                    "description": "List of ports to scan (default: well-known ports 1-1024).",
+                },
+                "scan_type": {
+                    "type": "string",
+                    "description": "Scan type: tcp-connect, tcp-syn, udp.",
+                    "default": "tcp-connect",
+                },
+                "timeout": {
+                    "type": "number",
+                    "description": "Per-port timeout in seconds (default: 3.0).",
+                    "default": 3.0,
+                },
+                "max_threads": {
+                    "type": "integer",
+                    "description": "Max concurrent threads (default: 200).",
+                    "default": 200,
+                },
+                "quick": {
+                    "type": "boolean",
+                    "description": "Scan common ports only for fast results.",
+                    "default": False,
+                },
+            },
+            "required": ["target"],
+        },
+    },
+    {
+        "name": "sec_target_info",
+        "description": "Gather target intelligence: DNS resolution, HTTP headers, technology stack, page metadata.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "target": {
+                    "type": "string",
+                    "description": "Domain, URL, or IP to reconnoiter.",
+                },
+                "fetch_http": {
+                    "type": "boolean",
+                    "description": "Fetch HTTP headers (default: true).",
+                    "default": True,
+                },
+                "dns_lookup": {
+                    "type": "boolean",
+                    "description": "Perform DNS resolution (default: true).",
+                    "default": True,
+                },
+                "fetch_html": {
+                    "type": "boolean",
+                    "description": "Fetch and analyze HTML content (default: true).",
+                    "default": True,
+                },
+            },
+            "required": ["target"],
+        },
+    },
+    {
+        "name": "sec_collab_create",
+        "description": "Create a shared collaboration report for team review and annotation.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "target": {
+                    "type": "string",
+                    "description": "Target URL or name for the report.",
+                },
+                "author": {
+                    "type": "string",
+                    "description": "Report author name.",
+                },
+            },
+            "required": ["target"],
+        },
+    },
+    {
+        "name": "sec_collab_annotate",
+        "description": "Add an annotation/comment to a shared report.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "report_id": {
+                    "type": "string",
+                    "description": "Report ID to annotate.",
+                },
+                "text": {
+                    "type": "string",
+                    "description": "Annotation text.",
+                },
+                "author": {
+                    "type": "string",
+                    "description": "Author name.",
+                },
+                "finding_id": {
+                    "type": "string",
+                    "description": "Associated finding ID.",
+                },
+            },
+            "required": ["report_id", "text"],
+        },
+    },
+    {
+        "name": "sec_collab_list",
+        "description": "List all shared collaboration reports.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {},
+        },
+    },
 ]
 
 
@@ -2037,6 +2157,75 @@ class MCPServer:
             html_content = arguments.get("html_content")
             page_is_https = bool(arguments.get("page_is_https", True))
             return audit_web_supply_chain(target=target, html_content=html_content, page_is_https=page_is_https)
+
+        elif tool_name == "sec_deep_portscan":
+            target = arguments.get("target")
+            if not target:
+                raise ValueError("Missing required argument 'target'")
+            from web_security_guard.port_scanner import deep_port_scan, quick_scan
+            ports = arguments.get("ports")
+            scan_type = arguments.get("scan_type", "tcp-connect")
+            timeout = float(arguments.get("timeout", 3.0))
+            max_threads = int(arguments.get("max_threads", 200))
+            quick = bool(arguments.get("quick", False))
+            if quick:
+                report = quick_scan(target, timeout=timeout)
+            else:
+                report = deep_port_scan(
+                    target=target,
+                    ports=ports,
+                    scan_type=scan_type,
+                    timeout=timeout,
+                    max_threads=max_threads,
+                )
+            return report.to_dict()
+
+        elif tool_name == "sec_target_info":
+            target = arguments.get("target")
+            if not target:
+                raise ValueError("Missing required argument 'target'")
+            from web_security_guard.target_info import gather_target_info
+            return gather_target_info(
+                target=target,
+                fetch_http=bool(arguments.get("fetch_http", True)),
+                dns_lookup=bool(arguments.get("dns_lookup", True)),
+                fetch_html=bool(arguments.get("fetch_html", True)),
+            ).to_dict()
+
+        elif tool_name == "sec_collab_create":
+            target = arguments.get("target")
+            if not target:
+                raise ValueError("Missing required argument 'target'")
+            from web_security_guard.collaboration import CollaborationWorkspace
+            workspace = CollaborationWorkspace()
+            report = workspace.create_report(
+                target=target,
+                author=arguments.get("author", "anonymous"),
+            )
+            return report.to_dict()
+
+        elif tool_name == "sec_collab_annotate":
+            report_id = arguments.get("report_id")
+            text = arguments.get("text")
+            if not report_id or not text:
+                raise ValueError("Missing required arguments: report_id, text")
+            from web_security_guard.collaboration import CollaborationWorkspace
+            workspace = CollaborationWorkspace()
+            annotation = workspace.add_annotation(
+                report_id=report_id,
+                finding_id=arguments.get("finding_id", "general"),
+                author=arguments.get("author", "anonymous"),
+                text=text,
+            )
+            if annotation:
+                return annotation.to_dict()
+            raise KeyError(f"Report not found: {report_id}")
+
+        elif tool_name == "sec_collab_list":
+            from web_security_guard.collaboration import CollaborationWorkspace
+            workspace = CollaborationWorkspace()
+            reports = workspace.list_reports()
+            return {"reports": [r.to_dict() for r in reports]}
 
         else:
             raise KeyError(f"Unknown MCP tool: '{tool_name}'")

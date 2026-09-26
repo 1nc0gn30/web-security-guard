@@ -46,6 +46,10 @@ from web_security_guard.mcp_server import (
     patch_project,
     run_mcp_server,
 )
+from web_security_guard.port_scanner import deep_port_scan, quick_scan, full_scan
+from web_security_guard.target_info import gather_target_info
+from web_security_guard.collaboration import CollaborationWorkspace
+from web_security_guard.scheduler import StrikeScheduler, StrikeFrequency
 
 # ============================================================================
 # ANSI Terminal Colors
@@ -578,6 +582,210 @@ def cmd_platform(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_portscan(args: argparse.Namespace) -> int:
+    """Deep port scan command handler."""
+    target = args.target
+    scan_type = args.scan_type or "tcp-connect"
+    timeout = args.timeout or 3.0
+    max_threads = args.threads or 200
+
+    if not args.json:
+        print_banner()
+        print(f"🔌 Deep Port Scan: {cyan(bold(target))}\n")
+        if args.quick:
+            print("  Scan type: Quick (common ports)\n")
+        elif args.full:
+            print("  Scan type: Full (all 65535 ports)\n")
+        else:
+            print(f"  Scan type: {scan_type}\n")
+
+    if args.quick:
+        report = quick_scan(target, timeout=timeout)
+    elif args.full:
+        report = full_scan(target, timeout=timeout, max_threads=max_threads)
+    else:
+        ports = None
+        if args.ports:
+            ports = [int(p.strip()) for p in args.ports.split(",")]
+        report = deep_port_scan(
+            target=target,
+            ports=ports,
+            scan_type=scan_type,
+            timeout=timeout,
+            max_threads=max_threads,
+        )
+
+    if args.json:
+        print(json.dumps(report.to_dict(), indent=2))
+        return 0 if report.severity != "HIGH" else 1
+
+    print(report.format_text())
+    print()
+    if report.vulnerabilities:
+        print(bold(f"⚠️  Vulnerabilities Found: {len(report.vulnerabilities)}"))
+        for v in report.vulnerabilities:
+            sev_color = red if v["severity"] == "CRITICAL" else yellow
+            print(f"  [{sev_color(v['severity'])}] Port {v['port']}: {v['title']}")
+    else:
+        print(green("✨ No critical vulnerabilities detected."))
+
+    return 0 if report.severity != "HIGH" else 1
+
+
+def cmd_target_info(args: argparse.Namespace) -> int:
+    """Target intelligence gathering command handler."""
+    target = args.target
+
+    if not args.json:
+        print_banner()
+        print(f"🎯 Gathering Target Intelligence: {cyan(bold(target))}\n")
+
+    report = gather_target_info(
+        target=target,
+        fetch_http=not args.no_http,
+        dns_lookup=not args.no_dns,
+        fetch_html=not args.no_html,
+    )
+
+    if args.json:
+        print(json.dumps(report.to_dict(), indent=2))
+        return 0
+
+    if args.markdown:
+        print(report.format_markdown())
+        return 0
+
+    print(report.format_text())
+    return 0
+
+
+def cmd_collab(args: argparse.Namespace) -> int:
+    """Collaboration workspace command handler."""
+    workspace = CollaborationWorkspace()
+
+    if args.list:
+        reports = workspace.list_reports()
+        if args.json:
+            print(json.dumps([r.to_dict() for r in reports], indent=2))
+        else:
+            print_banner()
+            print(bold("📋 Collaboration Workspace\n"))
+            if not reports:
+                print("  No shared reports yet. Create one with 'collab create'.")
+            for r in reports:
+                print(f"  • [{r.report_id}] {r.target} ({r.status}) - {len(r.annotations)} annotations")
+        return 0
+
+    if args.create:
+        report = workspace.create_report(
+            target=args.create,
+            author=args.author or "anonymous",
+        )
+        print(green(f"✔ Created report {report.report_id} for {report.target}"))
+        return 0
+
+    if args.annotation and args.report_id:
+        annotation = workspace.add_annotation(
+            report_id=args.report_id,
+            finding_id=args.finding or "general",
+            author=args.author or "anonymous",
+            text=args.annotation,
+        )
+        if annotation:
+            print(green(f"✔ Added annotation {annotation.id} to report {args.report_id}"))
+        else:
+            print(red(f"✖ Report {args.report_id} not found"))
+        return 0
+
+    if args.report_id:
+        report = workspace.get_report(args.report_id)
+        if not report:
+            print(red(f"✖ Report {args.report_id} not found"))
+            return 1
+        if args.json:
+            print(json.dumps(report.to_dict(), indent=2))
+        elif args.markdown:
+            print(report.format_markdown())
+        else:
+            print(report.format_text())
+        return 0
+
+    # Default: list reports
+    reports = workspace.list_reports()
+    print_banner()
+    print(bold("📋 Collaboration Workspace\n"))
+    for r in reports:
+        print(f"  • [{r.report_id}] {r.target} ({r.status})")
+    return 0
+
+
+def cmd_strikes(args: argparse.Namespace) -> int:
+    """Scheduled strikes command handler."""
+    scheduler = StrikeScheduler()
+
+    if args.list:
+        strikes = scheduler.list_strikes(enabled_only=args.enabled)
+        if args.json:
+            print(json.dumps([s.to_dict() for s in strikes], indent=2))
+        else:
+            print_banner()
+            print(bold("⚔️  Scheduled Strikes\n"))
+            if not strikes:
+                print("  No strikes scheduled. Use 'strike add' to create one.")
+            for s in strikes:
+                status = green("enabled") if s.enabled else gray("disabled")
+                print(f"  • [{s.strike_id}] {s.name} -> {s.target.url} ({status})")
+        return 0
+
+    if args.add:
+        freq = StrikeFrequency(args.frequency) if args.frequency else StrikeFrequency.DAILY
+        strike = scheduler.schedule_strike(
+            name=args.name or args.add,
+            target_url=args.add,
+            frequency=freq,
+            scan_type=args.scan_type or "audit",
+            ports=[int(p) for p in args.ports.split(",")] if args.ports else None,
+            alert_on_critical=not args.no_alert,
+        )
+        print(green(f"✔ Scheduled strike '{strike.name}' ({strike.strike_id})"))
+        print(f"  Target: {strike.target.url}")
+        print(f"  Frequency: {strike.frequency.value}")
+        print(f"  Next run: {strike.next_run}")
+        return 0
+
+    if args.run:
+        result = scheduler.run_strike_now(args.run)
+        if not result:
+            print(red(f"✖ Strike {args.run} not found"))
+            return 1
+        print(green(f"✔ Strike executed: {result.strike_id}"))
+        print(f"  Duration: {result.duration_ms:.0f}ms")
+        print(f"  Success: {result.success}")
+        return 0 if result.success else 1
+
+    if args.cancel:
+        if scheduler.cancel_strike(args.cancel):
+            print(green(f"✔ Strike {args.cancel} cancelled"))
+        else:
+            print(red(f"✖ Strike {args.cancel} not found"))
+        return 0
+
+    if args.delete:
+        if scheduler.delete_strike(args.delete):
+            print(green(f"✔ Strike {args.delete} deleted"))
+        else:
+            print(red(f"✖ Strike {args.delete} not found"))
+        return 0
+
+    # Default: list strikes
+    strikes = scheduler.list_strikes()
+    print_banner()
+    print(bold("⚔️  Scheduled Strikes\n"))
+    for s in strikes:
+        print(f"  • [{s.strike_id}] {s.name} -> {s.target.url}")
+    return 0
+
+
 
 
 def cmd_ssl(args: argparse.Namespace) -> int:
@@ -1022,6 +1230,53 @@ def build_parser() -> argparse.ArgumentParser:
     p_plat = subparsers.add_parser("platform", help="Inspect multi-OS runtime environment")
     p_plat.add_argument("--json", action="store_true", help="Output JSON format")
 
+    # Subcommand: portscan
+    p_pscan = subparsers.add_parser("portscan", help="Deep TCP/UDP port scanner with service fingerprinting")
+    p_pscan.add_argument("target", help="Target hostname or IP address")
+    p_pscan.add_argument("--quick", action="store_true", help="Scan common ports only")
+    p_pscan.add_argument("--full", action="store_true", help="Scan all 65535 TCP ports")
+    p_pscan.add_argument("--ports", help="Comma-separated port list (e.g., 80,443,8080)")
+    p_pscan.add_argument("--scan-type", choices=["tcp-connect", "tcp-syn", "udp", "all"], default="tcp-connect")
+    p_pscan.add_argument("--timeout", type=float, default=3.0, help="Per-port timeout in seconds")
+    p_pscan.add_argument("--threads", type=int, default=200, help="Max concurrent threads")
+    p_pscan.add_argument("--json", action="store_true", help="Output JSON format")
+
+    # Subcommand: target-info
+    p_tinfo = subparsers.add_parser("target-info", help="Gather target intelligence (DNS, headers, tech stack)")
+    p_tinfo.add_argument("target", help="Domain, URL, or IP to reconnoiter")
+    p_tinfo.add_argument("--no-http", action="store_true", help="Skip HTTP header inspection")
+    p_tinfo.add_argument("--no-dns", action="store_true", help="Skip DNS resolution")
+    p_tinfo.add_argument("--no-html", action="store_true", help="Skip HTML analysis")
+    p_tinfo.add_argument("--markdown", action="store_true", help="Output markdown report")
+    p_tinfo.add_argument("--json", action="store_true", help="Output JSON format")
+
+    # Subcommand: collab
+    p_collab = subparsers.add_parser("collab", help="Collaboration workspace: share reports, annotate findings")
+    p_collab.add_argument("report_id", nargs="?", default=None, help="Report ID to view")
+    p_collab.add_argument("--list", "-l", action="store_true", help="List all shared reports")
+    p_collab.add_argument("--create", "-c", help="Create new report for target URL")
+    p_collab.add_argument("--annotation", "-a", help="Add annotation text")
+    p_collab.add_argument("--finding", help="Finding ID to annotate")
+    p_collab.add_argument("--author", help="Author name for annotation/report")
+    p_collab.add_argument("--markdown", action="store_true", help="Output markdown format")
+    p_collab.add_argument("--json", action="store_true", help="Output JSON format")
+
+    # Subcommand: strikes
+    p_strikes = subparsers.add_parser("strikes", help="Schedule recurring security strikes (scans)")
+    p_strikes.add_argument("target", nargs="?", default=None, help="Target URL for strike")
+    p_strikes.add_argument("--list", "-l", action="store_true", help="List scheduled strikes")
+    p_strikes.add_argument("--enabled", action="store_true", help="List only enabled strikes")
+    p_strikes.add_argument("--add", metavar="URL", help="Schedule a new strike on URL")
+    p_strikes.add_argument("--name", help="Strike name")
+    p_strikes.add_argument("--frequency", choices=["once", "hourly", "6h", "12h", "daily", "weekly"], default="daily")
+    p_strikes.add_argument("--scan-type", choices=["audit", "port-scan", "target-info", "all"], default="audit")
+    p_strikes.add_argument("--ports", help="Comma-separated ports for port-scan strikes")
+    p_strikes.add_argument("--run", metavar="STRIKE_ID", help="Execute a strike immediately")
+    p_strikes.add_argument("--cancel", metavar="STRIKE_ID", help="Cancel a scheduled strike")
+    p_strikes.add_argument("--delete", metavar="STRIKE_ID", help="Delete a strike permanently")
+    p_strikes.add_argument("--no-alert", action="store_true", help="Disable critical alerting")
+    p_strikes.add_argument("--json", action="store_true", help="Output JSON format")
+
     return parser
 
 
@@ -1053,6 +1308,10 @@ def main(argv: Optional[List[str]] = None) -> int:
         "mcp": cmd_mcp,
         "serve": cmd_serve,
         "platform": cmd_platform,
+        "portscan": cmd_portscan,
+        "target-info": cmd_target_info,
+        "collab": cmd_collab,
+        "strikes": cmd_strikes,
     }
 
     handler = dispatch_table.get(args.command)
