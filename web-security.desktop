@@ -1,0 +1,20 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Web Security Studio
+GenericName=Web Security Audit & Hardening Workstation
+Comment=Zero-Dependency Web Security Audit, CSP Builder, SRI Pinning, WCAG Contrast & TLS Inspection
+Exec=/usr/local/bin/web-security desktop
+Icon=/media/neo/f2fdda77-178b-4603-ae80-c7aa4cd97908/zoth-micro-repos/web-security-guard/assets/icon.png
+Terminal=false
+Categories=Security;Development;System;Utility;
+StartupNotify=true
+Actions=CLI;Web;
+
+[Desktop Action CLI]
+Name=Open Web Security CLI
+Exec=x-terminal-emulator -e "/usr/local/bin/web-security --help"
+
+[Desktop Action Web]
+Name=Open Web UI (Port 8091)
+Exec=/usr/local/bin/web-security web
