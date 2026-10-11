@@ -1,6 +1,6 @@
 {
   "name": "web-security-guard",
-  "version": "2.0.0",
+  "version": "2.5.0",
   "description": "Zero-Dependency Web Security Audit, CSP Builder, SRI Pinning, WCAG Contrast & TLS Inspection — Desktop Workstation",
   "main": "electron/main.cjs",
   "bin": {
@@ -27,7 +27,7 @@
     "electron",
     "zoth"
   ],
-  "author": "NullAI Tech / Zoth Team",
+  "author": "Neal Frazier Tech (@1nc0gn30) • NullAI Platform",
   "license": "MIT",
   "devDependencies": {
     "electron": "^34.5.8"

@@ -13,12 +13,20 @@
   <meta property="og:url" content="https://securityguard.nullai.tech">
   <meta property="og:type" content="website">
   <meta property="og:image" content="https://securityguard.nullai.tech/assets/banner.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Web Security Studio banner">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:site" content="@1nc0gn30">
   <meta name="twitter:creator" content="@1nc0gn30">
+  <meta name="twitter:title" content="Web Security Studio | In-Browser Security Header Auditor & CSP Builder">
+  <meta name="twitter:description" content="Multi-vector security header scanner, CSP Level 3 policy generator, SRI hasher, WCAG 2.2 contrast validator, and MCP hub with zero cloud egress.">
   <meta name="twitter:image" content="https://securityguard.nullai.tech/assets/banner.png">
+  <meta name="twitter:image:alt" content="Web Security Studio banner">
   <link rel="canonical" href="https://securityguard.nullai.tech">
-  <link rel="icon" type="image/png" href="/assets/icon.png">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/icon.png">
+  <link rel="apple-touch-icon" href="/assets/icon.png">
 
   <!-- DePay Web3 Solana Payment Widget -->
   <script src="https://integrate.depay.com/widgets/v13.js" defer></script>
@@ -944,7 +952,8 @@
 
 <!-- Top App Bar with Google Dots -->
   <header class="app-bar">
-    <div class="brand">
+    <div class="brand" style="display: flex; align-items: center; gap: 8px;">
+      <img src="/assets/icon.png" alt="Web Security Logo" class="brand-icon" style="width: 28px; height: 28px; border-radius: 6px; object-fit: cover; box-shadow: 0 0 10px rgba(26,115,232,0.4);">
       <div class="google-dots">
         <span class="dot blue"></span>
         <span class="dot red"></span>
@@ -953,13 +962,13 @@
       </div>
       <div class="brand-title">
         Web Security Studio
-        <span class="badge-v">v1.0.0</span>
+        <span class="badge-v">v2.5.0</span>
       </div>
     </div>
     <div class="header-actions">
-      <div class="badge-status" id="pro-badge" style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: var(--radius-pill); background: rgba(26,115,232,0.1); border: 1px solid rgba(26,115,232,0.3); font-size: 11px; font-weight: 600; color: #8ab4f8;">
-        <span style="width: 7px; height: 7px; border-radius: 50%; background: #1e8e3e; display: inline-block;"></span>
-        <span id="licenseBadgeText">FREE TIER</span>
+      <div class="badge-status" id="pro-badge" onclick="openLicenseModal()" style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: var(--radius-pill); background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); font-size: 11px; font-weight: 700; color: #ef4444; cursor: pointer;">
+        <span style="width: 7px; height: 7px; border-radius: 50%; background: #ef4444; display: inline-block;"></span>
+        <span id="licenseBadge">⚡ FREE TIER</span>
       </div>
       <button class="btn btn-tonal btn-sm" id="activateKeyBtn" onclick="openLicenseModal()">🔑 UNLOCK PRO</button>
       <button class="btn btn-tonal btn-sm" onclick="switchTab('tab-mcp')">🤖 MCP Server</button>
@@ -1911,11 +1920,11 @@ print(f"Contrast Ratio: {contrast['ratio_formatted']}, AA Normal: {contrast['wca
         <label style="display: block; font-family: monospace; font-size: 0.75rem; font-weight: 600; color: var(--g-blue); margin-bottom: 0.4rem;">
           LICENSE KEY OR STRIPE EMAIL:
         </label>
-        <input type="text" id="licenseInput" class="input-text" placeholder="pro_live_... or your@email.com" style="width: 100%; font-size: 0.95rem; min-height: 44px;">
+        <input type="text" id="licenseInput" class="input-text" placeholder="WEBSEC-PRO-2026 or receipt email" style="width: 100%; font-size: 0.95rem; min-height: 44px;">
       </div>
 
       <div style="display: flex; gap: 0.8rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
-        <button class="btn-checkout btn-stripe" onclick="activateLicenseKey()" style="flex: 1; justify-content: center; min-width: 140px;">
+        <button class="btn-checkout btn-stripe" id="btnActivateKey" onclick="activateLicenseKey(document.getElementById('licenseInput').value)" style="flex: 1; justify-content: center; min-width: 140px;">
           Activate Pro ⚡
         </button>
         <button class="btn-checkout btn-solana" onclick="activateDemoLicense()" style="flex: 1; justify-content: center; min-width: 140px;">
@@ -1953,14 +1962,20 @@ print(f"Contrast Ratio: {contrast['ratio_formatted']}, AA Normal: {contrast['wca
     window.cspFrameworks = {};
 
     // License Management
+    function isProUser() {
+      return localStorage.getItem('web_security_guard_licensed') === 'true' ||
+             localStorage.getItem('web-security-guard_pro_licensed') === 'true';
+    }
+
     function checkLicense() {
       const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.get('licensed') === 'true' || urlParams.get('pro') === '1') {
+      if (urlParams.get('licensed') === 'true' || urlParams.get('pro') === '1' || urlParams.get('pro') === 'true') {
         localStorage.setItem('web_security_guard_licensed', 'true');
+        localStorage.setItem('web-security-guard_pro_licensed', 'true');
       }
-      isProLicensed = localStorage.getItem('web_security_guard_licensed') === 'true';
+      isProLicensed = isProUser();
 
-      const licenseBadgeText = document.getElementById('licenseBadgeText');
+      const licenseBadge = document.getElementById('licenseBadge') || document.getElementById('licenseBadgeText');
       const proBadge = document.getElementById('pro-badge');
       const salesBanner = document.getElementById('salesBanner');
       const activateKeyBtn = document.getElementById('activateKeyBtn');
@@ -1968,21 +1983,21 @@ print(f"Contrast Ratio: {contrast['ratio_formatted']}, AA Normal: {contrast['wca
 
       if (isProLicensed) {
         if (exporterWrapper) exporterWrapper.classList.remove('paywall-locked');
-        if (licenseBadgeText) licenseBadgeText.textContent = '⭐ PRO ACTIVE';
+        if (licenseBadge) licenseBadge.textContent = '⭐ PRO ACTIVE';
         if (proBadge) {
           proBadge.style.background = 'rgba(212, 175, 55, 0.2)';
-          proBadge.style.color = '#F5E6AB';
+          proBadge.style.color = '#ffd700';
           proBadge.style.borderColor = 'rgba(212, 175, 55, 0.4)';
         }
         if (salesBanner) salesBanner.style.display = 'none';
         if (activateKeyBtn) activateKeyBtn.style.display = 'none';
       } else {
         if (exporterWrapper) exporterWrapper.classList.add('paywall-locked');
-        if (licenseBadgeText) licenseBadgeText.textContent = 'FREE TIER';
+        if (licenseBadge) licenseBadge.textContent = '⚡ FREE TIER';
         if (proBadge) {
-          proBadge.style.background = 'rgba(26,115,232,0.1)';
-          proBadge.style.color = '#8ab4f8';
-          proBadge.style.borderColor = 'rgba(26,115,232,0.3)';
+          proBadge.style.background = 'rgba(239, 68, 68, 0.1)';
+          proBadge.style.color = '#ef4444';
+          proBadge.style.borderColor = 'rgba(239, 68, 68, 0.3)';
         }
         if (salesBanner) salesBanner.style.display = 'flex';
         if (activateKeyBtn) activateKeyBtn.style.display = 'inline-flex';
@@ -1997,15 +2012,21 @@ print(f"Contrast Ratio: {contrast['ratio_formatted']}, AA Normal: {contrast['wca
       document.getElementById('licenseModal').classList.remove('open');
     }
 
-    function activateLicenseKey() {
-      const val = document.getElementById('licenseInput').value.trim();
-      if (val.length > 3 || val.toUpperCase() === 'WEBSEC-PRO-2026' || val.includes('@')) {
+    function activateLicenseKey(providedKey) {
+      let val = providedKey;
+      if (!val) {
+        const input = document.getElementById('licenseInput');
+        val = input ? input.value.trim() : '';
+      }
+      if (val && (val.length > 3 || val.toUpperCase() === 'WEBSEC-PRO-2026' || val.includes('@'))) {
         localStorage.setItem('web_security_guard_licensed', 'true');
+        localStorage.setItem('web-security-guard_pro_licensed', 'true');
         checkLicense();
         closeLicenseModal();
-        alert('⭐ Web Security Studio Pro successfully activated! All paywalls dissolved.');
       } else {
-        alert('Please enter a valid receipt email or license key.');
+        if (!providedKey && typeof alert === 'function') {
+          try { alert('Please enter a valid receipt email or license key.'); } catch(e) {}
+        }
       }
     }
 
@@ -2052,7 +2073,7 @@ print(f"Contrast Ratio: {contrast['ratio_formatted']}, AA Normal: {contrast['wca
       }
       const payload = {
         tool: "web-security-guard",
-        version: "2.4.0",
+        version: "2.5.0",
         timestamp: new Date().toISOString(),
         audit: currentAuditData,
         csp: {
