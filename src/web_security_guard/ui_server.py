@@ -34,6 +34,24 @@ from typing import Any, Dict, List, Optional, Tuple
 # WCAG 2.2 Contrast & Accessibility Engine
 # ==============================================================================
 
+def _is_local_origin(origin) -> bool:
+    """True for no Origin (CLI/curl/same-origin GET) or a localhost origin."""
+    if not origin:
+        return True
+    from urllib.parse import urlparse
+    try:
+        u = urlparse(origin)
+    except Exception:
+        return False
+    return u.scheme in ("http", "https") and (u.hostname or "") in ("localhost", "127.0.0.1", "::1")
+
+
+def _cors_origin(handler) -> str:
+    """Echo the Origin only when it is local; never '*'."""
+    origin = handler.headers.get("Origin", "")
+    return origin if origin and _is_local_origin(origin) else "http://127.0.0.1"
+
+
 class WCAGContrastEngine:
     """Calculates WCAG 2.2 relative luminance, contrast ratios, and color blindness simulations."""
 
@@ -1287,7 +1305,7 @@ class SecurityStudioHandler(SimpleHTTPRequestHandler):
         self.send_response(status)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
-        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Origin", _cors_origin(self))
         self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
         self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization")
         self.send_header("X-Content-Type-Options", "nosniff")
@@ -1299,7 +1317,7 @@ class SecurityStudioHandler(SimpleHTTPRequestHandler):
     def do_OPTIONS(self) -> None:
         """Handles CORS preflight requests."""
         self.send_response(HTTPStatus.NO_CONTENT)
-        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Origin", _cors_origin(self))
         self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
         self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization")
         self.end_headers()
@@ -1350,7 +1368,7 @@ class SecurityStudioHandler(SimpleHTTPRequestHandler):
             self.send_header("Content-Type", "application/zip")
             self.send_header("Content-Disposition", 'attachment; filename="web-security-guard-hardening.zip"')
             self.send_header("Content-Length", str(len(zip_bytes)))
-            self.send_header("Access-Control-Allow-Origin", "*")
+            self.send_header("Access-Control-Allow-Origin", _cors_origin(self))
             self.end_headers()
             self.wfile.write(zip_bytes)
             return
@@ -1386,6 +1404,12 @@ class SecurityStudioHandler(SimpleHTTPRequestHandler):
 
     def do_POST(self) -> None:
         """Handles POST API endpoints."""
+
+        if not _is_local_origin(self.headers.get("Origin")):
+
+            self.send_error(403, "Cross-origin request blocked")
+
+            return
         parsed_url = urllib.parse.urlparse(self.path)
         path = parsed_url.path.rstrip("/")
 
@@ -1528,7 +1552,7 @@ class SecurityStudioHandler(SimpleHTTPRequestHandler):
             self.send_header("Content-Type", "application/zip")
             self.send_header("Content-Disposition", 'attachment; filename="web-security-guard-hardening.zip"')
             self.send_header("Content-Length", str(len(zip_bytes)))
-            self.send_header("Access-Control-Allow-Origin", "*")
+            self.send_header("Access-Control-Allow-Origin", _cors_origin(self))
             self.end_headers()
             self.wfile.write(zip_bytes)
 

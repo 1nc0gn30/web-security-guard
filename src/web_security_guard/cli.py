@@ -893,7 +893,7 @@ def cmd_supply(args: argparse.Namespace) -> int:
 def cmd_serve(args: argparse.Namespace) -> int:
     """Start Material 3 Security Studio HTTP server."""
     port = args.port or 8085
-    host = args.host or "0.0.0.0"
+    host = args.host or "127.0.0.1"
 
     from web_security_guard.ui_server import start_ui_server
     start_ui_server(host=host, port=port)
@@ -1016,7 +1016,7 @@ def build_parser() -> argparse.ArgumentParser:
     # Subcommand: serve
     p_serve = subparsers.add_parser("serve", help="Start Web Security Studio UI (design influenced by Material 3)")
     p_serve.add_argument("--port", "-p", type=int, default=8085, help="Server port (default: 8085)")
-    p_serve.add_argument("--host", default="0.0.0.0", help="Server host interface (default: 0.0.0.0)")
+    p_serve.add_argument("--host", default="127.0.0.1", help="Server host interface (default: 127.0.0.1; use 0.0.0.0 only on trusted networks)")
 
     # Subcommand: platform
     p_plat = subparsers.add_parser("platform", help="Inspect multi-OS runtime environment")
