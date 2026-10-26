@@ -1,3 +1,9 @@
+<div align="center">
+  <img src="assets/hero-banner.svg" alt="Web Security Guard — Sovereign Architecture Banner" width="100%" />
+</div>
+
+<br />
+
 # 🛡️ Web Security Guard
 
 <p align="center">
