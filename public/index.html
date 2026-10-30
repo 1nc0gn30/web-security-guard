@@ -29,8 +29,6 @@
   <link rel="apple-touch-icon" href="/assets/icon.png">
 
   <!-- DePay Web3 Solana Payment Widget -->
-  <script src="https://integrate.depay.com/widgets/v13.js" defer></script>
-
   <!-- AEO & SEO Schema.org Graph -->
   <script type="application/ld+json">
   {
@@ -45,7 +43,7 @@
         "description": "Professional in-browser web application security scanner, CSP Level 3 builder, Subresource Integrity generator, and WCAG 2.2 contrast validator.",
         "offers": {
           "@type": "Offer",
-          "price": "19.00",
+          "price": "0",
           "priceCurrency": "USD"
         },
         "author": {
@@ -275,7 +273,7 @@
     }
 
     .paywall-locked .paywalled-content {
-      filter: blur(6px);
+      filter: none;
       user-select: none;
       pointer-events: none;
     }
@@ -285,7 +283,7 @@
       position: absolute;
       inset: 0;
       background: rgba(32, 33, 36, 0.85);
-      backdrop-filter: blur(4px);
+      backdrop-filter: none;
       flex-direction: column;
       align-items: center;
       justify-content: center;
@@ -313,7 +311,7 @@
       position: fixed;
       inset: 0;
       background: rgba(0, 0, 0, 0.75);
-      backdrop-filter: blur(8px);
+      backdrop-filter: none;
       z-index: 2000;
       align-items: center;
       justify-content: center;
@@ -947,8 +945,50 @@
   </style>
   
   <link rel="stylesheet" href="zoth-theme.css">
+  <link rel="stylesheet" href="wave.css">
+  <link rel="stylesheet" href="wave-states.css">
+  <link rel="stylesheet" href="wave-type.css">
+
+  <!-- Zoth 100% Open-Access & Buy Us a Coffee Invariant -->
+  <script id="zoth-open-access-init">
+    (function() {
+      try {
+        var keys = ['agent_audiocipher_pro', 'agent_cyber_turtle_pro', 'agent_datamosh_pro', 'agent_nexus3d_pro', 'agent_policy_pro', 'audiocipher_license', 'audiocipher_pro_licensed', 'badge3d_pro_licensed', 'certpath_pro_key', 'certpath_pro_licensed', 'cron_rhythm_pro_key', 'cron_rhythm_pro_licensed', 'cwv-speed-engine_pro_licensed', 'cwv_pro_licensed', 'cyber_turtle_pro_licensed', 'datamosh_pro_licensed', 'deepsearch-research-agent_pro_licensed', 'deepsearch_pro_licensed', 'entropy_studio_licensed', 'envguard-secrets-vault_pro_licensed', 'envguard_pro_license', 'etsy_connector_pro', 'jwt_guard_licensed', 'mdg_pro_licensed', 'neuro_pro_licensed', 'nexus3d_pro_licensed', 'omnipost_pro_key', 'omnipost_pro_licensed', 'osint_pro_licensed', 'payload-entropy-studio_pro_licensed', 'polyglot_pro_licensed', 'pro_licensed', 'promptmaster_pro_licensed', 'promptmaster_pro_active', 'robots-txt-auditor_pro_licensed', 'robots_pro_licensed', 'schema_illustrator_pro_licensed', 'sovereign_pro_licensed', 'subsweep-lead-scanner_pro_licensed', 'subsweep_licensed', 'turtle_pro_licensed', 'ufo_sacred_licensed', 'vector-search-engine_pro_licensed', 'vector_studio_pro_licensed', 'web-security-guard_pro_licensed', 'web_security_guard_licensed', 'yourdigitalspace_pro', 'zela_guide_pro_licensed', 'zoth_ascii_magic_pro', 'zoth_audiocipher_licensed', 'zoth_badge3d_licensed', 'zoth_cyber_turtle_licensed', 'zoth_datamosh_licensed', 'zoth_etsy_licensed', 'zoth_nexus3d_licensed', 'zoth_osint_licensed', 'zoth_policy_licensed', 'zoth_sacred_licensed', 'zoth_ufo_licensed'];
+        for (var i = 0; i < keys.length; i++) {
+          localStorage.setItem(keys[i], 'true');
+        }
+        localStorage.setItem('pm_license_v2', JSON.stringify({ method: 'open_access', ref: 'free_forever', at: '2026-01-01T00:00:00Z' }));
+        window.isPro = true;
+        window.isProLicensed = true;
+      } catch (e) {}
+    })();
+  </script>
+  <style id="zoth-open-access-override">
+    .paywall-overlay, .output-paywall-overlay, #outputPaywallOverlay, #schemaPaywallOverlay,
+    #transformerPaywallOverlay, #proPaywallModal, #licenseModal, #salesBanner, #founding-offer-banner,
+    #funnelHeroBanner, [data-alias="paywallOverlay"], [data-alias="founding-offer-banner"] {
+      display: none !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+    }
+    .paywall-wrap #outputPreview, .paywall-wrap #reportContentArea, .paywall-content,
+    .paywall-content.locked, .paywall-wrap.is-locked #outputPreview, .paywall-wrap.locked #outputPreview {
+      filter: none !important;
+      -webkit-filter: none !important;
+      user-select: auto !important;
+      pointer-events: auto !important;
+    }
+  </style>
+
 </head>
 <body>
+
+<div id="zoth-coffee-support-bar" style="background: linear-gradient(90deg, rgba(16,185,129,0.12), rgba(212,175,55,0.14)); border-bottom: 1px solid rgba(212,175,55,0.35); padding: 8px 16px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 12px; z-index: 9999;">
+  <span style="color: #10B981; font-weight: 800;">✦ 100% FREE &amp; OPEN ACCESS · ZERO PAYWALLS</span>
+  <a href="https://buy.stripe.com/3cIfZg27PdKo2D64Ocfw40X" target="_blank" rel="noopener noreferrer" style="background: #D4AF37; color: #08080B; padding: 4px 12px; border-radius: 6px; font-weight: 800; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">☕ Buy Us a Coffee (Stripe)</a>
+  <a href="solana:GG2eQbVh8ut1BK6j1A2tz7pSySdLpD38BgyEhGcxdXoK" onclick="if(navigator.clipboard){navigator.clipboard.writeText('GG2eQbVh8ut1BK6j1A2tz7pSySdLpD38BgyEhGcxdXoK');this.textContent='✓ Copied GG2eQb...dXoK!';}" style="background: rgba(20,241,149,0.15); color: #14F195; border: 1px solid rgba(20,241,149,0.45); padding: 4px 12px; border-radius: 6px; font-weight: 800; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">◎ Solana Tip (GG2e...dXoK)</a>
+</div>
+
 
 <!-- Top App Bar with Google Dots -->
   <header class="app-bar">
@@ -966,11 +1006,10 @@
       </div>
     </div>
     <div class="header-actions">
-      <div class="badge-status" id="pro-badge" onclick="openLicenseModal()" style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: var(--radius-pill); background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); font-size: 11px; font-weight: 700; color: #ef4444; cursor: pointer;">
-        <span style="width: 7px; height: 7px; border-radius: 50%; background: #ef4444; display: inline-block;"></span>
-        <span id="licenseBadge">⚡ FREE TIER</span>
+      <div class="badge-status" id="pro-badge" style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: var(--radius-pill); background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.4); font-size: 11px; font-weight: 700; color: #10B981;">
+        <span style="width: 7px; height: 7px; border-radius: 50%; background: #10B981; display: inline-block;"></span>
+        <span id="licenseBadge">✦ 100% UNLOCKED</span>
       </div>
-      <button class="btn btn-tonal btn-sm" id="activateKeyBtn" onclick="openLicenseModal()">✦ UNLOCK PRO</button>
       <button class="btn btn-tonal btn-sm" onclick="switchTab('tab-mcp')">◈ MCP Server</button>
       <button class="btn btn-primary btn-sm" onclick="exportHardeningBundle()">⚡ Export Hardening (.JSON)</button>
     </div>
@@ -983,42 +1022,16 @@
     <button class="tab-btn" onclick="switchTab('tab-diff')">⚖️ Posture Diff</button>
     <button class="tab-btn" onclick="switchTab('tab-patcher')">⚡ 1-Click Patcher</button>
     <button class="tab-btn" onclick="switchTab('tab-csp')">★ CSP Level 3 Builder</button>
-    <button class="tab-btn" onclick="switchTab('tab-sri')">✦ SRI Hasher &amp; Injector</button>
+    <button class="tab-btn" onclick="switchTab('tab-sri')">✦ SRI Hasher & Injector</button>
     <button class="tab-btn" onclick="switchTab('tab-wcag')">✦ WCAG 2.2 Contrast</button>
-    <button class="tab-btn" onclick="switchTab('tab-mcp')">◈ AI Agent &amp; MCP Hub</button>
+    <button class="tab-btn" onclick="switchTab('tab-mcp')">◈ AI Agent & MCP Hub</button>
     <button class="tab-btn" onclick="switchTab('tab-exporter')">⚡ Hardening Exporter</button>
     <button class="tab-btn" onclick="switchTab('tab-guide')">▣ Best Practices</button>
-    <button class="tab-btn" onclick="switchTab('tab-cli')">⚡ CLI &amp; SDK</button>
+    <button class="tab-btn" onclick="switchTab('tab-cli')">⚡ CLI & SDK</button>
   </nav>
 
   <!-- Main Container -->
   <main class="container">
-
-    <!-- Founding Member Sales Funnel Banner -->
-    <div class="sales-banner" id="salesBanner">
-      <div class="sales-content">
-        <div class="sales-badge">
-          ⭐ FOUNDING MEMBER ACCESS · 76% DISCOUNT
-        </div>
-        <div class="sales-title">
-          Unlock Unlimited Multi-Framework Security Patches, Hardening Bundles &amp; MCP Pipelines
-        </div>
-        <div class="sales-desc">
-          Get lifetime access to one-click CSP Level 3 exports, automated SRI injection, unified security patches, and full CI/CD configs for <strong>$19 one-time</strong> (<del style="color: var(--text-secondary);">$79 regular</del>). Dual Stripe + Solana checkout rails.
-        </div>
-      </div>
-      <div class="sales-ctas">
-        <a href="https://buy.stripe.com/4gMfZg9AheOsdhKbcAfw40L" target="_blank" rel="noopener" class="btn-checkout btn-stripe">
-          ★ Unlock Pro — $19 Lifetime
-        </a>
-        <button onclick="openDePayCheckout(event)" class="btn-checkout btn-solana">
-          ◎ Pay with Solana
-        </button>
-        <button onclick="openLicenseModal()" class="btn-license-inline">
-          Already have a key? Activate
-        </button>
-      </div>
-    </div>
 
     <!-- =================================================================== -->
     <!-- TAB 1: Live Site Auditor -->
@@ -1777,31 +1790,9 @@
         </div>
 
         <div style="margin-top: 24px;">
-          <div class="paywall-wrapper paywall-locked" id="exporterPaywallWrapper">
-            <div class="code-container paywalled-content" style="min-height: 220px;">
-              <button class="copy-btn" onclick="handleCopyExporter()">Copy</button>
-              <pre><code id="exporter-viewer">Select a card above to inspect configuration code.</code></pre>
-            </div>
-            <div class="paywall-overlay">
-              <div class="lock-card">
-                <div style="font-size: 2.2rem; margin-bottom: 0.5rem;">★</div>
-                <h4 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 0.4rem; color: var(--text-primary);">Hardening Exporter Bundle Locked</h4>
-                <p style="font-size: 0.82rem; margin-bottom: 1.25rem; line-height: 1.5; color: var(--text-secondary);">
-                  Unlock multi-framework production deployment configs, edge middleware, and unified security patches.
-                </p>
-                <div style="display: flex; flex-direction: column; gap: 0.6rem;">
-                  <a href="https://buy.stripe.com/4gMfZg9AheOsdhKbcAfw40L" target="_blank" rel="noopener" class="btn-checkout btn-stripe" style="justify-content: center;">
-                    ★ Unlock Pro — $19 Lifetime
-                  </a>
-                  <button onclick="openDePayCheckout(event)" class="btn-checkout btn-solana" style="justify-content: center;">
-                    ◎ Pay with Solana
-                  </button>
-                  <button onclick="openLicenseModal()" style="background: none; border: none; color: var(--g-blue); font-size: 0.8rem; cursor: pointer; text-decoration: underline; margin-top: 0.3rem;">
-                    Already have a license key? Activate now
-                  </button>
-                </div>
-              </div>
-            </div>
+          <div class="code-container" style="min-height: 220px;">
+            <button class="copy-btn" onclick="handleCopyExporter()">Copy</button>
+            <pre><code id="exporter-viewer">Select a card above to inspect configuration code.</code></pre>
           </div>
         </div>
 
@@ -1904,173 +1895,47 @@ print(f"Contrast Ratio: {contrast['ratio_formatted']}, AA Normal: {contrast['wca
 
   </main>
 
-  <!-- Pro Paywall Modal -->
-  <div class="modal-backdrop" id="licenseModal">
-    <div class="modal-card">
-      <button class="modal-close" onclick="closeLicenseModal()">&times;</button>
-      <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.8rem;">
-        <span style="font-size: 1.5rem;">⭐</span>
-        <h2 style="font-size: 1.2rem; font-weight: 700; color: var(--text-primary);">Web Security Pro Activation</h2>
-      </div>
-      <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.5rem;">
-        Enter your purchase receipt email or lifetime license key to permanently dissolve all paywalls and unlock unlimited multi-framework security patches.
-      </p>
-
-      <div style="margin-bottom: 1.2rem;">
-        <label style="display: block; font-family: monospace; font-size: 0.75rem; font-weight: 600; color: var(--g-blue); margin-bottom: 0.4rem;">
-          LICENSE KEY OR STRIPE EMAIL:
-        </label>
-        <input type="text" id="licenseInput" class="input-text" placeholder="WEBSEC-PRO-2026 or receipt email" style="width: 100%; font-size: 0.95rem; min-height: 44px;">
-      </div>
-
-      <div style="display: flex; gap: 0.8rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
-        <button class="btn-checkout btn-stripe" id="btnActivateKey" onclick="activateLicenseKey(document.getElementById('licenseInput').value)" style="flex: 1; justify-content: center; min-width: 140px;">
-          Activate Pro ⚡
-        </button>
-        <button class="btn-checkout btn-solana" onclick="activateDemoLicense()" style="flex: 1; justify-content: center; min-width: 140px;">
-          Instant Preview Key
-        </button>
-      </div>
-
-      <div style="padding: 1rem; border-radius: var(--radius-md); background: var(--bg-subtle); border: 1px solid var(--border); font-size: 0.78rem; color: var(--text-secondary); line-height: 1.6;">
-        <strong style="color: var(--g-blue);">Pro Feature Matrix:</strong><br>
-        ✓ Unlocked Multi-Framework Production Bundles (Next.js, Nginx, Netlify, Vercel)<br>
-        ✓ 1-Click Unified Security Diff Patches &amp; CI/CD rules<br>
-        ✓ Full Model Context Protocol (MCP) AI Agent security toolkits<br>
-        ✓ 100% in-browser client execution with zero network telemetry<br>
-        ✓ Permanent localStorage activation across visits
-      </div>
-    </div>
-  </div>
-
   <footer class="app-footer" style="padding: 1.5rem; text-align: center; font-size: 0.82rem; color: var(--text-secondary); border-top: 1px solid var(--border); margin-top: 48px;">
     <div style="margin-bottom: 0.4rem; font-weight: 700; color: var(--text-primary);">
-      Web Security Studio • In-Browser Security Header Auditor &amp; CSP Builder
+      Web Security Studio • In-Browser Security Header Auditor & CSP Builder
     </div>
-    <div>
+    <div style="margin-bottom: 0.4rem;">
       Engineered by <a href="https://nealfrazier.tech" target="_blank" rel="noopener" style="color: var(--g-blue);">Neal Frazier Tech (@1nc0gn30)</a> • <a href="https://nullai.tech" target="_blank" rel="noopener" style="color: var(--g-blue);">NullAI Platform</a> • <a href="https://github.com/1nc0gn30/web-security-guard" target="_blank" rel="noopener" style="color: var(--g-blue);">GitHub</a>
+    </div>
+    <div style="font-size: 0.78rem; opacity: 0.8;">
+      100% Free & Open Access • <a href="https://buy.stripe.com/3cIfZg27PdKo2D64Ocfw40X" target="_blank" rel="noopener" style="color: #D4AF37;">☕ Buy Us a Coffee</a> • Solana: <code style="font-size: 0.75rem; color: #14F195;">GG2eQbVh8ut1BK6j1A2tz7pSySdLpD38BgyEhGcxdXoK</code>
     </div>
   </footer>
 
   <!-- Interactive JavaScript Engine (100% Client-Side Sovereign Execution) -->
   <script>
     // State Store
-    let isProLicensed = false;
+    const isProLicensed = true;
     let currentAuditData = null;
     let currentFrameworks = {};
     let mcpConfigs = {};
     window.cspFrameworks = {};
 
-    // License Management
     function isProUser() {
-      return localStorage.getItem('web_security_guard_licensed') === 'true' ||
-             localStorage.getItem('web-security-guard_pro_licensed') === 'true';
+      return true;
     }
 
     function checkLicense() {
-      const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.get('licensed') === 'true' || urlParams.get('pro') === '1' || urlParams.get('pro') === 'true') {
-        localStorage.setItem('web_security_guard_licensed', 'true');
-        localStorage.setItem('web-security-guard_pro_licensed', 'true');
-      }
-      isProLicensed = isProUser();
-
       const licenseBadge = document.getElementById('licenseBadge') || document.getElementById('licenseBadgeText');
       const proBadge = document.getElementById('pro-badge');
-      const salesBanner = document.getElementById('salesBanner');
-      const activateKeyBtn = document.getElementById('activateKeyBtn');
-      const exporterWrapper = document.getElementById('exporterPaywallWrapper');
-
-      if (isProLicensed) {
-        if (exporterWrapper) exporterWrapper.classList.remove('paywall-locked');
-        if (licenseBadge) licenseBadge.textContent = '⭐ PRO ACTIVE';
-        if (proBadge) {
-          proBadge.style.background = 'rgba(212, 175, 55, 0.2)';
-          proBadge.style.color = '#ffd700';
-          proBadge.style.borderColor = 'rgba(212, 175, 55, 0.4)';
-        }
-        if (salesBanner) salesBanner.style.display = 'none';
-        if (activateKeyBtn) activateKeyBtn.style.display = 'none';
-      } else {
-        if (exporterWrapper) exporterWrapper.classList.add('paywall-locked');
-        if (licenseBadge) licenseBadge.textContent = '⚡ FREE TIER';
-        if (proBadge) {
-          proBadge.style.background = 'rgba(239, 68, 68, 0.1)';
-          proBadge.style.color = '#ef4444';
-          proBadge.style.borderColor = 'rgba(239, 68, 68, 0.3)';
-        }
-        if (salesBanner) salesBanner.style.display = 'flex';
-        if (activateKeyBtn) activateKeyBtn.style.display = 'inline-flex';
+      if (licenseBadge) licenseBadge.textContent = '✦ 100% UNLOCKED';
+      if (proBadge) {
+        proBadge.style.background = 'rgba(16, 185, 129, 0.15)';
+        proBadge.style.color = '#10B981';
+        proBadge.style.borderColor = 'rgba(16, 185, 129, 0.4)';
       }
-    }
-
-    function openLicenseModal() {
-      document.getElementById('licenseModal').classList.add('open');
-    }
-
-    function closeLicenseModal() {
-      document.getElementById('licenseModal').classList.remove('open');
-    }
-
-    function activateLicenseKey(providedKey) {
-      let val = providedKey;
-      if (!val) {
-        const input = document.getElementById('licenseInput');
-        val = input ? input.value.trim() : '';
-      }
-      if (val && (val.length > 3 || val.toUpperCase() === 'WEBSEC-PRO-2026' || val.includes('@'))) {
-        localStorage.setItem('web_security_guard_licensed', 'true');
-        localStorage.setItem('web-security-guard_pro_licensed', 'true');
-        checkLicense();
-        closeLicenseModal();
-      } else {
-        if (!providedKey && typeof alert === 'function') {
-          try { alert('Please enter a valid receipt email or license key.'); } catch(e) {}
-        }
-      }
-    }
-
-    function activateDemoLicense() {
-      localStorage.setItem('web_security_guard_licensed', 'true');
-      checkLicense();
-      closeLicenseModal();
-      alert('⭐ Instant preview license granted! All hardening bundles unlocked.');
-    }
-
-    function openDePayCheckout(e) {
-      if (e && e.preventDefault) e.preventDefault();
-      if (typeof DePayButtons !== 'undefined') {
-        try {
-          DePayButtons.init({
-            integration: '428790dd-7ad1-407c-8ecf-c048c77a4cb8',
-            container: document.body
-          });
-          return;
-        } catch (err) {
-          console.warn('DePay widget initialization error:', err);
-        }
-      }
-      window.open('https://solana.fm/address/GG2eQbVh8ut1BK6j1A2tz7pSySdLpD38BgyEhGcxdXoK', '_blank');
-      openLicenseModal();
-    }
-
-    function triggerSolanaCheckout(e) {
-      openDePayCheckout(e);
     }
 
     function handleCopyExporter() {
-      if (!isProLicensed) {
-        openLicenseModal();
-        return;
-      }
       copySnippet('exporter-viewer');
     }
 
     function exportHardeningBundle() {
-      if (!isProLicensed) {
-        openLicenseModal();
-        return;
-      }
       const payload = {
         tool: "web-security-guard",
         version: "2.5.0",
@@ -2672,7 +2537,7 @@ print(f"Contrast Ratio: {contrast['ratio_formatted']}, AA Normal: {contrast['wca
 
     function escapeHtml(str) {
       if (!str) return '';
-      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+      return String(str).replace(/&/g, '&').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
 
     // TLS / SSL Deep Inspector (Client-Side Telemetry)

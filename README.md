@@ -12,9 +12,10 @@
 
 <p align="center">
   <a href="https://securityguard.nullai.tech"><img src="https://img.shields.io/badge/Live%20App-securityguard.nullai.tech-1a73e8?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Live App" /></a>
-  <a href="https://buy.stripe.com/7sI7sA8hM2X8eFG8ww"><img src="https://img.shields.io/badge/Stripe%20Checkout-$19%20Lifetime-635BFF?style=for-the-badge&logo=stripe&logoColor=white" alt="Stripe Checkout" /></a>
-  <a href="https://securityguard.nullai.tech"><img src="https://img.shields.io/badge/Solana%20DePay-Web3%20Checkout-14F195?style=for-the-badge&logo=solana&logoColor=black" alt="Solana DePay" /></a>
+  <a href="https://buy.stripe.com/3cIfZg27PdKo2D64Ocfw40X"><img src="https://img.shields.io/badge/☕%20Buy%20Us%20a%20Coffee-Stripe-D4AF37?style=for-the-badge&logo=stripe&logoColor=white" alt="Buy Us a Coffee" /></a>
+  <a href="https://solana.fm/address/GG2eQbVh8ut1BK6j1A2tz7pSySdLpD38BgyEhGcxdXoK"><img src="https://img.shields.io/badge/Solana%20Tip-GG2e...dXoK-14F195?style=for-the-badge&logo=solana&logoColor=black" alt="Solana Tip" /></a>
   <a href="https://securityguard.nullai.tech"><img src="https://img.shields.io/badge/Zero%20Egress-100%25%20In--Browser-10B981?style=for-the-badge" alt="Zero Egress" /></a>
+  <a href="https://securityguard.nullai.tech"><img src="https://img.shields.io/badge/Access-100%25%20Free%20%26%20Unlocked-00FF9D?style=for-the-badge" alt="100% Free & Open Access" /></a>
 </p>
 
 <p align="center">
@@ -241,13 +242,40 @@ All 15 GitHub Actions test matrix jobs run on Python 3.9 through 3.13 on Ubuntu,
 
 ---
 
-## 💎 Founding Member Pro ($19 Lifetime)
+## ☕ 100% Free & Open-Access (Buy Us a Coffee Support Architecture)
 
-Web Security Studio is engineered as an autonomous sovereign developer and DevSecOps utility with dual checkout rails:
+Web Security Guard and Web Security Studio are **100% free, open, and unlocked by default**. Zero paywalls, zero license keys, and zero locked features.
 
-- **Stripe Direct Rail**: [Instant Lifetime License ($19)](https://buy.stripe.com/7sI7sA8hM2X8eFG8ww) (Credit Cards, Apple Pay, Google Pay)
-- **Solana Web3 DePay**: On-chain instant checkout via DePay integration (`GG2eQbVh8ut1BK6j1A2tz7pSySdLpD38BgyEhGcxdXoK`)
-- **Pro Capabilities**: Full multi-framework production deployment configs, automated SRI injection, unified security diff patches, and 100% in-browser zero-egress execution.
+If this project powers your workflows or saves you engineering hours, consider supporting its independent research:
+
+- **Stripe "Buy Us a Coffee"**: [Support via Stripe](https://buy.stripe.com/3cIfZg27PdKo2D64Ocfw40X) (Cards, Apple Pay, Google Pay)
+- **Solana Tip Address**: `GG2eQbVh8ut1BK6j1A2tz7pSySdLpD38BgyEhGcxdXoK`
+- **Sovereign Invariants**: Full multi-framework production deployment configs, automated SRI injection, unified security diff patches, and 100% client-side zero-egress execution.
+
+---
+
+## 💻 ZothOS CLI & MCP Integration
+
+```bash
+# Verify installation & deterministic telemetry
+web-security-guard --json
+web-security-guard --version
+
+# Run security header audit against any URL
+web-security-guard audit https://nullai.tech
+
+# Inspect TLS / SSL certificate status
+web-security-guard ssl nullai.tech --port 443
+
+# Generate Level 3 CSP policy
+web-security-guard csp --preset strict --nonce
+
+# Calculate Subresource Integrity (SRI) SHA-384
+web-security-guard sri ./public/bundle.js
+
+# Launch MCP Server for Claude Desktop & Cursor
+web-security-guard mcp
+```
 
 ---
 

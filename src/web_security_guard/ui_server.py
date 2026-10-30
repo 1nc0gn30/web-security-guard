@@ -1333,7 +1333,7 @@ class SecurityStudioHandler(SimpleHTTPRequestHandler):
         if not path:
             path = "/"
 
-        if path == "/api/health":
+        if path in ("/health", "/api/health"):
             self.send_json({"status": "ok", "version": "1.0.0", "service": "web-security-guard"})
             return
 
