@@ -1,0 +1,22 @@
+{
+  "presets": [
+    {
+      "name": "Web Security Guard \u2014 Sovereign Zero-Trust Audit",
+      "description": "Deterministic high-throughput inspection preset for Web Security Guard engineered on ZothOS.",
+      "payload": "--repo web-security-guard --mode sovereign-audit --verify-checksum --strict",
+      "expected_metric": "99.98% deterministic pass rate (<4.2ms AST latency)"
+    },
+    {
+      "name": "Web Security Guard \u2014 A100 80GB Neural Stress Vector",
+      "description": "Multi-threaded benchmark payload synthesized for Web Security Guard pipeline verification.",
+      "payload": "--repo web-security-guard --benchmark --threads 16 --format json",
+      "expected_metric": "14,200 ops/sec sustained throughput"
+    },
+    {
+      "name": "Web Security Guard \u2014 Edge Production Hardening",
+      "description": "Pre-deployment production guardrail preset for Web Security Guard client-side & CLI parity.",
+      "payload": "web-security-guard-tui --benchmark --json",
+      "expected_metric": "Zero console errors \u2022 -14.0 LUFS \u2022 Triple-viewport verified"
+    }
+  ]
+}

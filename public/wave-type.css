@@ -1,0 +1,191 @@
+/* ============================================================
+   Web Security Studio — Wave 3 Typography Layer (wave-type.css)
+   Surface: Security Header Auditor & CSP Level 3 Builder
+   Anchor: Readable Work Measure, Tabular Data Telemetry & Heading Calibration
+   Scope:
+     1. Readable measure (60-72ch) across work surfaces & descriptions
+     2. Tabular numerals (font-variant-numeric: tabular-nums) on scores,
+        deltas, counts, ratios, dates, and prices
+     3. Clear, intentional tracking across headings and eyebrow tags
+   All selectors strictly verified from public/index.html.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   1. READABLE MEASURE ON THE WORK SURFACE
+   Prevents unconstrained text stretching on wide viewports (60-72ch).
+   Enhances optical reading comfort and vertical scan rhythm.
+   ------------------------------------------------------------ */
+.sales-desc {
+  max-width: 68ch;
+  line-height: 1.55;
+}
+
+.card-desc {
+  max-width: 68ch;
+  line-height: 1.55;
+}
+
+.tab-content .card > p {
+  max-width: 70ch;
+  line-height: 1.6;
+}
+
+.modal-card p {
+  max-width: 58ch;
+  line-height: 1.55;
+}
+
+.lock-card p {
+  max-width: 52ch;
+  line-height: 1.5;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.alert-body {
+  max-width: 72ch;
+  line-height: 1.55;
+}
+
+/* ------------------------------------------------------------
+   2. TABULAR NUMBERS ON EXISTING SCORES, METRICS & PRICES
+   Uniform numerical character widths (tnum) prevent optical jitter
+   and ensure vertical column alignment across live updates.
+   ------------------------------------------------------------ */
+/* Scores, grades, and gauge readouts */
+.grade-score,
+#gauge-score,
+.meta-val,
+#meta-passed,
+#meta-partial,
+#meta-failed,
+#meta-cookies {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+/* Differential scorecards, deltas, and breakdown counts */
+#diff-a-score,
+#diff-b-score,
+#diff-a-passed,
+#diff-a-partial,
+#diff-a-failed,
+#diff-b-passed,
+#diff-b-partial,
+#diff-b-failed,
+.delta-badge,
+#diff-delta-badge,
+#ssl-sans-count,
+#diff-fixed-count,
+#diff-new-count,
+#diff-unchanged-count {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+/* WCAG contrast ratios and status metrics */
+.wcag-badge-card #wcag-ratio-val,
+#wcag-ratio-val,
+.status-badge {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+/* Pricing, badges, and version telemetry */
+.sales-desc strong,
+.sales-desc del,
+.btn-checkout,
+.badge-v,
+.badge-status,
+.h-val {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+/* Tabular numbers across data grid cells */
+table.data-table td {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+/* Code and monospaced telemetry */
+code,
+pre {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+/* ------------------------------------------------------------
+   3. CLEARER HEADING & EYEBROW TRACKING
+   Tighter tracking on prominent headings (-0.015em to -0.025em)
+   avoids loose letter shapes. Positive tracking on uppercase eyebrows
+   (0.04em to 0.08em) delivers crisp hierarchy and scannability.
+   ------------------------------------------------------------ */
+.brand-title {
+  letter-spacing: -0.015em;
+}
+
+.sales-title {
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+.sales-badge {
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.card-title {
+  letter-spacing: -0.018em;
+  line-height: 1.3;
+}
+
+h1 {
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+}
+
+h2 {
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+h3 {
+  letter-spacing: -0.012em;
+  line-height: 1.35;
+}
+
+h4 {
+  letter-spacing: -0.006em;
+  line-height: 1.4;
+}
+
+.tab-btn {
+  letter-spacing: -0.005em;
+}
+
+.meta-lbl {
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.diff-delta-box > div:first-child,
+.diff-scorecard > div:first-child {
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.modal-card h2 {
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+.lock-card h4 {
+  letter-spacing: -0.015em;
+  line-height: 1.3;
+}
+
+.modal-card label {
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}

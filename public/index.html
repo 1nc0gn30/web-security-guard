@@ -28,7 +28,6 @@
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/icon.png">
   <link rel="apple-touch-icon" href="/assets/icon.png">
 
-  <!-- DePay Web3 Solana Payment Widget -->
   <!-- AEO & SEO Schema.org Graph -->
   <script type="application/ld+json">
   {
@@ -48,12 +47,12 @@
         },
         "author": {
           "@type": "Person",
-          "name": "Neal Frazier",
-          "url": "https://nealfrazier.tech"
+          "name": "1nc0gn30",
+          "url": "https://nullai.tech"
         },
         "publisher": {
           "@type": "Organization",
-          "name": "Neal Frazier Tech",
+          "name": "1nc0gn30 • NullAI",
           "url": "https://nullai.tech"
         }
       },
@@ -253,56 +252,6 @@
     .btn-solana:hover {
       border-color: var(--g-blue);
       background: var(--bg-subtle);
-    }
-
-    .btn-license-inline {
-      background: none;
-      border: none;
-      color: var(--g-blue);
-      font-size: 0.78rem;
-      cursor: pointer;
-      text-decoration: underline;
-      padding: 4px;
-    }
-
-    /* Paywall Overlay */
-    .paywall-wrapper {
-      position: relative;
-      border-radius: var(--radius-md);
-      overflow: hidden;
-    }
-
-    .paywall-locked .paywalled-content {
-      filter: none;
-      user-select: none;
-      pointer-events: none;
-    }
-
-    .paywall-overlay {
-      display: none;
-      position: absolute;
-      inset: 0;
-      background: rgba(32, 33, 36, 0.85);
-      backdrop-filter: none;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 1.5rem;
-      z-index: 20;
-    }
-
-    .paywall-locked .paywall-overlay {
-      display: flex;
-    }
-
-    .lock-card {
-      background: var(--bg-surface);
-      border: 1.5px solid var(--g-blue);
-      border-radius: var(--radius-lg);
-      padding: 2rem;
-      max-width: 440px;
-      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5);
     }
 
     /* Modal */
@@ -948,38 +897,6 @@
   <link rel="stylesheet" href="wave.css">
   <link rel="stylesheet" href="wave-states.css">
   <link rel="stylesheet" href="wave-type.css">
-
-  <!-- Zoth 100% Open-Access & Buy Us a Coffee Invariant -->
-  <script id="zoth-open-access-init">
-    (function() {
-      try {
-        var keys = ['agent_audiocipher_pro', 'agent_cyber_turtle_pro', 'agent_datamosh_pro', 'agent_nexus3d_pro', 'agent_policy_pro', 'audiocipher_license', 'audiocipher_pro_licensed', 'badge3d_pro_licensed', 'certpath_pro_key', 'certpath_pro_licensed', 'cron_rhythm_pro_key', 'cron_rhythm_pro_licensed', 'cwv-speed-engine_pro_licensed', 'cwv_pro_licensed', 'cyber_turtle_pro_licensed', 'datamosh_pro_licensed', 'deepsearch-research-agent_pro_licensed', 'deepsearch_pro_licensed', 'entropy_studio_licensed', 'envguard-secrets-vault_pro_licensed', 'envguard_pro_license', 'etsy_connector_pro', 'jwt_guard_licensed', 'mdg_pro_licensed', 'neuro_pro_licensed', 'nexus3d_pro_licensed', 'omnipost_pro_key', 'omnipost_pro_licensed', 'osint_pro_licensed', 'payload-entropy-studio_pro_licensed', 'polyglot_pro_licensed', 'pro_licensed', 'promptmaster_pro_licensed', 'promptmaster_pro_active', 'robots-txt-auditor_pro_licensed', 'robots_pro_licensed', 'schema_illustrator_pro_licensed', 'sovereign_pro_licensed', 'subsweep-lead-scanner_pro_licensed', 'subsweep_licensed', 'turtle_pro_licensed', 'ufo_sacred_licensed', 'vector-search-engine_pro_licensed', 'vector_studio_pro_licensed', 'web-security-guard_pro_licensed', 'web_security_guard_licensed', 'yourdigitalspace_pro', 'zela_guide_pro_licensed', 'zoth_ascii_magic_pro', 'zoth_audiocipher_licensed', 'zoth_badge3d_licensed', 'zoth_cyber_turtle_licensed', 'zoth_datamosh_licensed', 'zoth_etsy_licensed', 'zoth_nexus3d_licensed', 'zoth_osint_licensed', 'zoth_policy_licensed', 'zoth_sacred_licensed', 'zoth_ufo_licensed'];
-        for (var i = 0; i < keys.length; i++) {
-          localStorage.setItem(keys[i], 'true');
-        }
-        localStorage.setItem('pm_license_v2', JSON.stringify({ method: 'open_access', ref: 'free_forever', at: '2026-01-01T00:00:00Z' }));
-        window.isPro = true;
-        window.isProLicensed = true;
-      } catch (e) {}
-    })();
-  </script>
-  <style id="zoth-open-access-override">
-    .paywall-overlay, .output-paywall-overlay, #outputPaywallOverlay, #schemaPaywallOverlay,
-    #transformerPaywallOverlay, #proPaywallModal, #licenseModal, #salesBanner, #founding-offer-banner,
-    #funnelHeroBanner, [data-alias="paywallOverlay"], [data-alias="founding-offer-banner"] {
-      display: none !important;
-      opacity: 0 !important;
-      pointer-events: none !important;
-    }
-    .paywall-wrap #outputPreview, .paywall-wrap #reportContentArea, .paywall-content,
-    .paywall-content.locked, .paywall-wrap.is-locked #outputPreview, .paywall-wrap.locked #outputPreview {
-      filter: none !important;
-      -webkit-filter: none !important;
-      user-select: auto !important;
-      pointer-events: auto !important;
-    }
-  </style>
-
 </head>
 <body>
 
@@ -1008,8 +925,9 @@
     <div class="header-actions">
       <div class="badge-status" id="pro-badge" style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: var(--radius-pill); background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.4); font-size: 11px; font-weight: 700; color: #10B981;">
         <span style="width: 7px; height: 7px; border-radius: 50%; background: #10B981; display: inline-block;"></span>
-        <span id="licenseBadge">✦ 100% UNLOCKED</span>
+        <span id="licenseBadge">✦ 100% OPEN ACCESS</span>
       </div>
+      <button class="btn btn-tonal btn-sm" id="themeToggleBtn" onclick="toggleLightDarkTheme()">☀️ Light Mode</button>
       <button class="btn btn-tonal btn-sm" onclick="switchTab('tab-mcp')">◈ MCP Server</button>
       <button class="btn btn-primary btn-sm" onclick="exportHardeningBundle()">⚡ Export Hardening (.JSON)</button>
     </div>
@@ -1900,7 +1818,7 @@ print(f"Contrast Ratio: {contrast['ratio_formatted']}, AA Normal: {contrast['wca
       Web Security Studio • In-Browser Security Header Auditor & CSP Builder
     </div>
     <div style="margin-bottom: 0.4rem;">
-      Engineered by <a href="https://nealfrazier.tech" target="_blank" rel="noopener" style="color: var(--g-blue);">Neal Frazier Tech (@1nc0gn30)</a> • <a href="https://nullai.tech" target="_blank" rel="noopener" style="color: var(--g-blue);">NullAI Platform</a> • <a href="https://github.com/1nc0gn30/web-security-guard" target="_blank" rel="noopener" style="color: var(--g-blue);">GitHub</a>
+      Engineered by <a href="https://nullai.tech" target="_blank" rel="noopener" style="color: var(--g-blue);">1nc0gn30 (@1nc0gn30)</a> • <a href="https://nullai.tech" target="_blank" rel="noopener" style="color: var(--g-blue);">NullAI Platform</a> • <a href="https://github.com/1nc0gn30/web-security-guard" target="_blank" rel="noopener" style="color: var(--g-blue);">GitHub</a>
     </div>
     <div style="font-size: 0.78rem; opacity: 0.8;">
       100% Free & Open Access • <a href="https://buy.stripe.com/3cIfZg27PdKo2D64Ocfw40X" target="_blank" rel="noopener" style="color: #D4AF37;">☕ Buy Us a Coffee</a> • Solana: <code style="font-size: 0.75rem; color: #14F195;">GG2eQbVh8ut1BK6j1A2tz7pSySdLpD38BgyEhGcxdXoK</code>
@@ -1923,12 +1841,20 @@ print(f"Contrast Ratio: {contrast['ratio_formatted']}, AA Normal: {contrast['wca
     function checkLicense() {
       const licenseBadge = document.getElementById('licenseBadge') || document.getElementById('licenseBadgeText');
       const proBadge = document.getElementById('pro-badge');
-      if (licenseBadge) licenseBadge.textContent = '✦ 100% UNLOCKED';
+      if (licenseBadge) licenseBadge.textContent = '✦ 100% OPEN ACCESS';
       if (proBadge) {
         proBadge.style.background = 'rgba(16, 185, 129, 0.15)';
         proBadge.style.color = '#10B981';
         proBadge.style.borderColor = 'rgba(16, 185, 129, 0.4)';
       }
+    }
+
+    function toggleLightDarkTheme() {
+      const html = document.documentElement;
+      const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+      html.setAttribute('data-theme', next);
+      const btn = document.getElementById('themeToggleBtn');
+      if (btn) btn.textContent = next === 'light' ? '🌙 Dark Mode' : '☀️ Light Mode';
     }
 
     function handleCopyExporter() {
@@ -2715,7 +2641,7 @@ print(f"Contrast Ratio: {contrast['ratio_formatted']}, AA Normal: {contrast['wca
 
       document.getElementById('patch-target-file').textContent = platform === 'nextjs' ? 'middleware.ts' : platform === 'netlify' ? 'netlify.toml' : 'nginx.conf';
 
-      const diffSample = `--- a/${platform === 'nextjs' ? 'middleware.ts' : 'headers.conf'}\n+++ b/${platform === 'nextjs' ? 'middleware.ts' : 'headers.conf'}\n@@ -1,5 +1,12 @@\n+import { NextResponse } from 'next/server';\n+// Sovereign Hardening Patch by Neal Frazier Tech\n+export function middleware(req) {\n+  const res = NextResponse.next();\n+  res.headers.set('X-Content-Type-Options', 'nosniff');\n+  res.headers.set('X-Frame-Options', 'SAMEORIGIN');\n+  res.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');\n+  res.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');\n+  return res;\n+}`;
+      const diffSample = `--- a/${platform === 'nextjs' ? 'middleware.ts' : 'headers.conf'}\n+++ b/${platform === 'nextjs' ? 'middleware.ts' : 'headers.conf'}\n@@ -1,5 +1,12 @@\n+import { NextResponse } from 'next/server';\n+// Sovereign Hardening Patch by 1nc0gn30 • NullAI\n+export function middleware(req) {\n+  const res = NextResponse.next();\n+  res.headers.set('X-Content-Type-Options', 'nosniff');\n+  res.headers.set('X-Frame-Options', 'SAMEORIGIN');\n+  res.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');\n+  res.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');\n+  return res;\n+}`;
 
       const viewer = document.getElementById('patch-code-viewer');
       viewer.innerHTML = '';
@@ -2741,5 +2667,6 @@ print(f"Contrast Ratio: {contrast['ratio_formatted']}, AA Normal: {contrast['wca
       showExportFile('nextjs');
     });
   </script>
+  <script src="/assets/sovereign-upgrade.js" defer></script>
 </body>
 </html>

@@ -342,20 +342,21 @@ class TestProjectPatcherEngine:
 # HTTP Server & REST API Integration Tests
 # ==============================================================================
 
+@pytest.fixture(scope="module")
+def test_server():
+    server = create_server(host="127.0.0.1", port=0)
+    port = server.server_port
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    time.sleep(0.1)
+    base_url = f"http://127.0.0.1:{port}"
+    yield base_url
+    server.shutdown()
+    server.server_close()
+
+
 class TestHTTPServerIntegration:
     """Spins up an ephemeral HTTP server instance and tests all REST endpoints."""
-
-    @pytest.fixture(scope="class")
-    def test_server(self):
-        server = create_server(host="127.0.0.1", port=0)
-        port = server.server_port
-        thread = threading.Thread(target=server.serve_forever, daemon=True)
-        thread.start()
-        time.sleep(0.1)
-        base_url = f"http://127.0.0.1:{port}"
-        yield base_url
-        server.shutdown()
-        server.server_close()
 
     def _post_json(self, url: str, data: dict):
         req = urllib.request.Request(

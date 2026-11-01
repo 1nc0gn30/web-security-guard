@@ -1,0 +1,401 @@
+/* ============================================================
+   Web Security Studio — Wave 2 States Layer (wave-states.css)
+   Surface: Security Header Auditor & CSP Level 3 Builder
+   Anchor: Tactile Telemetry Feedback & Calibration States
+   Scope: :focus-visible, hover, active, :empty, error presentations,
+          and prefers-reduced-motion.
+   All selectors strictly verified from public/index.html.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   1. ACCESSIBLE CALIBRATION FOCUS SYSTEM (:focus-visible)
+   High-contrast, intentional boundaries for keyboard traversal.
+   Suppresses sticky outlines on pointer clicks via :not(:focus-visible).
+   ------------------------------------------------------------ */
+:focus:not(:focus-visible) {
+  outline: none !important;
+}
+
+:focus-visible {
+  outline: 2px solid var(--zoth-gold, #D4AF37) !important;
+  outline-offset: 2px !important;
+}
+
+/* Primary checkout CTA focus with glowing gold halo */
+.btn-checkout.btn-stripe:focus-visible {
+  outline: 2px solid var(--zoth-gold, #D4AF37) !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.35), 0 4px 16px rgba(212, 175, 55, 0.4) !important;
+}
+
+/* Solana Web3 CTA focus with signature violet/gold halo */
+.btn-checkout.btn-solana:focus-visible {
+  outline: 2px solid #9945FF !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 3px rgba(153, 69, 255, 0.35), 0 0 16px rgba(153, 69, 255, 0.4) !important;
+}
+
+/* Inline key activation trigger focus */
+.btn-license-inline:focus-visible {
+  outline: 2px solid var(--zoth-gold, #D4AF37) !important;
+  outline-offset: 2px !important;
+  color: var(--zoth-gold, #D4AF37) !important;
+}
+
+/* Button variant focus boundaries */
+.btn-primary:focus-visible {
+  outline: 2px solid var(--zoth-gold, #D4AF37) !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.3) !important;
+}
+
+.btn-tonal:focus-visible {
+  outline: 2px solid var(--zoth-gold, #D4AF37) !important;
+  outline-offset: 2px !important;
+  background: rgba(212, 175, 55, 0.15) !important;
+}
+
+.btn-outlined:focus-visible {
+  outline: 2px solid var(--zoth-gold, #D4AF37) !important;
+  outline-offset: 2px !important;
+  border-color: var(--zoth-gold, #D4AF37) !important;
+}
+
+.btn-success:focus-visible {
+  outline: 2px solid var(--g-green, #12B76A) !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 3px rgba(18, 183, 106, 0.3) !important;
+}
+
+/* Navigation tabs & subtabs focus */
+.tab-btn:focus-visible {
+  outline: 2px solid var(--zoth-gold, #D4AF37) !important;
+  outline-offset: -2px !important;
+  border-radius: var(--radius-sm, 4px);
+}
+
+.subtab-btn:focus-visible {
+  outline: 2px solid var(--zoth-gold, #D4AF37) !important;
+  outline-offset: -1px !important;
+  border-radius: var(--radius-sm, 4px);
+}
+
+/* Preset chips & copy buttons focus */
+.chip:focus-visible {
+  outline: 2px solid var(--zoth-gold, #D4AF37) !important;
+  outline-offset: 1px !important;
+  border-color: var(--zoth-gold, #D4AF37) !important;
+}
+
+.copy-btn:focus-visible {
+  outline: 2px solid var(--zoth-gold, #D4AF37) !important;
+  outline-offset: 2px !important;
+  background: rgba(212, 175, 55, 0.25) !important;
+}
+
+/* Data inputs & textareas focus */
+.input-text:focus-visible,
+.select-box:focus-visible,
+.textarea-box:focus-visible {
+  outline: 2px solid var(--zoth-gold, #D4AF37) !important;
+  outline-offset: 1px !important;
+  border-color: var(--zoth-gold, #D4AF37) !important;
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15) !important;
+}
+
+/* Checkbox & Color picker focus */
+input[type="checkbox"]:focus-visible {
+  outline: 2px solid var(--zoth-gold, #D4AF37) !important;
+  outline-offset: 2px !important;
+  border-radius: 2px;
+}
+
+input[type="color"]:focus-visible {
+  outline: 2px solid var(--zoth-gold, #D4AF37) !important;
+  outline-offset: 2px !important;
+  border-radius: var(--radius-sm, 4px);
+}
+
+/* Modal close button & footer links */
+.modal-close:focus-visible {
+  outline: 2px solid var(--zoth-gold, #D4AF37) !important;
+  outline-offset: 2px !important;
+  border-radius: var(--radius-sm, 4px);
+}
+
+footer.app-footer a:focus-visible {
+  outline: 2px solid var(--zoth-gold, #D4AF37) !important;
+  outline-offset: 2px !important;
+  border-radius: 2px;
+}
+
+/* ------------------------------------------------------------
+   2. TACTILE HOVER & ACTIVE FEEDBACK
+   Subtle micro-interactions (120-160ms cubic-bezier) for
+   tactile instrument responsiveness.
+   ------------------------------------------------------------ */
+
+/* Buttons transition & hover lift */
+.btn,
+.btn-checkout,
+.tab-btn,
+.subtab-btn,
+.chip,
+.copy-btn,
+.san-tag,
+.modal-close {
+  transition: transform 0.14s cubic-bezier(0.16, 1, 0.3, 1),
+              background-color 0.14s ease,
+              border-color 0.14s ease,
+              box-shadow 0.14s ease,
+              color 0.14s ease;
+}
+
+.btn-checkout.btn-stripe:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(212, 175, 55, 0.35);
+}
+
+.btn-checkout.btn-solana:hover {
+  transform: translateY(-1px);
+  border-color: #9945FF !important;
+  box-shadow: 0 4px 16px rgba(153, 69, 255, 0.25);
+}
+
+.btn:active,
+.btn-checkout:active {
+  transform: translateY(1px) !important;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.2);
+}
+
+.btn-tonal:hover {
+  transform: translateY(-1px);
+  background: rgba(212, 175, 55, 0.12);
+}
+
+.btn-success:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(18, 183, 106, 0.25);
+}
+
+.btn-license-inline:hover {
+  color: var(--zoth-gold, #D4AF37);
+  text-decoration: underline;
+}
+
+/* Tab button hover */
+.tab-btn:hover:not(.active) {
+  color: var(--text-primary, #EDEFF2);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.subtab-btn:hover:not(.active) {
+  color: var(--text-primary, #EDEFF2);
+}
+
+/* Preset chips hover */
+.chip:hover {
+  transform: translateY(-1px);
+  border-color: rgba(212, 175, 55, 0.5);
+  background: rgba(212, 175, 55, 0.1);
+  color: var(--zoth-gold, #D4AF37);
+}
+
+.chip:active {
+  transform: translateY(0);
+}
+
+/* Copy button hover */
+.copy-btn:hover {
+  background: rgba(212, 175, 55, 0.2);
+  border-color: rgba(212, 175, 55, 0.4);
+  color: var(--zoth-gold, #D4AF37);
+}
+
+/* SAN tag hover */
+.san-tag:hover {
+  border-color: rgba(212, 175, 55, 0.4);
+  background: rgba(212, 175, 55, 0.08);
+}
+
+/* Modal close button hover */
+.modal-close:hover {
+  color: var(--text-primary, #EDEFF2);
+  transform: scale(1.1);
+}
+
+/* Surface card tactile hover */
+.meta-box:hover,
+.handshake-card:hover,
+.diff-scorecard:hover {
+  border-color: rgba(212, 175, 55, 0.3);
+}
+
+.wcag-badge-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* ------------------------------------------------------------
+   3. EMPTY & IDLE STATE PRESENTATION (:empty)
+   Cleanly collapses unrendered status boxes and provides
+   graceful fallbacks.
+   ------------------------------------------------------------ */
+
+/* Suppress empty banners before execution */
+#dark-patterns-box:empty,
+#patch-status-box:empty,
+#ssl-recs-box:empty {
+  display: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Empty code & tag container placeholders */
+#patch-code-viewer:empty::before {
+  content: "// Click 'Dry-Run Preview' or 'Apply Patch' to inspect diff output";
+  color: var(--text-tertiary, #80868b);
+  font-style: italic;
+  display: block;
+  padding: 8px 12px;
+}
+
+.sans-container:empty::before {
+  content: "No SAN domains loaded. Run SSL inspection to populate certificates.";
+  color: var(--text-tertiary, #80868b);
+  font-size: 12px;
+  font-style: italic;
+}
+
+.cb-grid:empty::before {
+  content: "Calculating color vision deficiency simulations...";
+  color: var(--text-tertiary, #80868b);
+  font-size: 13px;
+  font-style: italic;
+  padding: 12px;
+}
+
+/* Placeholder styling across text inputs & textareas */
+.input-text::placeholder,
+.textarea-box::placeholder {
+  color: var(--text-tertiary, #80868b);
+  opacity: 0.8;
+}
+
+/* ------------------------------------------------------------
+   4. ERROR & STATUS SEVERITY PRESENTATION
+   Crisp, unmistakable visual cues for failed checks,
+   invalid inputs, and security regressions.
+   ------------------------------------------------------------ */
+
+/* Input validation error presentation */
+.input-text:invalid,
+.select-box:invalid,
+.textarea-box:invalid {
+  border-color: var(--g-red, #F97066) !important;
+  box-shadow: 0 0 0 2px rgba(249, 112, 102, 0.2) !important;
+}
+
+/* Status Badges high-contrast calibration */
+.status-badge.fail {
+  background: rgba(249, 112, 102, 0.18) !important;
+  border: 1px solid rgba(249, 112, 102, 0.4) !important;
+  color: #FFB4AB !important;
+  font-weight: 700;
+}
+
+.status-badge.partial {
+  background: rgba(245, 230, 171, 0.14) !important;
+  border: 1px solid rgba(245, 230, 171, 0.35) !important;
+  color: #F5E6AB !important;
+  font-weight: 700;
+}
+
+.status-badge.pass {
+  background: rgba(18, 183, 106, 0.16) !important;
+  border: 1px solid rgba(18, 183, 106, 0.38) !important;
+  color: #A6F4C5 !important;
+  font-weight: 700;
+}
+
+/* Alert Banner error emphasis */
+.alert-banner {
+  border-left-width: 4px;
+}
+
+/* WCAG Compliance cards severity */
+.wcag-badge-card.fail {
+  border-color: rgba(249, 112, 102, 0.45) !important;
+  background: rgba(58, 26, 24, 0.45) !important;
+  color: #FFB4AB !important;
+}
+
+.wcag-badge-card.pass {
+  border-color: rgba(18, 183, 106, 0.4) !important;
+  background: rgba(14, 42, 28, 0.45) !important;
+  color: #A6F4C5 !important;
+}
+
+/* Unified diff deletion & addition highlights */
+.diff-del {
+  background: rgba(249, 112, 102, 0.15) !important;
+  color: #FFB4AB !important;
+  border-left: 3px solid var(--g-red, #F97066) !important;
+}
+
+.diff-add {
+  background: rgba(18, 183, 106, 0.15) !important;
+  color: #A6F4C5 !important;
+  border-left: 3px solid var(--g-green, #12B76A) !important;
+}
+
+/* Posture delta badges */
+.delta-badge.regressed {
+  background: rgba(249, 112, 102, 0.2) !important;
+  color: #FFB4AB !important;
+  border: 1px solid rgba(249, 112, 102, 0.35);
+}
+
+.delta-badge.improved {
+  background: rgba(18, 183, 106, 0.2) !important;
+  color: #A6F4C5 !important;
+  border: 1px solid rgba(18, 183, 106, 0.35);
+}
+
+/* ------------------------------------------------------------
+   5. ACCESSIBLE MOTION GUARANTEE (prefers-reduced-motion)
+   Disables all transitions, transforms, and animations
+   when reduced motion is preferred by the operating system.
+   ------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .btn,
+  .btn-checkout,
+  .tab-btn,
+  .subtab-btn,
+  .chip,
+  .copy-btn,
+  .san-tag,
+  .modal-close,
+  .finding-item,
+  .alert-banner {
+    transform: none !important;
+    transition: none !important;
+    animation: none !important;
+  }
+
+  .gauge-val {
+    transition: none !important;
+  }
+}

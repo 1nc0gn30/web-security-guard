@@ -281,7 +281,7 @@ web-security-guard mcp
 
 ## 👑 Author & Sovereignty
 
-- **Engineered by**: [Neal Frazier Tech](https://nealfrazier.tech) ([@1nc0gn30](https://github.com/1nc0gn30))
+- **Engineered by**: [1nc0gn30 • NullAI](https://nullai.tech) ([@1nc0gn30](https://github.com/1nc0gn30))
 - **Ecosystem**: [NullAI Platform](https://nullai.tech)
 - **Repository**: [1nc0gn30/web-security-guard](https://github.com/1nc0gn30/web-security-guard)
 
@@ -289,4 +289,4 @@ web-security-guard mcp
 
 ## 📄 License
 
-Licensed under the Apache License, Version 2.0. Engineered with zero external runtime dependencies by Neal Frazier Tech.
+Licensed under the Apache License, Version 2.0. Engineered with zero external runtime dependencies by 1nc0gn30 • NullAI.

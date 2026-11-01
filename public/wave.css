@@ -1,0 +1,295 @@
+/* ============================================================
+   Web Security Studio — Wave Polish Layer (wave.css)
+   Surface: Security Header Auditor & CSP Level 3 Builder
+   Anchor: Precision Telemetry Surface
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   1. VISIBLE FOCUS (Keyboard & Accessibility)
+   High-contrast, intentional focus rings across all interactive
+   elements. Never rely on default fuzzy browser outlines.
+   ------------------------------------------------------------ */
+:focus-visible {
+  outline: 2px solid var(--zoth-gold, #D4AF37) !important;
+  outline-offset: 2px !important;
+}
+
+.input-text:focus-visible,
+.select-box:focus-visible,
+.textarea-box:focus-visible {
+  outline: 2px solid var(--zoth-gold, #D4AF37) !important;
+  outline-offset: 1px !important;
+  border-color: var(--zoth-gold, #D4AF37) !important;
+}
+
+.btn:focus-visible,
+.tab-btn:focus-visible,
+.subtab-btn:focus-visible,
+.chip:focus-visible,
+.copy-btn:focus-visible,
+.btn-checkout:focus-visible,
+.btn-license-inline:focus-visible {
+  outline: 2px solid var(--zoth-gold, #D4AF37) !important;
+  outline-offset: 2px !important;
+}
+
+input[type="checkbox"]:focus-visible {
+  outline: 2px solid var(--zoth-gold, #D4AF37) !important;
+  outline-offset: 3px !important;
+  border-radius: 2px;
+}
+
+/* ------------------------------------------------------------
+   2. HEADER AUDITOR SURFACE HIERARCHY
+   Crisp telemetry hierarchy: score overview, metric boxes,
+   category groups, and finding items.
+   ------------------------------------------------------------ */
+
+/* Overview Gauge & Metric Cards */
+#tab-auditor .gauge-wrapper {
+  background: linear-gradient(180deg, rgba(18, 18, 26, 0.7) 0%, rgba(11, 11, 18, 0.95) 100%);
+  border: 1px solid var(--border, #2A2A33);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  padding: 24px;
+}
+
+#tab-auditor .meta-box {
+  background: rgba(18, 18, 26, 0.85);
+  border: 1px solid var(--border, #2A2A33);
+  border-radius: var(--radius-md, 8px);
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  transition: border-color 0.15s ease;
+}
+
+#tab-auditor .meta-val {
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+#tab-auditor .meta-lbl {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary, #9AA0A6);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-top: 4px;
+}
+
+/* Risk & Dark Pattern Alerts */
+#dark-patterns-box .alert-banner {
+  border-left: 3px solid var(--g-red, #F97066);
+  background: rgba(58, 26, 24, 0.45);
+  border-radius: 0 var(--radius-md, 8px) var(--radius-md, 8px) 0;
+  padding: 14px 18px;
+  margin-bottom: 16px;
+  box-shadow: inset 0 0 0 1px rgba(249, 112, 102, 0.15);
+}
+
+#dark-patterns-box .alert-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #FFDAD6;
+  letter-spacing: 0.01em;
+  margin-bottom: 4px;
+}
+
+#dark-patterns-box .alert-body {
+  font-size: 12px;
+  color: var(--text-secondary, #EDEFF2);
+  line-height: 1.5;
+}
+
+/* Category Cards in Auditor Grid */
+#audit-categories-grid .card {
+  background: rgba(18, 18, 26, 0.65);
+  border: 1px solid var(--border, #2A2A33);
+  border-radius: var(--radius-lg, 12px);
+  padding: 20px;
+}
+
+#audit-categories-grid .card-header {
+  border-bottom: 1px solid rgba(42, 42, 51, 0.6);
+  padding-bottom: 12px;
+  margin-bottom: 14px;
+}
+
+/* Individual Finding Item */
+.finding-item {
+  background: rgba(11, 11, 18, 0.85);
+  border: 1px solid var(--border, #2A2A33);
+  border-radius: var(--radius-md, 8px);
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.finding-item:hover {
+  border-color: rgba(212, 175, 55, 0.35);
+  background: rgba(14, 14, 22, 0.95);
+}
+
+.finding-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.finding-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary, #EDEFF2);
+  letter-spacing: -0.01em;
+}
+
+.status-badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill, 9999px);
+  white-space: nowrap;
+}
+
+.status-badge.pass {
+  background: rgba(18, 183, 106, 0.15);
+  border: 1px solid rgba(18, 183, 106, 0.35);
+  color: #A6F4C5;
+}
+
+.status-badge.partial {
+  background: rgba(245, 230, 171, 0.12);
+  border: 1px solid rgba(245, 230, 171, 0.3);
+  color: #F5E6AB;
+}
+
+.status-badge.fail {
+  background: rgba(249, 112, 102, 0.15);
+  border: 1px solid rgba(249, 112, 102, 0.35);
+  color: #FFDAD6;
+}
+
+.finding-desc {
+  font-size: 12px;
+  color: var(--text-secondary, #9AA0A6);
+  line-height: 1.45;
+  margin-bottom: 8px;
+}
+
+.finding-code {
+  font-family: var(--zoth-font-mono, monospace);
+  font-size: 11px;
+  background: rgba(8, 8, 11, 0.85);
+  border: 1px solid rgba(42, 42, 51, 0.8);
+  border-radius: var(--radius-sm, 4px);
+  padding: 6px 10px;
+  line-height: 1.4;
+  word-break: break-all;
+}
+
+/* ------------------------------------------------------------
+   3. CSP LEVEL 3 BUILDER SURFACE HIERARCHY
+   Balanced control switches, nonce group, and structured
+   code output display.
+   ------------------------------------------------------------ */
+
+#tab-csp .switch-row {
+  padding: 10px 4px;
+  border-bottom: 1px solid rgba(42, 42, 51, 0.6);
+  transition: background-color 0.15s ease;
+}
+
+#tab-csp .switch-row:last-of-type {
+  border-bottom: none;
+}
+
+#tab-csp .switch-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary, #EDEFF2);
+  letter-spacing: -0.01em;
+}
+
+#tab-csp .switch-desc {
+  font-size: 11px;
+  color: var(--text-secondary, #9AA0A6);
+  line-height: 1.4;
+  margin-top: 2px;
+}
+
+#tab-csp .form-label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary, #9AA0A6);
+  margin-bottom: 6px;
+}
+
+#tab-csp .code-container {
+  border: 1px solid var(--border, #2A2A33);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+#tab-csp .subtabs {
+  border-bottom: 1px solid var(--border, #2A2A33);
+}
+
+#tab-csp .subtab-btn {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 8px 14px;
+  color: var(--text-secondary, #9AA0A6);
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+#tab-csp .subtab-btn.active {
+  color: var(--zoth-gold, #D4AF37);
+  border-bottom-color: var(--zoth-gold, #D4AF37);
+  font-weight: 600;
+}
+
+/* ------------------------------------------------------------
+   4. MOTION & CHOREOGRAPHY
+   Short transform/opacity reveal when findings appear.
+   Tokens from motion-choreography: EASE_OUT_EXPO cubic-bezier(0.16, 1, 0.3, 1),
+   duration 260ms, distance 6px.
+   ------------------------------------------------------------ */
+
+@keyframes findingEntrance {
+  0% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.finding-item {
+  animation: findingEntrance 260ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  will-change: transform, opacity;
+}
+
+.alert-banner {
+  animation: findingEntrance 240ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  will-change: transform, opacity;
+}
+
+/* Respect prefers-reduced-motion: zero transform, instant display */
+@media (prefers-reduced-motion: reduce) {
+  .finding-item,
+  .alert-banner {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
+}
