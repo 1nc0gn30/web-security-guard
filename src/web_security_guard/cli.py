@@ -383,6 +383,8 @@ def cmd_sri(args: argparse.Namespace) -> int:
             elif not args.output:
                 print("\n" + res["html"])
     else:
+        from web_security_guard.mcp_server import fetch_or_read_content
+
         try:
             content, _ = fetch_or_read_content(target)
         except Exception:

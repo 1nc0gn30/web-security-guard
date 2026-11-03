@@ -45,10 +45,4 @@ jobs:
         env:
           PYTHONPATH: src
         run: |
-          python -c "
-          import json, glob
-          for jf in glob.glob('examples/**/*.json', recursive=True):
-              with open(jf) as f:
-                  json.load(f)
-              print(f'✅ Valid JSON: {jf}')
-          "
+          python -c "import json, glob; [json.load(open(jf, encoding='utf-8')) and print(f'Valid JSON: {jf}') for jf in glob.glob('examples/**/*.json', recursive=True)]"
