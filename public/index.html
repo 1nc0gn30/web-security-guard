@@ -2463,7 +2463,7 @@ print(f"Contrast Ratio: {contrast['ratio_formatted']}, AA Normal: {contrast['wca
 
     function escapeHtml(str) {
       if (!str) return '';
-      return String(str).replace(/&/g, '&').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
 
     // TLS / SSL Deep Inspector (Client-Side Telemetry)
