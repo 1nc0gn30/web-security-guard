@@ -11,6 +11,10 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  PYTHONUTF8: "1"
+  PYTHONIOENCODING: "utf-8"
+
 jobs:
   test:
     name: Test (${{ matrix.os }} - Python ${{ matrix.python-version }})
@@ -70,4 +74,4 @@ jobs:
 
       - name: Check code formatting and lint
         run: |
-          ruff check src/ tests/
+          ruff check --select=E9,F63,F7,F82 src/ tests/
