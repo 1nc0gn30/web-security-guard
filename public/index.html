@@ -2667,6 +2667,22 @@ print(f"Contrast Ratio: {contrast['ratio_formatted']}, AA Normal: {contrast['wca
       showExportFile('nextjs');
     });
   </script>
-  <script src="/assets/sovereign-upgrade.js" defer></script>
+  
+
+  <script src="/sovereign_tutorial.js"></script>
+  <script>
+    window.addEventListener("DOMContentLoaded", function() {
+      if (window.createSovereignTutorial) {
+        window.createSovereignTutorial({
+          toolId: "web-security-guard",
+          toolName: "Web Security Guard",
+          tagline: "Audit HTTP security headers, CSP rules, and WAF protection in real time!",
+          accentColor: "#EF4444",
+          steps: [{"icon": "\ud83d\udee1\ufe0f", "title": "The Security Checklist", "desc": "Checks your site for critical defense headers like Strict-Transport-Security (HSTS), X-Frame-Options, and Content-Security-Policy."}, {"icon": "\ud83e\uddf1", "title": "Build Bulletproof CSPs", "desc": "Generate strict Content-Security-Policy rules that prevent cross-site scripting (XSS) attacks."}, {"icon": "\ud83d\udcca", "title": "Instant Security Letter Grade", "desc": "Get an A+ rating and clear instructions on how to patch missing headers in your Netlify or Nginx config."}]
+        });
+      }
+    });
+  </script>
+
 </body>
 </html>
