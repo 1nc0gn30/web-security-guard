@@ -263,11 +263,13 @@ class SRIEngine:
             data = content.encode("utf-8")
         elif url:
             try:
+                if urllib.parse.urlparse(url).scheme.lower() not in ("http", "https"):
+                    raise ValueError(f"Unsupported URL scheme in {url}")
                 req = urllib.request.Request(
                     url,
                     headers={"User-Agent": "WebSecurityGuard-SRI/1.0"}
                 )
-                with urllib.request.urlopen(req, timeout=5) as resp:
+                with urllib.request.urlopen(req, timeout=5) as resp:  # nosec B310
                     data = resp.read()
             except Exception as e:
                 # Fallback to deterministic hash of URL name if network request fails
@@ -1012,7 +1014,7 @@ class SecurityAuditEngine:
             )
             # Try HEAD first
             try:
-                with urllib.request.urlopen(req, timeout=6) as response:
+                with urllib.request.urlopen(req, timeout=6) as response:  # nosec B310
                     headers = dict(response.headers.items())
                     cookie_headers = response.headers.get_all("Set-Cookie", [])
             except urllib.error.HTTPError as e:
@@ -1021,7 +1023,7 @@ class SecurityAuditEngine:
             except Exception:
                 # If HEAD disallowed, fallback to GET
                 req.method = "GET"
-                with urllib.request.urlopen(req, timeout=8) as response:
+                with urllib.request.urlopen(req, timeout=8) as response:  # nosec B310
                     headers = dict(response.headers.items())
                     cookie_headers = response.headers.get_all("Set-Cookie", [])
 

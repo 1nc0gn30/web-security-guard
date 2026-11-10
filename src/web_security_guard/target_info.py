@@ -357,12 +357,14 @@ def _extract_external_resources(html: str) -> List[str]:
 
 def _fetch_url(url: str, timeout: float = 10.0) -> Tuple[Optional[bytes], Dict[str, str], int]:
     """Fetch URL and return content, headers, and status code."""
+    if urllib.parse.urlparse(url).scheme.lower() not in ("http", "https"):
+        return None, {}, 0
     req = urllib.request.Request(url, headers={
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
     })
     try:
-        with urllib.request.urlopen(req, timeout=timeout) as resp:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:  # nosec B310
             content = resp.read()
             headers = dict(resp.info())
             return content, headers, resp.status

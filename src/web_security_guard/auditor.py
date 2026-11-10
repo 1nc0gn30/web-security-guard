@@ -151,6 +151,8 @@ class SecurityAuditor:
             url = f"https://{url}"
 
         parsed = urllib.parse.urlparse(url)
+        if parsed.scheme.lower() not in ("http", "https"):
+            raise ValueError(f"Unsupported URL scheme: {parsed.scheme}")
         is_https = parsed.scheme.lower() == "https"
 
         req = urllib.request.Request(
@@ -172,7 +174,7 @@ class SecurityAuditor:
         status_code = 200
 
         try:
-            with urllib.request.urlopen(req, timeout=timeout, context=ctx if is_https else None) as resp:
+            with urllib.request.urlopen(req, timeout=timeout, context=ctx if is_https else None) as resp:  # nosec B310
                 status_code = resp.status
                 # Extract headers
                 for k, v in resp.headers.items():
@@ -1188,6 +1190,8 @@ class SecurityAuditor:
         """Sends a probe request with untrusted Origin to detect reflection + credentials vulnerability."""
         probe_origin = "https://security-audit-probe.example.org"
         try:
+            if urllib.parse.urlparse(url).scheme.lower() not in ("http", "https"):
+                return False
             req = urllib.request.Request(
                 url,
                 headers={
@@ -1196,7 +1200,7 @@ class SecurityAuditor:
                 },
             )
             ctx = ssl.create_default_context()
-            with urllib.request.urlopen(req, timeout=timeout, context=ctx) as resp:
+            with urllib.request.urlopen(req, timeout=timeout, context=ctx) as resp:  # nosec B310
                 acao = resp.headers.get("Access-Control-Allow-Origin")
                 acac = resp.headers.get("Access-Control-Allow-Credentials")
                 if acao == probe_origin and acac and acac.strip().lower() == "true":

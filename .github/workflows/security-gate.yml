@@ -14,6 +14,7 @@ permissions:
 env:
   PYTHONUTF8: "1"
   PYTHONIOENCODING: "utf-8"
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
 jobs:
   audit-gate:
@@ -35,7 +36,7 @@ jobs:
 
       - name: Run Bandit AST Security Scan
         run: |
-          bandit -r src/ -ll -ii || true
+          bandit -r src/ -ll -ii
 
       - name: Run Dependency Vulnerability Audit
         run: |

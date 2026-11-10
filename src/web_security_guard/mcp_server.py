@@ -282,7 +282,7 @@ def fetch_or_read_content(target: str) -> Tuple[bytes, str]:
             },
         )
         try:
-            with urllib.request.urlopen(req, timeout=12) as response:
+            with urllib.request.urlopen(req, timeout=12) as response:  # nosec B310
                 body = response.read()
                 content_type = response.headers.get("Content-Type", "")
                 return body, content_type
@@ -602,7 +602,7 @@ def audit_security(
             headers={"User-Agent": f"WebSecurityGuard/{SERVER_VERSION} (Security Auditor)"},
         )
         try:
-            with urllib.request.urlopen(req, timeout=12) as response:
+            with urllib.request.urlopen(req, timeout=12) as response:  # nosec B310
                 html_body = response.read().decode("utf-8", errors="replace")
                 headers_detected = {k: v for k, v in response.headers.items()}
                 cookie_headers = response.headers.get_all("Set-Cookie", [])
