@@ -1,0 +1,17 @@
+title = "web-security-guard gitleaks configuration"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Synthetic secret-scanner unit test vectors and build caches"
+paths = [
+  '''(^|/)__pycache__/''',
+  '''(^|/)node_modules/''',
+  '''(^|/)\.pytest_cache/''',
+  '''^tests/test_secrets_and_supply\.py$''',
+  '''^tests/test_ui_server\.py$''',
+]
+commits = [
+  "80d9536fd27d42e09391f0c0e893648306562ec5",
+]

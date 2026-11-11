@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.8"
 license = { text = "MIT" }
 authors = [
-    { name = "Zoth Security Architecture Team", email = "security@zoth.io" }
+    { name = "1nc0gn30 • NullAI", email = "1nc0gn30@users.noreply.github.com" }
 ]
 keywords = [
     "security",

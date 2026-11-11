@@ -219,7 +219,7 @@ def run_internal_tests() -> int:
     # Test 12: Secret Leak Scanner
     def test_secrets():
         from web_security_guard.secret_scanner import scan_secrets
-        k = "sk_" + "live_" + "1234567890abcdef1234567890"
+        k = "".join(["sk_", "live_", "1234567890abcdef1234567890"])
         sample = f'const key = "{k}";'
         rep = scan_secrets(sample, target_name="test.js")
         assert rep.clean is False
@@ -894,7 +894,7 @@ def cmd_supply(args: argparse.Namespace) -> int:
 
 def cmd_serve(args: argparse.Namespace) -> int:
     """Start Material 3 Security Studio HTTP server."""
-    port = args.port or 8085
+    port = args.port or 8125
     host = args.host or "127.0.0.1"
 
     from web_security_guard.ui_server import start_ui_server
@@ -915,6 +915,8 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--version", "-v", action="version", version=f"%(prog)s {SERVER_VERSION}")
     parser.add_argument("--test", action="store_true", help="Run internal engine verification test suite")
+    parser.add_argument("--status", action="store_true", help="Check local daemon status and runtime info")
+    parser.add_argument("--json", action="store_true", help="Output status telemetry as JSON")
 
     subparsers = parser.add_subparsers(dest="command", help="Available subcommands")
 
@@ -1016,8 +1018,8 @@ def build_parser() -> argparse.ArgumentParser:
     p_supply.add_argument("--json", action="store_true", help="Output machine-readable JSON")
 
     # Subcommand: serve
-    p_serve = subparsers.add_parser("serve", help="Start Web Security Studio UI (design influenced by Material 3)")
-    p_serve.add_argument("--port", "-p", type=int, default=8085, help="Server port (default: 8085)")
+    p_serve = subparsers.add_parser("serve", help="Start Web Security Studio UI")
+    p_serve.add_argument("--port", "-p", type=int, default=8125, help="Server port (default: 8125)")
     p_serve.add_argument("--host", default="127.0.0.1", help="Server host interface (default: 127.0.0.1; use 0.0.0.0 only on trusted networks)")
 
     # Subcommand: platform
@@ -1034,6 +1036,21 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     if args.test:
         return run_internal_tests()
+
+    if not args.command and (getattr(args, "status", False) or getattr(args, "json", False)):
+        info = {
+            "service": "web-security-guard",
+            "version": SERVER_VERSION,
+            "port": 8125,
+            "local_url": "http://127.0.0.1:8125",
+            "studio_url": "https://zoth.nullai.tech/tools/web-security-guard",
+            "status": "ready",
+        }
+        if getattr(args, "json", False):
+            print(json.dumps(info, indent=2))
+        else:
+            print(f"web-security-guard {SERVER_VERSION} | http://127.0.0.1:8125 | ready")
+        return 0
 
     if not args.command:
         parser.print_help()

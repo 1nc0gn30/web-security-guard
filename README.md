@@ -1,349 +1,170 @@
-<div align="center">
-  <img src="assets/hero-banner.svg" alt="Web Security Guard — Sovereign Architecture Banner" width="100%" />
-</div>
+# Web Security Guard
 
-<br />
+![Web Security Guard](assets/hero-banner.svg)
 
-# 🛡️ Web Security Guard
+Zero-dependency HTTP security header auditor, Content Security Policy (CSP) Level 3 generator, Subresource Integrity (SRI) SHA-256/384/512 pinning engine, TLS certificate inspector, Cross-Origin Isolation (`COOP`/`COEP`/`CORP`) analyzer, secret leakage scanner, and Model Context Protocol (MCP) server.
 
-<p align="center">
-  <strong>Web Security Auditing, CSP Level 3 Synthesis, Subresource Integrity Engine & AI Agent MCP Studio.</strong>
-</p>
+- **Local Workstation**: `http://127.0.0.1:8125`
+- **Zoth Studio v2 Dossier**: [https://zoth.nullai.tech/tools/web-security-guard](https://zoth.nullai.tech/tools/web-security-guard)
+- **Repository**: [https://github.com/1nc0gn30/web-security-guard](https://github.com/1nc0gn30/web-security-guard)
 
-<p align="center">
-  <a href="https://securityguard.nullai.tech"><img src="https://img.shields.io/badge/Live%20App-securityguard.nullai.tech-1a73e8?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Live App" /></a>
-  <a href="https://buy.stripe.com/3cIfZg27PdKo2D64Ocfw40X"><img src="https://img.shields.io/badge/☕%20Buy%20Us%20a%20Coffee-Stripe-D4AF37?style=for-the-badge&logo=stripe&logoColor=white" alt="Buy Us a Coffee" /></a>
-  <a href="https://solana.fm/address/GG2eQbVh8ut1BK6j1A2tz7pSySdLpD38BgyEhGcxdXoK"><img src="https://img.shields.io/badge/Solana%20Tip-GG2e...dXoK-14F195?style=for-the-badge&logo=solana&logoColor=black" alt="Solana Tip" /></a>
-  <a href="https://securityguard.nullai.tech"><img src="https://img.shields.io/badge/Zero%20Egress-100%25%20In--Browser-10B981?style=for-the-badge" alt="Zero Egress" /></a>
-  <a href="https://securityguard.nullai.tech"><img src="https://img.shields.io/badge/Access-100%25%20Free%20%26%20Unlocked-00FF9D?style=for-the-badge" alt="100% Free & Open Access" /></a>
-</p>
+## Overview
 
-<p align="center">
-  <a href="https://github.com/1nc0gn30/web-security-guard/actions"><img src="https://img.shields.io/badge/CI-15%20Jobs%20Passing-1e8e3e?style=flat-square&logo=githubactions" alt="CI Status"></a>
-  <a href="https://pypi.org/project/web-security-guard/"><img src="https://img.shields.io/badge/Python-3.9%20|%203.10%20|%203.11%20|%203.12%20|%203.13-1a73e8?style=flat-square&logo=python" alt="Python Versions"></a>
-  <a href="https://modelcontextprotocol.io"><img src="https://img.shields.io/badge/MCP-Native%20Server-9334e6?style=flat-square" alt="MCP Compatible"></a>
-  <a href="./LICENSE"><img src="https://img.shields.io/badge/License-Apache%202.0-3c4043?style=flat-square" alt="License"></a>
-</p>
+Web Security Guard runs entirely on the Python 3.8+ standard library (`urllib`, `ssl`, `hashlib`, `html.parser`, `http.server`) and native browser Web Crypto APIs with zero runtime dependencies. It evaluates live URLs, raw HTML documents, and static deployment configurations against OWASP secure header baselines, RFC 6797 (HSTS), W3C CSP Level 3, W3C Subresource Integrity, and WCAG 2.2 contrast ratios.
 
----
+Core capabilities:
+- **HTTP Header & DOM Security Audit**: Scores targets from `0` to `100` (`A+` through `F`) across HSTS, CSP, `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy`, insecure forms, and reverse tabnabbing.
+- **CSP Level 3 Policy Synthesis**: Generates nonce- and hash-based policies tailored for Vanilla HTML, Next.js, React, Vue, Astro, Express, Django, and FastAPI in header, `<meta>`, Nginx, Apache, Netlify, Express, or JSON formats.
+- **Subresource Integrity (SRI)**: Computes SHA-256, SHA-384, and SHA-512 base64 digests and rewrites `<script>` and `<link rel="stylesheet">` tags with `integrity` and `crossorigin="anonymous"` attributes.
+- **TLS & Certificate Inspection**: Performs direct TLS handshakes to inspect protocol versions, cipher suites, Subject Alternative Names (SANs), issuer chains, and expiration windows.
+- **Cross-Origin Isolation & Supply Chain**: Evaluates `Cross-Origin-Opener-Policy`, `Cross-Origin-Embedder-Policy`, `Cross-Origin-Resource-Policy`, Spectre timer exposure, third-party CDN trust, and mixed content.
+- **Entropy & Pattern Secret Scanner**: Scans source files, inline scripts, and HTML payloads for exposed API keys, cloud credentials, private keys, and database URIs.
 
-## 🌟 Overview
+## Architecture
 
-**Web Security Guard** (`web-security-guard`) is a zero-dependency, high-performance security automation suite and interactive **Web Security Studio (design influenced by Material 3)**. Built for developers, DevOps engineers, and autonomous AI coding agents, it eliminates the complexity of securing modern web applications against Cross-Site Scripting (XSS), Clickjacking, MIME confusion, and supply chain tampering.
-
-```
-                  ┌───────────────────────────────────────────────┐
-                  │          Web Security Studio UI               │
-                  │   Material 3 Influenced  •  0-100 Grade Gauge │
-                  └───────────────────────┬───────────────────────┘
-                                          │
-        ┌───────────────────┬─────────────┴───────┬───────────────────┐
-        ▼                   ▼                     ▼                   ▼
-┌───────────────┐   ┌───────────────┐     ┌───────────────┐   ┌───────────────┐
-│ Live Auditor  │   │ CSP Level 3   │     │  SRI Engine   │   │   WCAG 2.2    │
-│ Headers & SSR │   │ Nonces & Next │     │ Hashes & Tag  │   │ Color Contrast│
-│ 10+ Vectors   │   │ Multi-Platform│     │ Auto-Inject   │   │ CB Simulation │
-└───────┬───────┘   └───────┬───────┘     └───────┬───────┘   └───────┬───────┘
-        │                   │                     │                   │
-        └───────────────────┼─────────────────────┼───────────────────┘
-                            ▼                     ▼
-                  ┌───────────────────────────────────────────────┐
-                  │        Model Context Protocol (MCP) Hub       │
-                  │  Claude Desktop • Cursor • Cline • Zed • CLI  │
-                  └───────────────────────────────────────────────┘
+```text
+web-security-guard/
+├── server.py                         # Standalone loopback workstation entrypoint (127.0.0.1:8125)
+├── bin/
+│   ├── web-security.js               # Unified CLI, Web UI, and Electron desktop launcher
+│   └── web-security-guard-tui        # Terminal dashboard launcher
+├── public/                           # Zero-egress browser workstation (Web Crypto SRI, CSP builder)
+├── src/web_security_guard/
+│   ├── auditor.py                    # HTTP security header & HTML heuristic scoring engine
+│   ├── csp.py                        # CSP Level 3 policy generator & framework presets
+│   ├── sri.py                        # SHA-256/384/512 digest computation & HTML tag injector
+│   ├── ssl_inspector.py              # Socket/TLS certificate & cipher suite inspector
+│   ├── isolation_guard.py            # COOP/COEP/CORP & SharedArrayBuffer isolation analyzer
+│   ├── secret_scanner.py             # Regex + Shannon entropy credential detector
+│   ├── supply_chain_auditor.py       # Third-party script, missing SRI, and mixed-content scanner
+│   ├── remediator.py & patcher.py    # Netlify, Vercel, Nginx, Apache, Caddy, Express config writers
+│   ├── diff_analyzer.py              # Baseline-vs-hardened posture delta calculator
+│   ├── wcag.py                       # WCAG 2.2 relative luminance contrast evaluator
+│   ├── mcp_server.py                 # JSON-RPC 2.0 stdio MCP server (12 tools)
+│   ├── ui_server.py                  # Threading HTTP REST API & static UI server
+│   └── cli.py                        # sec-guard / web-security-guard CLI router
+└── tests/                            # 300-test pytest suite
 ```
 
----
-
-## 🚀 Key Features
-
-### 1. 🛡️ Multi-Vector Security Header Auditor
-- Audits live websites or response headers against **OWASP Top 10** and modern web security guidelines.
-- Computes an animated **0–100 Security Grade Gauge** ($A+, A, B, C, D, F$).
-- Evaluates:
-  * `Strict-Transport-Security` (HSTS duration, subdomains, preloading).
-  * `Content-Security-Policy` Level 3.
-  * `X-Frame-Options` & CSP `frame-ancestors`.
-  * `X-Content-Type-Options: nosniff`.
-  * `Referrer-Policy`, `Permissions-Policy`, `COOP`, `COEP`, `CORP`.
-  * RFC 6265bis Cookie Hardening (`Secure`, `HttpOnly`, `SameSite`, `__Host-` prefixes).
-  * Information Leakage detection (`Server`, `X-Powered-By`).
-
-### 2. 🔒 CSP Level 3 Policy Builder & Framework Exporter
-- Interactive synthesis of modern `'strict-dynamic'` policies with per-request cryptographic nonces.
-- Eliminates vulnerable domain allowlists.
-- Generates 1-click drop-in configurations for:
-  * **Next.js 14/15 App Router** (`middleware.ts`)
-  * **Nginx** (`nginx.conf`)
-  * **Vercel** (`vercel.json`)
-  * **Netlify** (`_headers` and `netlify.toml`)
-  * **Cloudflare Workers**
-  * **Apache** (`.htaccess`)
-  * **Express.js** (`helmet`)
-
-### 3. 🧬 Subresource Integrity (SRI) Hasher & HTML Injector
-- Computes SHA-256, SHA-384, and SHA-512 base64 digests for local files or remote CDN bundles.
-- Automated HTML Batch Injector parses raw HTML and inserts `integrity` and `crossorigin="anonymous"` tags to protect against supply-chain attacks.
-
-### 4. 🎨 WCAG 2.2 Color Contrast & Color Blindness Simulator
-- Exact relative luminance ($L = 0.2126 R + 0.7152 G + 0.0722 B$) calculation.
-- Live compliance validation for **WCAG AA Normal (4.5:1)**, **AA Large (3:1)**, **UI Components (3:1)**, and **AAA Normal (7:1)**.
-- Integrated matrix transformation simulation for **Protanopia**, **Deuteranopia**, **Tritanopia**, and **Achromatopsia**.
-
-### 5. 🔑 High-Fidelity Secret Leakage & API Key Scanner
-- Audits HTML, JS, JSON, and source bundles for 25+ exposed credential types.
-- Detects AWS keys, GitHub PATs, Stripe keys, OpenAI/Anthropic tokens, Slack webhooks, Twilio SIDs, SendGrid keys, private RSA/EC keys, database connection strings, and JWTs.
-- Computes Shannon entropy per token to filter false positives and auto-redacts sensitive substrings (`sk_live_...4a2f`).
-
-### 6. 📦 Supply Chain, Script Integrity & Mixed Content Auditor
-- Scans web documents for third-party `<script>`, `<link>`, `<iframe>`, `<form>`, and `<a>` elements.
-- Detects missing Subresource Integrity (`integrity="sha384-..."`) on external CDNs.
-- Blocks Mixed Content (RFC 6797) HTTP assets on HTTPS origins and alerts on unpinned CDN releases (`@latest`).
-- Flags Reverse Tabnabbing (`target="_blank"` without `rel="noopener noreferrer"`) and insecure form POST endpoints.
-
-### 7. 🤖 AI Agent Model Context Protocol (MCP) Hub
-- Out-of-the-box MCP server compatible with **Claude Desktop**, **Cursor AI**, **Cline**, **Roo Code**, and **Zed Editor**.
-- 12 registered tools including `sec_scan_secrets`, `sec_audit_supply_chain`, `sec_audit_isolation`, `sec_audit_site`, `sec_generate_csp`, and `sec_check_contrast`.
-
-### 8. ⚡ Multi-Platform Hardening Exporter
-- 1-click `.zip` bundle export containing pre-configured security files for your entire infrastructure stack.
-
----
-
-## 📦 Installation & Quickstart
-
-### Option A: Run via `uvx` (Zero Install)
-```bash
-# Start the Web Security Studio UI
-uvx web-security-guard serve --port 8080 --open
-
-# Audit a live URL directly from CLI
-uvx web-security-guard audit https://example.com
-```
-
-### Option B: Install via `pip`
-```bash
-pip install web-security-guard
-```
-
----
-
-## 💻 CLI Usage
+## Quickstart
 
 ```bash
-# 1. Audit a live website with interactive report
-web-sec-guard audit https://google.com
+git clone https://github.com/1nc0gn30/web-security-guard.git
+cd web-security-guard
+pip install -e .
 
-# 2. Audit and output machine-readable JSON
-web-sec-guard audit https://example.com --format json
-
-# 3. Generate Level 3 CSP for Next.js App Router
-web-sec-guard csp --preset strict_nonce --export nextjs
-
-# 4. Compute Subresource Integrity for CDN script
-web-sec-guard sri https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js
-
-# 5. Check WCAG 2.2 Color Contrast
-web-sec-guard contrast --fg "#1a73e8" --bg "#ffffff"
-
-# 6. Scan files or bundles for leaked API keys, tokens & credentials
-web-sec-guard secrets ./dist/bundle.js
-
-# 7. Audit third-party script supply chain, SRI & mixed content
-web-sec-guard supply ./index.html
-
-# 8. Launch Web Security Studio Web UI
-web-sec-guard serve --host 127.0.0.1 --port 8080 --open
+# Launch the local web workstation and REST API on 127.0.0.1:8125
+python3 server.py --port 8125
 ```
 
----
-
-## 🐍 Python SDK
-
-```python
-from web_security_guard import (
-    SecurityAuditEngine,
-    CSPBuilderEngine,
-    SRIEngine,
-    WCAGContrastEngine,
-)
-
-# 1. Run live audit
-audit = SecurityAuditEngine.fetch_and_audit("https://example.com")
-print(f"Grade: {audit['grade']} (Score: {audit['score']}/100)")
-
-# 2. Build CSP Level 3 policy
-csp_data = CSPBuilderEngine.generate({"preset": "strict_nonce"})
-print("Next.js Middleware:\n", csp_data["frameworks"]["nextjs"])
-
-# 3. Compute SRI hash
-sri = SRIEngine.hash_content_or_url(url="https://cdn.example.com/app.js")
-print("SRI Tag:", sri["script_tag"])
-
-# 4. Evaluate WCAG 2.2 Contrast
-contrast = WCAGContrastEngine.evaluate("#1a73e8", "#ffffff")
-print(f"Ratio: {contrast['ratio_formatted']} | AA: {contrast['wcag_aa_normal']}")
-
-# 5. Scan assets for leaked API keys & credentials
-from web_security_guard import scan_secrets
-secret_report = scan_secrets('const key = "sk-ant-api03-1234567890abcdef1234567890abcdef";')
-print(f"Secrets Found: {secret_report.total_findings}, Clean: {secret_report.clean}")
-
-# 6. Audit supply chain & subresource integrity
-from web_security_guard import audit_supply_chain
-supply_report = audit_supply_chain('<script src="http://insecure.com/script.js"></script>')
-print(f"Supply Chain Grade: {supply_report.grade}, Score: {supply_report.supply_chain_score}/100")
-```
-
----
-
-## 🤖 MCP Client Configuration for AI Agents
-
-Add `web-security-guard` to your AI editor or Claude Desktop config:
-
-```json
-{
-  "mcpServers": {
-    "web-security-guard": {
-      "command": "uvx",
-      "args": ["web-security-guard", "mcp"]
-    }
-  }
-}
-```
-
-Detailed guides for **Cursor**, **Cline**, **Zed**, and **Claude Desktop** are available in [`docs/MCP_GUIDE.md`](./docs/MCP_GUIDE.md).
-
----
-
-## 📚 Documentation & Reference Examples
-
-- 🔒 **[CSP Level 3 Best Practices](./docs/CSP_BEST_PRACTICES.md)**: Deep dive into `'strict-dynamic'`, nonces, and bypassing allowlist pitfalls.
-- 📋 **[Multi-Platform Deployment Matrix](./docs/PLATFORMS.md)**: Framework configurations for Next.js, Vercel, Netlify, Nginx, Cloudflare, Express, and Apache.
-- 🤖 **[MCP Integration Guide](./docs/MCP_GUIDE.md)**: Complete tool signatures and prompt scenarios for LLM agents.
-- 📁 **[Production Reference Examples](./examples/)**:
-  * [`nextjs-app-router/`](./examples/nextjs-app-router/): Next.js 14/15 edge middleware with crypto nonces.
-  * [`vercel-headers/`](./examples/vercel-headers/): Hardened `vercel.json`.
-  * [`netlify-headers/`](./examples/netlify-headers/): Production `_headers` and `netlify.toml`.
-  * [`nginx-hardening/`](./examples/nginx-hardening/): TLS 1.3, rate-limiting, and security headers `nginx.conf`.
-  * [`cdn-sri-html/`](./examples/cdn-sri-html/): HTML5 document with SHA-384 Subresource Integrity.
-  * [`mcp-clients/`](./examples/mcp-clients/): Agent configs for Claude, Cursor, Cline, and Zed.
-
----
-
-## 🧪 Testing & CI
+Open `http://127.0.0.1:8125` in any browser, or serve the static client bundle directly:
 
 ```bash
-# Run unit tests with pytest
-PYTHONPATH=src pytest tests/ -v
+python3 -m http.server 8125 --directory public
 ```
 
-All 15 GitHub Actions test matrix jobs run on Python 3.9 through 3.13 on Ubuntu, macOS, and Windows.
+## CLI & MCP Usage
 
----
-
-## ☕ 100% Free & Open-Access (Buy Us a Coffee Support Architecture)
-
-Web Security Guard and Web Security Studio are **100% free, open, and unlocked by default**. Zero paywalls, zero license keys, and zero locked features.
-
-If this project powers your workflows or saves you engineering hours, consider supporting its independent research:
-
-- **Stripe "Buy Us a Coffee"**: [Support via Stripe](https://buy.stripe.com/3cIfZg27PdKo2D64Ocfw40X) (Cards, Apple Pay, Google Pay)
-- **Solana Tip Address**: `GG2eQbVh8ut1BK6j1A2tz7pSySdLpD38BgyEhGcxdXoK`
-- **Sovereign Invariants**: Full multi-framework production deployment configs, automated SRI injection, unified security diff patches, and 100% client-side zero-egress execution.
-
----
-
-## 💻 ZothOS CLI & MCP Integration
+Installing via `pip install -e .` registers `sec-guard` and `web-security-guard` (and ZothOS v3.4.0 exposes `web-security` / `web-security-guard` on `$PATH`).
 
 ```bash
-# Verify installation & deterministic telemetry
-web-security-guard --json
-web-security-guard --version
-
-# Run security header audit against any URL
-web-security-guard audit https://nullai.tech
-
-# Inspect TLS / SSL certificate status
-web-security-guard ssl nullai.tech --port 443
-
-# Generate Level 3 CSP policy
-web-security-guard csp --preset strict --nonce
-
-# Calculate Subresource Integrity (SRI) SHA-384
-web-security-guard sri ./public/bundle.js
-
-# Launch MCP Server for Claude Desktop & Cursor
-web-security-guard mcp
-```
-
----
-
-## 👑 Author & Sovereignty
-
-- **Engineered by**: [1nc0gn30 • NullAI](https://nullai.tech) ([@1nc0gn30](https://github.com/1nc0gn30))
-- **Ecosystem**: [NullAI Platform](https://nullai.tech)
-- **Repository**: [1nc0gn30/web-security-guard](https://github.com/1nc0gn30/web-security-guard)
-
----
-
-## 📄 License
-
-Licensed under the Apache License, Version 2.0. Engineered with zero external runtime dependencies by 1nc0gn30 • NullAI.
-
----
-
-## 🏛️ ZothOS v3.4, Zoth Studio v2 & Obsidian Second Brain Ecosystem
-
-```mermaid
-flowchart LR
-    subgraph ZothOS["🐧 ZothOS v3.4 CLI & Braille TUI"]
-        CLI["web-security-guard --help / --json"]
-        TUI["web-security-guard-tui<br/>Unicode U+2800 2x4 Braille"]
-    end
-
-    subgraph Workstation["⚡ Sovereign Workstation"]
-        WEB["http://127.0.0.1:3000<br/>REST API & /health"]
-    end
-
-    subgraph Studio["🌌 Zoth Studio v2 & ZothOS-Lite"]
-        GODMODE["http://127.0.0.1:3000/tools/web-security-guard<br/>God-Mode Workstation"]
-        LITE["http://127.0.0.1:8145<br/>ZothOS-Lite Web Desktop"]
-    end
-
-    subgraph SecondBrain["💎 Obsidian Second Brain & STDP"]
-        TRACKER["http://127.0.0.1:8151<br/>Zoth Obsidian Tracker"]
-        NEURO["http://127.0.0.1:8094<br/>Neuro-Memory STDP Cortex"]
-        NOTE["Studio/Tools/Studio web-security-guard.md"]
-    end
-
-    CLI --> WEB
-    TUI --> WEB
-    WEB <--> GODMODE
-    WEB <--> LITE
-    WEB --> TRACKER
-    TRACKER <--> NOTE
-    NOTE <--> NEURO
-```
-
-### Cross-Surface Integration Matrix
-
-| Surface | Endpoint / Binary | Capabilities |
-| :--- | :--- | :--- |
-| **Standalone Workstation** | `http://127.0.0.1:3000` | 100% Free & Open-Access Web Deck, live `/health` & REST telemetry |
-| **Zoth Studio v2 Route** | `http://127.0.0.1:3000/tools/web-security-guard` | Interactive God-Mode component inside Zoth Studio (`https://zoth.nullai.tech`) |
-| **ZothOS v3.4 CLI & TUI** | `web-security-guard` / `web-security-guard-tui` | Global binary in `/usr/local/bin/` with Unicode `U+2800` Braille TUI & `--json` output |
-| **ZothOS-Lite Web Desktop** | `http://127.0.0.1:8145` | Browser-native KDE-style window manager & terminal launcher |
-| **Zoth Obsidian Tracker** | `http://127.0.0.1:8151` | Interactive Obsidian Second Brain vault explorer (`~/Documents/Obsidian Vault/Studio/Tools/Studio web-security-guard.md`) |
-| **Neuro-Memory STDP Cortex** | `http://127.0.0.1:8094` | 3-Factor STDP synaptic memory daemon & 21-tool MCP server |
-
-```bash
-# Inspect CLI & Unicode U+2800 Braille TUI on ZothOS v3.4
+# Check status and JSON telemetry
 web-security-guard --help
-web-security-guard-tui --status
-web-security-guard-tui --json
+web-security-guard --json
 
-# Verify Second Brain Vault & 12-Step Verification Gallery on :8151
-zoth-obsidian-tracker --verify
+# Audit a live URL or local HTML file
+sec-guard audit https://example.com --json
+sec-guard check ./public/index.html --min-score 85
+
+# Generate a strict CSP Level 3 policy
+sec-guard csp --framework nextjs --preset strict --format netlify
+
+# Compute SHA-384 SRI digest or inject SRI into HTML
+sec-guard sri ./public/app.js --algorithm sha384 --json
+sec-guard sri ./public/index.html --inject --no-fetch
+
+# Inspect TLS certificate chain, SANs, and cipher suite
+sec-guard ssl example.com --port 443 --json
+
+# Audit Cross-Origin Isolation, secrets, supply chain, and WCAG contrast
+sec-guard isolation https://example.com --json
+sec-guard secrets ./public --json
+sec-guard supply ./public/index.html --json
+sec-guard contrast "#FFFFFF" "#0F172A" --level AAA --json
+
+# Compare two targets or generate server hardening configs
+sec-guard diff before.html after.html --json
+sec-guard fix https://example.com --server-type nginx --output-dir ./hardening
+sec-guard patch . --platform netlify --dry-run --json
+
+# Launch the HTTP server on 127.0.0.1:8125
+sec-guard serve --host 127.0.0.1 --port 8125
 ```
 
+### MCP Server Integration
+
+Run the stdio JSON-RPC 2.0 MCP server or export client configurations for Claude Desktop, Cursor, Cline, or Zed:
+
+```bash
+sec-guard mcp
+sec-guard mcp --tools
+sec-guard mcp --config claude
+```
+
+Registered MCP tools (12):
+- `sec_audit_site` — Audit a URL or HTML string for HTTP headers and DOM vulnerabilities.
+- `sec_generate_csp` — Synthesize a CSP Level 3 policy for a target framework and preset.
+- `sec_generate_sri` — Compute SHA-256/384/512 Subresource Integrity hashes.
+- `sec_inject_sri` — Rewrite external `<script>` and `<link>` tags with SRI attributes.
+- `sec_check_contrast` — Compute WCAG 2.2 AA/AAA contrast ratios.
+- `sec_generate_remediation` — Output Netlify, Nginx, Apache, Vercel, Caddy, and Express header configs.
+- `sec_inspect_ssl` — Inspect TLS version, cipher suite, SANs, and certificate validity.
+- `sec_diff_postures` — Compute security score deltas and fixed/regressed findings between two targets.
+- `sec_patch_project` — Patch a project directory (or dry-run) with security headers.
+- `sec_audit_isolation` — Audit `COOP`, `COEP`, `CORP`, and `SharedArrayBuffer` readiness.
+- `sec_scan_secrets` — Detect leaked credentials and high-entropy secrets.
+- `sec_audit_supply_chain` — Audit external scripts, missing SRI, and mixed content.
+
+## REST API Endpoints
+
+When running `python3 server.py --port 8125` or `sec-guard serve --port 8125` on `127.0.0.1:8125`:
+
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `GET` | `/health`, `/api/health` | Service health and version metadata |
+| `POST` | `/api/audit` | Run security header and HTML audit on a URL or HTML payload |
+| `POST` | `/api/csp/generate` | Generate CSP Level 3 headers or config snippets |
+| `POST` | `/api/sri/hash` | Compute SHA-256/384/512 SRI integrity hash |
+| `POST` | `/api/sri/inject` | Inject SRI attributes into an HTML document |
+| `POST` | `/api/wcag/contrast` | Evaluate WCAG 2.2 foreground/background contrast |
+| `POST` | `/api/ssl/inspect` | Inspect TLS certificate and cipher metadata for a host |
+| `POST` | `/api/isolation` | Evaluate Cross-Origin Isolation (`COOP`/`COEP`/`CORP`) |
+| `POST` | `/api/secrets` | Scan text or code for exposed API keys and tokens |
+| `POST` | `/api/supply-chain` | Audit third-party script trust, missing SRI, and mixed content |
+| `POST` | `/api/remediate` | Generate multi-platform server configuration bundles |
+| `POST` | `/api/diff/compare` | Compare two targets and return posture delta |
+| `POST` | `/api/patch/apply` | Apply or preview security header patches on a local directory |
+| `GET` | `/api/mcp/config` | Export MCP client configuration JSON |
+| `POST` | `/api/export-zip` | Download hardened configuration bundle as a ZIP archive |
+
+## Testing & Verification
+
+```bash
+# Run the full 300-test pytest suite
+PYTHONPATH=src python3 -m pytest -q
+
+# Run built-in CLI verification checks
+PYTHONPATH=src python3 -m web_security_guard.cli --test
+
+# Lint and security checks
+ruff check --select=E9,F63,F7,F82 src/ tests/
+gitleaks detect --source . --no-banner --redact
+```
+
+## Support
+
+Web Security Guard is 100% free and open-source software with zero paywalls or feature gates. Optional support: [Buy Us a Coffee (Stripe)](https://buy.stripe.com/3cIfZg27PdKo2D64Ocfw40X).
+
+## License
+
+MIT License — Copyright (c) 1nc0gn30 ([https://1nc0gn30.si](https://1nc0gn30.si)) & NullAI ([https://nullai.tech](https://nullai.tech)).

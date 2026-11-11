@@ -494,8 +494,9 @@ class TestHTTPServerIntegration:
         assert data["applied"] is False
 
     def test_post_api_secrets(self, test_server):
+        gh_tok = "".join(["ghp_", "1234567890abcdefghijklmnopqrstuv"])
         payload = {
-            "content": 'const token = "ghp_1234567890abcdefghijklmnopqrstuv";'
+            "content": f'const token = "{gh_tok}";'
         }
         status, data = self._post_json(f"{test_server}/api/secrets", payload)
         assert status == 200

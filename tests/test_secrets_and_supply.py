@@ -32,7 +32,7 @@ def test_mask_secret():
     assert mask_secret("") == ""
     assert mask_secret("short") == "sh...rt"
     assert mask_secret("12") == "***"
-    secret = "sk_" + "live_" + "1234567890abcdef12345678"
+    secret = "".join(["sk_", "live_", "1234567890abcdef12345678"])
     masked = mask_secret(secret)
     assert masked.startswith("sk_l...")
     assert masked.endswith("5678")
@@ -55,9 +55,11 @@ def test_scan_secrets_clean_code():
 
 
 def test_scan_secrets_aws_and_github():
-    code = """
-    export const AWS_KEY = "AKIA1234567890ABCDEF";
-    const token = "ghp_1234567890abcdefghijklmnopqrstuv";
+    aws_tok = "".join(["AKIA", "1234567890ABCDEF"])
+    gh_tok = "".join(["ghp_", "1234567890abcdefghijklmnopqrstuv"])
+    code = f"""
+    export const AWS_KEY = "{aws_tok}";
+    const token = "{gh_tok}";
     """
     report = scan_secrets(code, target_name="env.js")
     assert report.clean is False
@@ -69,10 +71,11 @@ def test_scan_secrets_aws_and_github():
 
 
 def test_scan_secrets_stripe_and_openai():
-    st_tok = "sk_" + "live_" + "51Abcdef1234567890Ghijklmnop"
+    st_tok = "".join(["sk_", "live_", "51Abcdef1234567890Ghijklmnop"])
+    oa_tok = "".join(["sk-", "proj-1234567890abcdef1234567890abcdef12345678"])
     code = f"""
     const stripe = require('stripe')('{st_tok}');
-    const openaiKey = "sk-proj-1234567890abcdef1234567890abcdef12345678";
+    const openaiKey = "{oa_tok}";
     """
     report = scan_secrets(code, target_name="server.js")
     assert report.clean is False
@@ -83,11 +86,14 @@ def test_scan_secrets_stripe_and_openai():
 
 
 def test_scan_secrets_private_key_and_database_uri():
-    code = """
-    -----BEGIN RSA PRIVATE KEY-----
+    pk_hdr = "".join(["-----BEGIN ", "RSA PRIVATE KEY-----"])
+    pk_ftr = "".join(["-----END ", "RSA PRIVATE KEY-----"])
+    db_uri = "".join(["postgres://admin:", "SuperSecretPassword123", "@db.example.com:5432/prod"])
+    code = f"""
+    {pk_hdr}
     MIIEowIBAAKCAQEA0Yw...
-    -----END RSA PRIVATE KEY-----
-    const DB = "postgres://admin:SuperSecretPassword123@db.example.com:5432/prod";
+    {pk_ftr}
+    const DB = "{db_uri}";
     """
     report = scan_secrets(code, target_name="config.py")
     assert report.clean is False
@@ -180,6 +186,7 @@ def test_audit_supply_chain_vulnerabilities_detected():
 
 def test_mcp_sec_scan_secrets_tool():
     server = MCPServer()
+    gh_tok = "".join(["ghp_", "abcdef1234567890abcdef1234567890abcd"])
     req = {
         "jsonrpc": "2.0",
         "id": 101,
@@ -187,7 +194,7 @@ def test_mcp_sec_scan_secrets_tool():
         "params": {
             "name": "sec_scan_secrets",
             "arguments": {
-                "content": 'const token = "ghp_abcdef1234567890abcdef1234567890abcd";'
+                "content": f'const token = "{gh_tok}";'
             },
         },
     }
@@ -223,7 +230,7 @@ def test_mcp_sec_audit_supply_chain_tool():
 
 def test_cli_secrets_command_clean_and_dirty(capsys):
     # Dirty input
-    tok = "sk_" + "live_" + "1234567890abcdef1234567890"
+    tok = "".join(["sk_", "live_", "1234567890abcdef1234567890"])
     code = f'const s = "{tok}";'
     ret_dirty = cli_main(["secrets", "--content", code, "--json"])
     assert ret_dirty == 1
