@@ -45,14 +45,19 @@
           "price": "0",
           "priceCurrency": "USD"
         },
+        "creator": {
+          "@type": "Person",
+          "name": "Neal Frazier",
+          "url": "https://nullai.tech"
+        },
         "author": {
           "@type": "Person",
-          "name": "1nc0gn30",
+          "name": "Neal Frazier",
           "url": "https://nullai.tech"
         },
         "publisher": {
           "@type": "Organization",
-          "name": "1nc0gn30 • NullAI",
+          "name": "Neal Frazier Tech (@1nc0gn30) • NullAI Platform",
           "url": "https://nullai.tech"
         }
       },
@@ -77,10 +82,10 @@
           },
           {
             "@type": "Question",
-            "name": "How does the MCP Hub integrate with AI agents?",
+            "name": "Is Web Security Studio free and how does the MCP Hub work?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Web Security Studio provides Model Context Protocol configs for Claude Desktop, Cursor, Cline, and Zed, giving coding assistants native access to security auditing and remediation tools."
+              "text": "Yes, Web Security Studio and its Model Context Protocol (MCP) Hub are 100% free and open-access with zero paywalls. Optional support is available via Buy Us a Coffee (https://buy.stripe.com/3cIfZg27PdKo2D64Ocfw40X) or Solana tips (GG2eQbVh8ut1BK6j1A2tz7pSySdLpD38BgyEhGcxdXoK)."
             }
           }
         ]
@@ -298,10 +303,11 @@
       background: var(--bg-surface);
       border-bottom: 1px solid var(--border);
       min-height: 64px;
+      height: auto;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 24px;
+      padding: 10px 24px;
       position: sticky;
       top: 0;
       z-index: 100;
@@ -315,6 +321,7 @@
       gap: 12px;
       text-decoration: none;
       color: inherit;
+      flex-wrap: wrap;
     }
 
     .google-dots {
@@ -335,6 +342,7 @@
       letter-spacing: -0.2px;
       display: flex;
       align-items: center;
+      flex-wrap: wrap;
       gap: 8px;
     }
 
@@ -350,6 +358,7 @@
     .header-actions {
       display: flex;
       align-items: center;
+      flex-wrap: wrap;
       gap: 12px;
     }
 
@@ -901,9 +910,9 @@
 <body>
 
 <div id="zoth-coffee-support-bar" style="background: linear-gradient(90deg, rgba(16,185,129,0.12), rgba(212,175,55,0.14)); border-bottom: 1px solid rgba(212,175,55,0.35); padding: 8px 16px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 12px; z-index: 9999;">
-  <span style="color: #10B981; font-weight: 800;">✦ 100% FREE &amp; OPEN ACCESS · ZERO PAYWALLS</span>
+  <span style="color: #047857; background: rgba(16,185,129,0.15); padding: 3px 8px; border-radius: 4px; font-weight: 800;">✦ 100% FREE &amp; OPEN ACCESS · ZERO PAYWALLS</span>
   <a href="https://buy.stripe.com/3cIfZg27PdKo2D64Ocfw40X" target="_blank" rel="noopener noreferrer" style="background: #D4AF37; color: #08080B; padding: 4px 12px; border-radius: 6px; font-weight: 800; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">☕ Buy Us a Coffee (Stripe)</a>
-  <a href="solana:GG2eQbVh8ut1BK6j1A2tz7pSySdLpD38BgyEhGcxdXoK" onclick="if(navigator.clipboard){navigator.clipboard.writeText('GG2eQbVh8ut1BK6j1A2tz7pSySdLpD38BgyEhGcxdXoK');this.textContent='✓ Copied GG2eQb...dXoK!';}" style="background: rgba(20,241,149,0.15); color: #14F195; border: 1px solid rgba(20,241,149,0.45); padding: 4px 12px; border-radius: 6px; font-weight: 800; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">◎ Solana Tip (GG2e...dXoK)</a>
+  <a href="solana:GG2eQbVh8ut1BK6j1A2tz7pSySdLpD38BgyEhGcxdXoK" onclick="if(navigator.clipboard){navigator.clipboard.writeText('GG2eQbVh8ut1BK6j1A2tz7pSySdLpD38BgyEhGcxdXoK');this.textContent='✓ Copied GG2eQb...dXoK!';}" style="background: #047857; color: #FFFFFF; border: 1px solid #059669; padding: 4px 12px; border-radius: 6px; font-weight: 800; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">◎ Solana Tip (GG2e...dXoK)</a>
 </div>
 
 
@@ -1818,10 +1827,10 @@ print(f"Contrast Ratio: {contrast['ratio_formatted']}, AA Normal: {contrast['wca
       Web Security Studio • In-Browser Security Header Auditor & CSP Builder
     </div>
     <div style="margin-bottom: 0.4rem;">
-      Engineered by <a href="https://nullai.tech" target="_blank" rel="noopener" style="color: var(--g-blue);">1nc0gn30 (@1nc0gn30)</a> • <a href="https://nullai.tech" target="_blank" rel="noopener" style="color: var(--g-blue);">NullAI Platform</a> • <a href="https://github.com/1nc0gn30/web-security-guard" target="_blank" rel="noopener" style="color: var(--g-blue);">GitHub</a>
+      Engineered by <a href="https://nullai.tech" target="_blank" rel="noopener" style="color: var(--g-blue);">Neal Frazier Tech (@1nc0gn30)</a> • <a href="https://nullai.tech" target="_blank" rel="noopener" style="color: var(--g-blue);">NullAI Platform</a> • <a href="https://github.com/1nc0gn30/web-security-guard" target="_blank" rel="noopener" style="color: var(--g-blue);">GitHub</a>
     </div>
-    <div style="font-size: 0.78rem; opacity: 0.8;">
-      100% Free & Open Access • <a href="https://buy.stripe.com/3cIfZg27PdKo2D64Ocfw40X" target="_blank" rel="noopener" style="color: #D4AF37;">☕ Buy Us a Coffee</a> • Solana: <code style="font-size: 0.75rem; color: #14F195;">GG2eQbVh8ut1BK6j1A2tz7pSySdLpD38BgyEhGcxdXoK</code>
+    <div style="font-size: 0.78rem;">
+      100% Free & Open Access • <a href="https://buy.stripe.com/3cIfZg27PdKo2D64Ocfw40X" target="_blank" rel="noopener" style="color: #9A6700; font-weight: 700;">☕ Buy Us a Coffee</a> • Solana: <code style="font-size: 0.75rem; color: #047857; font-weight: 700;">GG2eQbVh8ut1BK6j1A2tz7pSySdLpD38BgyEhGcxdXoK</code>
     </div>
   </footer>
 
