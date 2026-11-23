@@ -27,8 +27,7 @@
 .subtab-btn:focus-visible,
 .chip:focus-visible,
 .copy-btn:focus-visible,
-.btn-checkout:focus-visible,
-.btn-license-inline:focus-visible {
+.btn-checkout:focus-visible {
   outline: 2px solid var(--zoth-gold, #D4AF37) !important;
   outline-offset: 2px !important;
 }
